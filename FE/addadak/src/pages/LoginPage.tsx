@@ -24,7 +24,8 @@ const Login=()=>{
 
     const gotoProfile=async(data:any)=>{
         try{
-            const request=await axios.post("http://localhost:3000/user/login",data)
+            const request=await axios.post("http://localhost:3000/user/login",data);
+            if(!request){return new Error("client error");}
             navigate("/user/profile");
             reset();
         }catch(error){console.log(error);}
@@ -52,6 +53,11 @@ const Login=()=>{
                                         
                                             <label htmlFor={ele.for} className='text-my-white font-bold text-xl'>{ele.label}</label>
                                             <input className='border bg-my-white ps-5 py-1' type={ele.type} id={ele.id} {...register(ele.id,ele.obj)}/>
+                                            {
+                                                errors[ele.id]&&(
+                                                    <span className='text-gas-yellow text-sm'>{`${errors[ele.id]?.message}`}</span>
+                                                )
+                                            }
 
                                         </div>
                                 );
@@ -67,7 +73,7 @@ const Login=()=>{
                         {isSubmitting||!isValid?"Loading....":"Login"}
                     </button>
 
-                    <button onClick={()=>reset()} className='bg-gas-yellow px-10 py-2 w-40 font-bold text-black'>Clear</button>
+                    <button onClick={()=>reset()} className='bg-gas-yellow px-10 py-2 w-40 font-bold text-black hover:text-gas-yellow hover:bg-black duration-300'>Clear</button>
 
                 </div>  
             </form>  

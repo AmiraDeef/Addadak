@@ -126,7 +126,7 @@ const Register=()=>{
                         {isSubmitting || !isValid? "Loading...." : "Submit" }
                     </button>
 
-                    <button type='button' onClick={()=>reset()} className='bg-gas-yellow px-10 py-2 w-40 font-bold text-black'>Clear</button>
+                    <button type='button' onClick={()=>reset()} className='bg-gas-yellow px-10 py-2 w-40 font-bold text-black hover:text-gas-yellow hover:bg-black duration-300'>Clear</button>
 
                 </div>
             </form>
