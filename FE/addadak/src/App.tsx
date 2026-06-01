@@ -2,6 +2,7 @@ import RootHome from './pages/RootHome'
 import Register from './pages/RegisterPage'
 import Login from './pages/LoginPage'
 import RootBody from './components/RootHomeComp/RootBody'
+import UserProfile from './pages/ProfilePage'
 import { Routes,Route } from 'react-router-dom'
 import './App.css'
 import type { ReactElement } from 'react'
@@ -14,7 +15,8 @@ function App() {
 
   const routings:any=[
     {path:'/user/register',element:<Register></Register> },
-    {path:'/user/login',element:<Login></Login> }
+    {path:'/user/login',element:<Login></Login> },
+    {path:'/user/profile',element:<UserProfile></UserProfile>}
 
   ]
 

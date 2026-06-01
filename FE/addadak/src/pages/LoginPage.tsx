@@ -1,9 +1,78 @@
+
+import {useForm} from 'react-hook-form'
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+
 const Login=()=>{
+    const {register, handleSubmit, formState:{errors,isValid,isSubmitting}, reset}=useForm({mode:"onChange"});
+    const navigate=useNavigate();
+
+    interface inputs{
+
+        class:string,
+        for:string,
+        label:string,
+        type:string,
+        id:string,
+        obj:any
+    }
+
+    const fields:Array<inputs>=[ 
+        {class:"email",for:"email",label:"Email",type:"email" ,id:"email",obj:{required:"Email is required", pattern:{value:/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,message:"Please enter a valid email format"}}},
+        {class:"password" , for :"password", type:"password",label:"Password" , id:"password", obj:{required:"Password is required", pattern:{value:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&'%])[A-Za-z\d@$!%*?&'%]{8,}$/ ,message:"password should have at least one capital letter, a small letter, a digit and a symbol"},minLength:{value:8,message:"min lenght of password should be 8 characters"}}}
+    ];
+
+    const gotoProfile=async(data:any)=>{
+        try{
+            const request=await axios.post("http://localhost:3000/user/login",data)
+            navigate("/user/profile");
+            reset();
+        }catch(error){console.log(error);}
+    }
+    
     return (
-    <>
-        <h1>LOGIN</h1>
         
-    </>
+        
+        <section className='  items-center justify-center bg-black/10 px-5 flex flex-col h-208 gap-20 '>
+            <div className="texts w-200">
+                <h2 className='text-center font-bold text-5xl'>Login to your account,</h2>   
+            </div>
+        
+            
+            <form method="post " 
+             className="flex w-150 flex-col gap-15 bg-secondary-purple rounded  px-10 py-12 shadow-lg"
+             onSubmit={handleSubmit(gotoProfile)}>
+                <div className="rows flex flex-col justify-around gap-5 ">
+                    {
+                        fields.map
+                        (
+                            (ele:any,index:number)=>{ 
+                                return(
+                                        <div key={index} className={`${ele.class} flex flex-col gap-2`}>
+                                        
+                                            <label htmlFor={ele.for} className='text-my-white font-bold text-xl'>{ele.label}</label>
+                                            <input className='border bg-my-white ps-5 py-1' type={ele.type} id={ele.id} {...register(ele.id,ele.obj)}/>
+
+                                        </div>
+                                );
+                            }
+                        )
+
+                    }
+
+                </div>
+                <div className="buttons flex flex-row justify-around">
+
+                    <button type='submit'   className={!isValid||isSubmitting?`bg-my-white px-10 w-40  py-2 font-bold text-electric-cyan`:` w-40 bg-electric-cyan px-10 py-2 font-bold text-my-white`} disabled={!isValid||isSubmitting}>
+                        {isSubmitting||!isValid?"Loading....":"Login"}
+                    </button>
+
+                    <button onClick={()=>reset()} className='bg-gas-yellow px-10 py-2 w-40 font-bold text-black'>Clear</button>
+
+                </div>  
+            </form>  
+        </section>
+        
     );
 }
 
