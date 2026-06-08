@@ -24,7 +24,7 @@ const userSchema= new mongoose.Schema({
     email:{
         type:String,
         required:[true,"Email is required."],
-        match:[/^[a-zA-Z]/,"Please enter a valid email address."], 
+        match:[/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,"Please enter a valid email address."], 
         unqiue:[true, "This email already exists."],
         trim:true
     },
@@ -33,7 +33,8 @@ const userSchema= new mongoose.Schema({
         type:String,
         required:[true,"Password is required."],
         match:[/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&'%])[A-Za-z\d@$!%*?&'%]{8,}$/,"Please enter a valid password where it should have at least one capital letter, one small letter, one number, one symbol and no spaces."], 
-        trim:true
+        trim:true,
+        select:false
     },
 
     
@@ -49,7 +50,7 @@ const userSchema= new mongoose.Schema({
 
     nationalID:{
         type:String,
-        match:[/^([23])(?:\d{2})(?:0[1-9]|1[0-2])(?:0[1-9]|[12]\d|3[01])(?:\d{6})$/,"Please enter a valid Egyptian National ID."],
+        match:[/^([23])(?:\d{2})(?:0[1-9]|1[0-2])(?:0[1-9]|[12]\d|3[01])(?:\d{7})$/,"Please enter a valid Egyptian National ID."],
         unique:[true,"This National ID already exists."],
         trim:true
     },

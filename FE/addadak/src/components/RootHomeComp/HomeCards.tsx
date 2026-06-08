@@ -2,12 +2,17 @@ interface CardsInfo{
     children:React.ReactNode;
     title:string;
     desc:string;
-    border:string;
+   
 }
 
-const HomeCards:React.FC<CardsInfo>=({children,title,desc,border})=>{
+const HomeCards:React.FC<CardsInfo>=({children,title,desc})=>{
     return(
-        <div className={`card  hover:border-${border} hover:border-1
+        <div className={`card 
+         hover:border-electric-cyan 
+         hover:border-1
+         transition
+         hover:scale-110
+         duration-300
          flex flex-col 
          text-center 
          items-center

@@ -1,7 +1,9 @@
 
-import {useForm} from 'react-hook-form'
+import {useForm,} from 'react-hook-form'
 import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
 import axios from 'axios';
+
 
 const Login=()=>{
     const {register, handleSubmit, formState:{errors,isValid,isSubmitting}, reset}=useForm({mode:"onChange"});
@@ -24,11 +26,16 @@ const Login=()=>{
 
     const gotoProfile=async(data:any)=>{
         try{
-            const request=await axios.post("http://localhost:3000/user/login",data);
-            if(!request){return new Error("client error");}
+            const res=await axios.post("http://localhost:3000/user/login",data);
             navigate("/user/profile");
             reset();
-        }catch(error){console.log(error);}
+        }catch(error:any){
+            const msg=error.response.data.message||error.response.data.msg
+            alert(msg);
+            
+            
+            
+        }
     }
     
     return (
@@ -69,7 +76,7 @@ const Login=()=>{
                 </div>
                 <div className="buttons flex flex-row justify-around">
 
-                    <button type='submit'   className={!isValid||isSubmitting?`bg-my-white px-10 w-40  py-2 font-bold text-electric-cyan`:` w-40 bg-electric-cyan px-10 py-2 font-bold text-my-white`} disabled={!isValid||isSubmitting}>
+                    <button type='submit'   className={!isValid||isSubmitting?`bg-my-white px-10 w-40  py-2 font-bold text-blue`:` w-40 bg-blue  px-10 py-2 font-bold text-my-white hover:text-blue hover:bg-my-white`} disabled={!isValid||isSubmitting}>
                         {isSubmitting||!isValid?"Loading....":"Login"}
                     </button>
 

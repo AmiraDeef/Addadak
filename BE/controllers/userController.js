@@ -1,18 +1,19 @@
 const user=require("../models/User.js");
 const clientErrorHandler=require("../middlewres/clientErrorhandler.js");
+const generateToken=require("../middlewres/authn.js");
 
 //create
 const createUser=async (req,res,next)=>{
     try{
-        const crticalParams={
-            email:req.body.email,
-            phone:req.body.phone,
-            nationalID:req.body.nationalID
-        }
-        let alreadyBody= await user.findOne(crticalParams);
+        
+        
+        let alreadyID= await user.findOne({nationalID:req.body.nationalID});
         let alreadyEmail= await user.findOne({email:req.body.email});
         let alreadyPhone= await user.findOne({phone:req.body.phone});
-        if(alreadyBody || alreadyEmail||alreadyPhone){return next(new clientErrorHandler(400,"user already registered"));}
+
+        if(alreadyID || alreadyEmail||alreadyPhone){
+            return res.status(400).json({msg:"user already registered"});
+        }
 
         const newUser= await user.create(req.body);
         if(!newUser){
@@ -23,26 +24,35 @@ const createUser=async (req,res,next)=>{
         next(error);
     }
 }
+
+
 //login
 const logUser=async(req,res,next)=>{
     try{
         const email=req.body.email;
         const pass=req.body.password;
-        const userSaved=await user.findOne({email});
+        const userSaved=await user.findOne({email}).select("+password");
         if(!userSaved){
-            return next(new clientErrorHandler(404,"Please register first"));
+            return res.status(404).json({message:"wrong password or email, please try again"});
         }
         const match=await userSaved.checkPassword(pass);
+        
         if(!match){
-            return next( new clientErrorHandler(401,"wrong password, please try again"));
+            return res.status(404).json({message:"wrong password or email, please try again"});
         }
-        res.status(200).json({message:"logging succeeded"});
+            
+
+        const token=generateToken(userSaved._id,userSaved.phone,process.env.SECRET_KEY,"10m");
+        
+        res.status(200).json({message:"logging succeeded", User:userSaved, Token:token});
 
 
     }catch(error){
         next(error);
     }
 }
+
+
 //delete
 const deleteUser=async(req,res,next)=>{
     try{
@@ -65,11 +75,12 @@ const deleteUser=async(req,res,next)=>{
 const getUserById=async(req,res,next)=>{
      try{
         const id=req.params._id
-        const user= await user.findById(id);
-        if(!user){
+        const uzer= await user.findById(id);
+        if(!uzer){
             return next( new clientErrorHandler(404,"User not found"));
         }
-        res.status(200).json({message:`user: `,user});
+         console.log(req.headers)
+        res.status(200).json({message:`success `,User:uzer});
     }catch(error){
         next(error);
     }
@@ -88,8 +99,8 @@ const getAllUsers=async(req,res,next)=>{
     }
 }
 
-//update user
 
+//update user
 const userUpdate=async (req,res,next)=>{
     try{
         const newData=req.body;

@@ -9,7 +9,7 @@ require("dotenv").config();
 const mongoose=require("mongoose");
 const mongoSanitize=require("express-mongo-sanitize");
 const xssClean=require("xss-clean");
-//const morgan=require("morgan");
+const morgan=require("morgan");
 const cors=require("cors");
 const globalErrorHnadler=require("./middlewres/serverErrorHandler.js");
 const userRouter=require("./routes/userRoute.js");
@@ -18,7 +18,8 @@ const userRouter=require("./routes/userRoute.js");
 app.use(express.json());
 //app.use(mongoSanitize());
 //app.use(xssClean());
-app.use(cors());
+app.use(cors("http://localhost:3000/"));
+app.use(morgan(process.env.ENV))
 app.use("/",userRouter);
 
 

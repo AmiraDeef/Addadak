@@ -60,7 +60,7 @@ const registerValidation=Joi.object({
     })
     ,
 
-    confirmPassword:Joi.any()
+    confirm:Joi.any()
     .required()
     .valid(Joi.ref('password'))
     .messages({
@@ -83,7 +83,7 @@ const registerValidation=Joi.object({
 
     nationalID:Joi.string()
     .required()
-    .pattern(/^([23])(?:\d{2})(?:0[1-9]|1[0-2])(?:0[1-9]|[12]\d|3[01])(?:\d{6})$/)
+    .pattern(/^([23])(?:\d{2})(?:0[1-9]|1[0-2])(?:0[1-9]|[12]\d|3[01])(?:\d{7})$/)
     .messages({
         'any.empty':'this field should not be empty',
         'string.pattern.base':'only egyptian valid national IDs are allowed'

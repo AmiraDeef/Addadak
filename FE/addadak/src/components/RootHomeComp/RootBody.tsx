@@ -44,9 +44,9 @@ const RootBody=()=>{
             </div>
 
             <div className="cards flex flex-row items-center justify-center gap-20">
-                <HomeCards children={<img src={checkList} width={100}></img>} title="Register & Login" desc="Create your account and access your personalized energy dashboard instantly" border="blue"></HomeCards>
-                <HomeCards children={<img src={chart} width={100}></img>} title="Track Appliances" desc="Monitor individual appliance consumption and identify energy hogs in real-time" border="electric-cyan"></HomeCards>
-                <HomeCards children={<img src={credit} width={100}></img>} title="Manage Credit" desc="Top up and track your prepaid energy credit with smart duration estimates." border="gas-yellow"></HomeCards>
+                <HomeCards children={<img src={checkList} width={100}></img>} title="Register & Login" desc="Create your account and access your personalized energy dashboard instantly"></HomeCards>
+                <HomeCards children={<img src={chart} width={100}></img>} title="Track Appliances" desc="Monitor individual appliance consumption and identify energy hogs in real-time" ></HomeCards>
+                <HomeCards children={<img src={credit} width={100}></img>} title="Manage Credit" desc="Top up and track your prepaid energy credit with smart duration estimates." ></HomeCards>
             </div>
 
         </section>
