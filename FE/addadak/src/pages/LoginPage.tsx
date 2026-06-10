@@ -1,7 +1,6 @@
 
 import {useForm,} from 'react-hook-form'
 import { useNavigate } from 'react-router-dom';
-import { useState } from 'react';
 import axios from 'axios';
 
 
@@ -27,14 +26,13 @@ const Login=()=>{
     const gotoProfile=async(data:any)=>{
         try{
             const res=await axios.post("http://localhost:3000/user/login",data);
+            localStorage.setItem('token',res.data.Token);
+            localStorage.setItem("UserId",res.data.User._id);
             navigate("/user/profile");
             reset();
         }catch(error:any){
             const msg=error.response.data.message||error.response.data.msg
             alert(msg);
-            
-            
-            
         }
     }
     

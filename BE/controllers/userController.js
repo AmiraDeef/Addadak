@@ -77,7 +77,7 @@ const getUserById=async(req,res,next)=>{
         const id=req.params._id
         const uzer= await user.findById(id);
         if(!uzer){
-            return next( new clientErrorHandler(404,"User not found"));
+            return res.status(404).json({message:"User is not found"});
         }
          console.log(req.headers)
         res.status(200).json({message:`success `,User:uzer});
