@@ -1,11 +1,16 @@
 import { Outlet } from "react-router-dom";
-import Sidebar from "../../components/Logged Comp/Sidebar";
+import Sidebar from "../../components/LoggedComp/Sidebar";
+import LoggedHeader from "../../components/LoggedComp/LoggedHeader";
 
 const LoggedRoot=()=>{
     return(
-    <div className="flex flex-row justify-between">
+    <div className="flex flex-row justify-start">
         <Sidebar/>
-        <Outlet/>
+        <div className="leftside">
+            <LoggedHeader title="Dasboard"></LoggedHeader>
+            <Outlet/>
+        </div>
+        
     </div>
     );
 }
