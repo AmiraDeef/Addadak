@@ -28,7 +28,7 @@ const Login=()=>{
             const res=await axios.post("http://localhost:3000/user/login",data);
             localStorage.setItem('token',res.data.Token);
             localStorage.setItem("UserId",res.data.User._id);
-            navigate("/user/profile");
+            navigate("/logged/user/profile");
             reset();
         }catch(error:any){
             const msg=error.response.data.message||error.response.data.msg

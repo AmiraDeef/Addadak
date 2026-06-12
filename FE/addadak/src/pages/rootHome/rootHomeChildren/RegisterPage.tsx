@@ -36,7 +36,7 @@ const Register=()=>{
         {
             const res=await axios.post("http://localhost:3000/user/register",data);
             console.log(res)
-            navigate("/user/profile");
+            navigate("/logged/user/profile");
             reset();
         }catch(error:any){
             const msg=error.response.data.message||error.response.data.msg

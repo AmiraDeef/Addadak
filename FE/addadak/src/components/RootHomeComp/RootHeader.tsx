@@ -8,7 +8,7 @@ const RootHeader=()=>{
          border-b border-secondary-purple
          shadow-lg px-30  py-4
          sticky top-0 z-50 backdrop-blur-sm bg-white/40">
-            <Logo></Logo>
+            <Logo textcolor="purple" logowidth={65}></Logo>
             <div className="buttons flex flex-row gap-20 ">
                 <button className="shadow-md
                  bg-my-white
