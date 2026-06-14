@@ -76,7 +76,7 @@ const UserProfile=()=>{
         <form 
          method="post"
          onSubmit={editUserInfo}
-         className="card flex flex-col  border border-secondary-purple p-10 gap-10 bg-secondary-purple/20 rounded w-200 items-center">
+         className="card flex flex-row   p-10 gap-10  rounded w-200 items-center">
             <div className="userIcon">
                 <img src={profile} width={150} />
             </div>

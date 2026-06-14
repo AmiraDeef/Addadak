@@ -6,7 +6,7 @@ const LoggedRoot=()=>{
     return(
     <div className="flex flex-row justify-start">
         <Sidebar/>
-        <div className="leftside">
+        <div className="leftside w-screen">
             <LoggedHeader title="Dasboard"></LoggedHeader>
             <Outlet/>
         </div>
