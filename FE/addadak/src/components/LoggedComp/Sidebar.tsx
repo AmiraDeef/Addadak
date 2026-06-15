@@ -19,7 +19,7 @@ const Sidebar=()=>{
     ]
     return(
         <aside className="  bg-secondary-purple flex flex-col text-my-white p-5 w-75 h-svh">
-            <div className="title border-b-1">
+            <div className="title border-b-1 pb-13">
                 <Logo textcolor="white" logowidth={45}></Logo>
             </div>
 

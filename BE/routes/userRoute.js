@@ -14,8 +14,8 @@ userRouter.get('/logged/user/:_id',authZmiddleware,userController.getUserById);
 //get all
 userRouter.get('/user/all',userController.getAllUsers);
 //delete
-userRouter.delete('/logged/user/delete/:_id',userController.deleteUser);
+userRouter.delete('/logged/user/delete/:_id',authZmiddleware,userController.deleteUser);
 //update
-userRouter.patch('/logged/user/update/:_id',userController.userUpdate);
+userRouter.put('/logged/user/update/:_id',authZmiddleware,userController.userUpdate);
 
 module.exports=userRouter;

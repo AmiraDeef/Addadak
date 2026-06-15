@@ -59,10 +59,10 @@ const deleteUser=async(req,res,next)=>{
         const id=req.params._id
         const deletedUser= await user.findByIdAndDelete(id);
         if(!deletedUser){
-            return next( new clientErrorHandler(404,"User not found"));
+            return res.status(404).json({message:"User is not found"});
         }
-        const userName=deleteUser.firstNme;
-        res.status(200).json({message:`user ${userName} deleted `});
+    
+        res.status(200).json({message:`user  deleted `});
        
 
 
@@ -110,9 +110,9 @@ const userUpdate=async (req,res,next)=>{
             new:true
         });
         if(!updatedUser){
-            return next( new clientErrorHandler(404,"User not found"));
+            return res.status(404).json({message:"User not found"});
         }
-        res.status(200).json({message:`user upated: `,updatedUser});
+        res.status(200).json({message:`user updated: `,updatedUser});
 
     }catch(error){
         next(error);

@@ -2,19 +2,26 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import profile from "../../../assets/Profile.gif";
 import {useForm,} from 'react-hook-form'
+import { useNavigate } from "react-router-dom";
+
 
 const UserProfile=()=>{
 
-    const [fname, setFname]=useState("");
-    const [lname, setLname]=useState("");
-    const [age, setAage]=useState("");
-    const [email, setEmail]=useState("");
-    const [number, setNumber]=useState("");
-    const [nid, setNid]=useState("");
+   
     const [edit, setEdit]=useState(true);
+    const {register, handleSubmit, reset ,formState:{errors, isValid}}=useForm({mode:"onChange"});
+    const navigate=useNavigate();
+
     const token=localStorage.getItem("token");
     const id=localStorage.getItem("UserId");
-    const {register, handleSubmit, reset,formState:{errors,isValid,isSubmitting}}=useForm({mode:"onChange"});
+
+
+    let fname:string;
+    let lname :string;
+    let age:string;
+    let email:string;
+    let phone:string;
+    let nID:string;
 
     interface inputs{
 
@@ -26,114 +33,224 @@ const UserProfile=()=>{
         obj:any
     }
 
+    interface resetData{
+
+        firstName:string,
+        lastName:string,
+        age:string,
+        email:string,
+        phone:string,
+        nationalID:string
+    }
+
     const fields:Array<inputs>=[
 
         {class:"firstName",for:"firstName",label:"First Name",type:"text" ,id:"firstName",obj:{required:"First name is required", pattern:{value:/^[a-zA-Z]/,message:"First Name accepts letters only"} }},
         {class:"lastName",for:"lastName",label:"Last Name",type:"text" ,id:"lastName",obj:{required:"Last name is required", pattern:{value:/^[a-zA-Z]/,message:"Last Name accepts letters only"} }},
         {class:"age",for:"age",label:"Age",type:"number" ,id:"age",obj:{required:"Age is required", min:{value:21,message:"Minimum age is 21"}, max:{value:90, message:"Maximum age is 90"} }},
         {class:"email",for:"email",label:"Email",type:"email" ,id:"email",obj:{required:"Email is required", pattern:{value:/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,message:"Please enter a valid email format"}}},
-        {class:"password" , for :"password", type:"password",label:"Password" , id:"password", obj:{required:"Password is required", pattern:{value:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&'%])[A-Za-z\d@$!%*?&'%]{8,}$/ ,message:"password should have at least one capital letter, a small letter, a digit and a symbol"},minLength:{value:8,message:"min lenght of password should be 8 characters"}}},
-        {class:"confirm" ,for:"confirm",type:"password" ,label:"Confirm Password" ,id:"confirm",obj:{required:"Please confirm your password",validate:(value:any)=>value===watch("password")||"passwords are not matching" }},
         {class:"phone" ,for:"phone",type:"text" ,label:"Phone Number" ,id:"phone",obj:{required:"Phone number is required",pattern:{value:/^(?:\+20|20)?0?1[0125]\d{8}$/, message:"only Egyptian numbers are allowed"},minLength:{value:11, message:"Phone number should be 11 digits"}}} ,
         {class:"nationalID" ,for:"nationalID", label:"National ID",type:"text" ,id:"nationalID",obj:{required:"National Id is required",pattern:{value:/^([23])(?:\d{2})(?:0[1-9]|1[0-2])(?:0[1-9]|[12]\d|3[01])(?:\d{7})$/, message:"Only Egytian national IDs are allowed"} }},
 
     ];
 
 
+
     useEffect(()=>{
             const getUserInfo=async(token:any,id:any)=>{
-        try{
-            
-            const userData=await axios.get(`http://localhost:3000/user/${id}`,{
-                "headers":{"authorization":`Bearer ${token}`}
-            });
-            setFname(userData.data.User.firstName);
-            setLname(userData.data.User.lastName);
-            setAage(userData.data.User.age);
-            setEmail(userData.data.User.email);
-            setNumber(userData.data.User.phone);
-            setNid(userData.data.User.nationalID); 
-            interface comingData{fName:string,lName:string,age:string,email:string,number:string, nId:string}
-            const dbData:comingData={fName:fname, lName:lname,age:age, email:email, number:number, nId:nid}
-            reset(dbData);
-            
 
-        }catch(error:any){
-            const problem=error.response.data.message ||error.response.data.msg;
-            alert(problem);
-        }
+                try{
+                    
+                    const userData=await axios.get(`http://localhost:3000/logged/user/${id}`,{
+                        "headers":{"authorization":`Bearer ${token}`}
+                    });
+                    fname=userData.data.User.firstName;
+                    lname=userData.data.User.lastName;
+                    age=userData.data.User.age;
+                    email=userData.data.User.email;
+                    phone=userData.data.User.phone;
+                    nID=userData.data.User.nationalID;
+                    
+
+                    reset({
+                        firstName:fname,
+                        lastName:lname,
+                        age:age,
+                        email:email,
+                        phone:phone,
+                        nationalID:nID
+
+                    });
+                    
+
+                }catch(error:any){
+                    const problem=error.response.data.message ||error.response.data.msg;
+                    if (problem ==="jwt expired"){
+                        alert ("session expired");
+                        navigate("/user/login");
+
+                    }
+                    console.log(problem);
+                    alert(problem);
+                }
     }
+        
         getUserInfo(token,id);
+
+        
+        
        
     },[]);
 
-    const editUserInfo=async()=>{
+    const editUserInfo=async (data:any)=>{
+        try {
+            const updatedData= await axios.put(`http://localhost:3000/logged/user/update/${id}`,
+            data,
+            {"headers":{"authorization":`Bearer ${token}`}});
+
+            
+
+            fname=updatedData.data.updatedUser.firstName;
+            lname=updatedData.data.updatedUser.lastName;
+            age=updatedData.data.updatedUser.age;
+            email=updatedData.data.updatedUser.email;
+            phone=updatedData.data.updatedUser.phone;
+            nID=updatedData.data.updatedUser.nationalID;
+
+           setEdit(true);
+            
+
+           
+                    
+
+            reset({
+                firstName:fname,
+                lastName:lname,
+                age:age,
+                email:email,
+                phone:phone,
+                nationalID:nID
+            });
+        }
+        catch(error:any){
+            const problem=error.response?.data?.message ||error.response?.data?.msg;
+            alert(problem);
+        }
 
     }
+
+    const DeleteUser=async()=>{
+
+        const confirmation=window.confirm("Are you sure you want to delete your account? ")
+        if(!confirmation){return;}
+        try{
+            const deletedUser=await axios.delete(`http://localhost:3000/logged/user/delete/${id}`, {"headers":{"authorization":`Bearer ${token}`}})
+            console.log(deletedUser);
+            alert(deletedUser.data.message);
+            navigate("/");
+           
+
+        }catch(error:any){
+            const problem=error.response?.data?.message ||error.response?.data?.msg;
+            console.log(problem);
+
+
+        }
+    }
+
+    
    
     return(
-    <section className="flex">
+    <section className="flex  flex flex-row   p-10 gap-20 justify-start  items-center">
+        <div className="userIcon w-100 flex justify-center">
+                <img src={profile} width={155} />
+        </div>
         <form 
-         method="post"
-         onSubmit={editUserInfo}
-         className="card flex flex-row   p-10 gap-10  rounded w-200 items-center">
-            <div className="userIcon">
-                <img src={profile} width={150} />
-            </div>
+         
+         onSubmit={handleSubmit(editUserInfo)}
+         className="card flex flex-col  w-200 p-10 gap-15 rounded items-end ">
+            
+            <div className="data flex flex-wrap gap-10 w-200 ">
+                {
+                    fields.map((ele:any,index:number)=>{
+                        return(
+                            <div key={index} className={` singleData flex flex-col gap-5`}>
+                                <label  htmlFor={ele.for} className=" text-secondary-purple font-bold text-xl">{ele.label}</label>
+                                <input 
+                                id={ele.id}
+                                className=" rounded-lg border w-40 bg-transparent px-5 py-3 border border-secondary-purple w-50"
+                                disabled={edit}
+                                {...register(ele.id,ele.obj)}
+                                > 
+                                </input>
+                                {
+                                    errors[ele.id]&&
+                                    (
+                                       <span className='text-gas-yellow text-sm'>{`${errors[ele.id]?.message}`}</span>
+                                    )
+                                }
 
-            <div className="info w-150">
-                <div className="fullName flex flex-row justify-around">
-                    <div className="firstName flex flex-col gap-1">
-                        <label htmlFor="fname"className="text-secondary-purple font-bold text-xl">First Name</label>
-                        <input 
-                         id="fname"
-                         className=" border w-40 bg-transparent py-1 ps-1 border border-secondary-purple"
-                         disabled={edit}
+
+                            </div>
+                        )
+                    })
+
+                }
+            </div>
+             <div className="buttons flex  w-120  ">
+                {
+                    (edit)?
+                    (
+                        <button type="button" className="rounded-lg border font-bold px-10 py-2" onClick={()=>setEdit(false)}>
+                            Edit
+                        </button>
+
+                    ):
+                    (
+                        <div>
+                            <button 
+                            type="submit" 
+                            className="rounded-lg border font-bold px-10 py-2" 
+                            disabled={!isValid}
+                            >
+                                {isValid? `Save`:`Edit`}
+                            </button>
+
+                            <button 
+                            type="button" 
+                            className="rounded-lg border font-bold px-10 py-2" 
+                            onClick={()=>{
+                                setEdit(true);
+                                reset();
+                                }}>
+                                Cancel
+                            </button>
+                            <button type="button"
+                            className=""
+                            onClick={DeleteUser}> 
+                                Delete Account
+                            </button>
+
+                        </div>
                         
-                         
 
-                        >
-                           
-                        </input>
-                    </div>
-                    <div className="lastName flex flex-col gap-1">
-                        <label htmlFor="lname"className="text-secondary-purple font-bold text-xl" >Last Name</label>
-                        <input 
-                        id="lname" 
-                        className=" border w-40 bg-transparent py-1 ps-1  border border-secondary-purple"
-                        disabled={edit}
-                        placeholder={lname}
-                        >
-                        </input>
-                    </div>
-                    <div className="age flex flex-col gap-1">
-                        <label htmlFor="age" 
-                         className="text-secondary-purple font-bold text-xl">Age</label>
-                        <input 
-                        id="age" 
-                        className=" border w-40 bg-transparent py-1 ps-1 border border-secondary-purple"
-                        disabled={edit}
-                        placeholder={age}
-                        ></input>
-                    </div>
-                </div>
+                    )
 
-                <div className="Email">
-                    <div className="email">
-                        {email}
-                    </div>
-                </div>
-                <div className="numberAndID">
-                    <div className="number">
-                        {number}
-                    </div>
-                    <div className="id">
-                        {nid}
-                    </div>
-                </div>
+                }
+
+                <button>
+
+                </button>
+                
+
+                
+                
             </div>
+
+            
 
         </form>
+       
 
     </section>
         

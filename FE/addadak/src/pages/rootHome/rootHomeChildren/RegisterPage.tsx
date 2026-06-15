@@ -32,11 +32,15 @@ const Register=()=>{
     ];
 
     const gotoProfile=async (data:any)=>{
+        
+
         try
         {
+
             const res=await axios.post("http://localhost:3000/user/register",data);
             console.log(res)
-            navigate("/logged/user/profile");
+            alert(res.data.message);
+            navigate("/user/login");
             reset();
         }catch(error:any){
             const msg=error.response.data.message||error.response.data.msg
@@ -73,7 +77,7 @@ const Register=()=>{
                                         <div key={index} className={`${ele.class} flex flex-col gap-2 `}>
                                         
                                             <label htmlFor={ele.for} className='text-my-white font-bold text-xl'>{ele.label}</label>
-                                            <input className='border bg-my-white ps-5 py-1' type={ele.type} id={ele.id} {...register(ele.id,ele.obj)}/>
+                                            <input className='rounded-lg border bg-my-white ps-5 py-1' type={ele.type} id={ele.id} {...register(ele.id,ele.obj)}/>
                                             {errors[ele.id]&&
                                                 (
                                                 <span className='text-gas-yellow text-sm'>{`${errors[ele.id]?.message}`}</span>
@@ -105,7 +109,7 @@ const Register=()=>{
                                         <div key={index} className={`${ele.class} flex flex-col gap-2`}>
                                         
                                             <label htmlFor={ele.for} className='text-my-white font-bold text-xl'>{ele.label}</label>
-                                            <input className='border bg-my-white ps-5 py-1' type={ele.type} id={ele.id} {...register(ele.id,ele.obj)}/>
+                                            <input className='rounded-lg border bg-my-white ps-5 py-1' type={ele.type} id={ele.id} {...register(ele.id,ele.obj)}/>
                                             {
                                                 errors[ele.id]&&
                                                 (
@@ -126,11 +130,11 @@ const Register=()=>{
 
                 <div className="buttons flex flex-row justify-around">
 
-                    <button type='submit'   className={!isValid||isSubmitting?`bg-my-white px-10 w-40  py-2 font-bold text-blue`:` w-40 bg-blue px-10 py-2 font-bold text-my-white hover:text-blue hover:bg-my-white`} disabled={!isValid||isSubmitting}>
+                    <button type='submit'   className={!isValid||isSubmitting?`bg-my-white px-10 w-40  py-2 font-bold text-blue rounded-lg`:`rounded-lg w-40 bg-blue px-10 py-2 font-bold text-my-white hover:text-blue hover:bg-my-white`} disabled={!isValid||isSubmitting}>
                         {isSubmitting || !isValid? "Loading...." : "Submit" }
                     </button>
 
-                    <button type='button' onClick={()=>reset()} className='bg-gas-yellow px-10 py-2 w-40 font-bold text-black hover:text-gas-yellow hover:bg-black duration-300'>Clear</button>
+                    <button type='button' onClick={()=>reset()} className='rounded-lg bg-gas-yellow px-10 py-2 w-40 font-bold text-black hover:text-gas-yellow hover:bg-black duration-300'>Clear</button>
 
                 </div>
             </form>
