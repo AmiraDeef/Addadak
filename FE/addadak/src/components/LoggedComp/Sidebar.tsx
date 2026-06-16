@@ -1,10 +1,21 @@
 import type { ReactElement } from "react";
 import { Link } from "react-router-dom";
 import Logo from "../Logo";
+import { useNavigate } from "react-router-dom";
+
+
 
 const Sidebar=()=>{
 
+    const navigate=useNavigate();
+
+    const logout=()=>{
+        localStorage.removeItem("token");
    
+        localStorage.removeItem("UserId");
+
+    navigate('/user/login');
+} 
     interface tabstemp{
         icon:ReactElement,
         title:string,
@@ -41,10 +52,10 @@ const Sidebar=()=>{
             </div>
 
             <div className="logout text-2xl border-t  mt-100">
-                <Link to="/" className="flex flex-row items-center  gap-5 pt-5 hover:text-electric-cyan">
+                <button type="button" className="flex flex-row items-center  gap-5 pt-5 hover:text-electric-cyan" onClick={logout}>
                     <i className="fa-solid fa-arrow-right-from-bracket"></i>
                     <div>Logout </div>
-                </Link>
+                </button>
 
             </div>
 

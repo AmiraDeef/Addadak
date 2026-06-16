@@ -201,16 +201,17 @@ const UserProfile=()=>{
                 {
                     (edit)?
                     (
-                        <button type="button" className="rounded-lg border font-bold px-10 py-2" onClick={()=>setEdit(false)}>
+                        <button type="button" className="rounded-lg border font-bold px-10 py-2 bg-secondary-purple text-my-white hover:bg-my-white hover:text-secondary-purple hover:cursor-pointer"
+                         onClick={()=>setEdit(false)}>
                             Edit
                         </button>
 
                     ):
                     (
-                        <div>
+                        <div className="flex flex-row gap-10 py-5">
                             <button 
                             type="submit" 
-                            className="rounded-lg border font-bold px-10 py-2" 
+                            className="rounded-lg border font-bold px-10 py-2 bg-secondary-purple text-my-white hover:bg-my-white hover:text-secondary-purple hover:cursor-pointer" 
                             disabled={!isValid}
                             >
                                 {isValid? `Save`:`Edit`}
@@ -218,7 +219,7 @@ const UserProfile=()=>{
 
                             <button 
                             type="button" 
-                            className="rounded-lg border font-bold px-10 py-2" 
+                            className="rounded-lg border font-bold px-10 py-2 bg-gas-yellow hover:bg-my-white  hover:cursor-pointer" 
                             onClick={()=>{
                                 setEdit(true);
                                 reset();
@@ -226,7 +227,7 @@ const UserProfile=()=>{
                                 Cancel
                             </button>
                             <button type="button"
-                            className=""
+                            className="rounded-lg border font-bold w-36  py-2 bg-warning hover:bg-my-white  hover:cursor-pointer"
                             onClick={DeleteUser}> 
                                 Delete Account
                             </button>

@@ -7,18 +7,25 @@ import LoggedRoot from './pages/loggedUser/LoggedUserRoot'
 import ElectricDashboard from './components/LoggedComp/ElectricDashboard'
 import GasDashboard from './components/LoggedComp/GasDashboard'
 import Dashboard from './pages/loggedUser/loggedUserChidlren/Dashboard'
-import './App.css'
-import type { ReactElement } from 'react'
-import { Routes,Route } from 'react-router-dom'
 import Forecast from './pages/loggedUser/loggedUserChidlren/Forecast'
 import Mycredit from './pages/loggedUser/loggedUserChidlren/Mycredit'
 import GasForecast from './components/LoggedComp/GasForecast'
 import GasCredit from './components/LoggedComp/GasCredit'
 import ELectricForecast from './components/LoggedComp/ElectricForecast'
 import ElectricCredit from './components/LoggedComp/ElectricCredit'
+import './App.css'
+import type { ReactElement } from 'react'
+import { Routes,Route } from 'react-router-dom'
+import { useState } from 'react'
+
 
 
 function App() {
+
+
+  const [lang,setLang]=useState("en");
+
+  
   interface routings{
     path?:string
     element:ReactElement
@@ -65,7 +72,7 @@ function App() {
   ]
 
   return (
-    <>
+    <div >
       <Routes>
         <Route path='/' element={<RootHome/>}>
           <Route  index element={<RootBody></RootBody>}></Route>
@@ -99,7 +106,7 @@ function App() {
           }
         </Route>
       </Routes>
-    </>
+    </div>
   )
 
 }
