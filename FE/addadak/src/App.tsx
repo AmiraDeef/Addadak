@@ -16,16 +16,17 @@ import ElectricCredit from './components/LoggedComp/ElectricCredit'
 import './App.css'
 import type { ReactElement } from 'react'
 import { Routes,Route } from 'react-router-dom'
-import { useState } from 'react'
+
 
 
 
 function App() {
 
 
-  const [lang,setLang]=useState("en");
-
   
+  
+
+
   interface routings{
     path?:string
     element:ReactElement
