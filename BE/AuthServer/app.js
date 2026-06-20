@@ -13,12 +13,18 @@ const morgan=require("morgan");
 const cors=require("cors");
 const globalErrorHnadler=require("./middlewres/serverErrorHandler.js");
 const userRouter=require("./routes/userRoute.js");
+const cookies=require("cookie-parser")
 
 //server activation
 app.use(express.json());
 //app.use(mongoSanitize());
 //app.use(xssClean());
-app.use(cors("http://localhost:3000/"));
+app.use(cors({
+    origin:"http://localhost:5173",
+    credentials: true,
+    
+}));
+app.use(cookies());
 app.use(morgan(process.env.ENV))
 app.use("/",userRouter);
 

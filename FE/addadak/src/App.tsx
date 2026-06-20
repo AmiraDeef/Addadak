@@ -16,6 +16,7 @@ import ElectricCredit from './components/LoggedComp/ElectricCredit'
 import './App.css'
 import type { ReactElement } from 'react'
 import { Routes,Route } from 'react-router-dom'
+import NotFound from './pages/NotFound'
 
 
 
@@ -68,7 +69,8 @@ function App() {
 
   const rootchildrenRoutings:Array<routings>=[
     {path:'/user/register',element:<Register></Register> },
-    {path:'/user/login',element:<Login></Login> }
+    {path:'/user/login',element:<Login></Login> },
+    {path:'/user/notfound',element:<NotFound></NotFound>}
 
   ]
 

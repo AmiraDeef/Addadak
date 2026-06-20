@@ -57,6 +57,10 @@ const UserProfile=()=>{
 
 
     useEffect(()=>{
+            const token=localStorage.getItem("token");
+            if(!token){
+                navigate('/user/notfound')
+            }
             const getUserInfo=async(token:any,id:any)=>{
 
                 try{

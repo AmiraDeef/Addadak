@@ -26,10 +26,12 @@ const Login=()=>{
     const gotoProfile=async(data:any)=>{
         try{
             const res=await axios.post("http://localhost:3000/user/login",data);
-            localStorage.setItem('token',res.data.Token);
-            localStorage.setItem("UserId",res.data.User._id);
-            navigate("/logged/user/profile");
-            reset();
+            if(res.status==200){
+                localStorage.setItem('token',res.data.Token);
+                localStorage.setItem("UserId",res.data.User._id);
+                navigate("/logged/user/profile");
+                reset();
+            }
         }catch(error:any){
             const msg=error.response.data.message||error.response.data.msg
             alert(msg);

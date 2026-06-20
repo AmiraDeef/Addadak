@@ -52,7 +52,8 @@ const userSchema= new mongoose.Schema({
         type:String,
         match:[/^([23])(?:\d{2})(?:0[1-9]|1[0-2])(?:0[1-9]|[12]\d|3[01])(?:\d{7})$/,"Please enter a valid Egyptian National ID."],
         unique:[true,"This National ID already exists."],
-        trim:true
+        trim:true,
+        required:true
     },
 
     charged:{

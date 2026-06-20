@@ -11,7 +11,7 @@ const authZmiddleware=(req,res,next)=>{
         const decoded=jwt.verify(token,process.env.SECRET_KEY);
         next();
     }catch(err){next(err)}
-
+//req.cookies.Authtoken
 }
 
 //export middleware

@@ -1,0 +1,43 @@
+# 1. Ignore node_modules everywhere (جوة أي سيرفر)
+**/node_modules/
+
+# 2. Ignore environment variables everywhere (الملفات السرية)
+**/.env
+**/.env.local
+**/.env.development
+
+# 3. Ignore Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# 4. Ignore Operating System Files
+.DS_Store
+Thumbs.db
+
+/.vscode/
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
