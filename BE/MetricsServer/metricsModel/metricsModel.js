@@ -10,7 +10,6 @@ const metricsSchema=mongoose.Schema({
    meterNumber:{
     type:String,
     required:true,
-    unique:true,
     match:[/^\d{10}$/,"Invalid Meter Number, please enter it in the right format"],
     trim:true
    },
@@ -25,7 +24,7 @@ const metricsSchema=mongoose.Schema({
     required: true 
    },
    billingMonth: { type: String, required: true, index:true }, 
-   lastReading: { type: Number, required: true },
+   reading: { type: Number, required: true },
 
    readingDate: { type: mongoose.Schema.Types.Date, default: Date.now },
 });

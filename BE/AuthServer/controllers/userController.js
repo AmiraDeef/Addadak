@@ -43,8 +43,8 @@ const logUser=async(req,res,next)=>{
             
 
         const token=generateToken(userSaved._id,userSaved.phone,process.env.SECRET_KEY,"10m");
-        
-        res.status(200).json({message:"logging succeeded", User:userSaved, Token:token});
+        const userID=userSaved.nationalID
+        res.status(200).json({message:"logging succeeded", User:userSaved ,Token:token});
         //.cookie("Authtoken",token,{httpOnly:true, secure:false,sameSite: 'lax', maxAge:60*60})
 
     }catch(error){

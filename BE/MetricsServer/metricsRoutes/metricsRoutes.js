@@ -1,6 +1,8 @@
-const express=rerquire("express");
+const express=require("express");
 const metricsRouter=express.Router();
 const metricsController=require("../metricsController/metricsController");
 
-metricsRouter.post("/logged/user/electricMetric",metricsController)
-metricsRouter.get("/logged/user/electricMetric/:_id",metricsController.getTier);
+metricsRouter.post("/addElectricMetric",metricsController.addMetrics)
+metricsRouter.get("/getTier/:ID",metricsController.getTier);
+
+module.exports=metricsRouter;

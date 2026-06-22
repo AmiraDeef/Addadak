@@ -29,6 +29,7 @@ const Login=()=>{
             if(res.status==200){
                 localStorage.setItem('token',res.data.Token);
                 localStorage.setItem("UserId",res.data.User._id);
+                localStorage.setItem("UserNid",res.data.User.nationalID);
                 navigate("/logged/user/profile");
                 reset();
             }

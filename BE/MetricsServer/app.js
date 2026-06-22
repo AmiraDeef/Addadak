@@ -4,12 +4,14 @@ const cors=require("cors");
 const morgan = require("morgan");
 const serverErrorHandler=require("./globalErrorHandler");
 require("dotenv").config();
-
-
 const app=express();
+const metricsRouters=require("./metricsRoutes/metricsRoutes")
+
 app.use(express.json());
 app.use(cors());
-app.use(morgan(process.env.ENV));
+
+
+app.use("/logged/user",metricsRouters);
 
 const DB_connection=async()=>{
     await mongoose.connect(process.env.DB_URL);
@@ -17,6 +19,8 @@ const DB_connection=async()=>{
 }
 
 DB_connection();
+
+app.use(morgan(process.env.ENV));
 
 
 app.use(serverErrorHandler);
