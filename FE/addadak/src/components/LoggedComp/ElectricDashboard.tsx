@@ -1,7 +1,8 @@
 import axios from "axios";
 import { useEffect } from "react";
 import { useState } from "react";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';const ElectricDashboard=()=>{
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
+const ElectricDashboard=()=>{
     const token=localStorage.getItem("token");
     const id=localStorage.getItem("UserId");
     const NID=localStorage.getItem("UserNid");
@@ -9,6 +10,7 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGri
     const [tier,setTier]=useState(0);
     const [rate,setRate]=useState(0);
     const [bill,setBill]=useState(0);
+    const [chartData,setChartdata]=useState([]);
     
     const getUserReadings=async()=>{
        try{ const readings=await axios.get(`http://localhost:3001/logged/user/getTier/${NID}`,
@@ -17,6 +19,7 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGri
             setTier(readings.data.currentMonth.tier)
             setRate(readings.data.currentMonth.rate);
             setBill(readings.data.currentMonth.bill);
+            setChartdata(readings.data.lastMonths);
         }catch(error:any)
         {
             console.log(error.response)
@@ -27,14 +30,15 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGri
     return(
         <>
             <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 max-w-2xl mx-auto my-6">
-                <ResponsiveContainer width="100%" height="100%">
-                    <BarChart>
-                        <CartesianGrid>
-                            <XAxis></XAxis>
-                            <YAxis></YAxis>
-                            <Tooltip ></Tooltip>
-                            <Bar></Bar>
-                        </CartesianGrid>
+                <ResponsiveContainer width={300} height={300}>
+                    <BarChart data={chartData} barSize={35}>
+                        <CartesianGrid strokeDasharray="3 3" vertical={true} stroke="#9d9e9e"/>
+                        <XAxis dataKey="billingMonth" stroke="#64686e" fontSize={12} tickLine={false}/>
+                        <YAxis stroke="#64686e" fontSize={12} tickLine={false} axisLine={false}></YAxis>
+                        <Tooltip cursor={{ fill: '#abb0b6' }}></Tooltip>
+                        <Bar dataKey="reading" fill="#3B82F6" radius={[6, 6, 0, 0]}></Bar>
+                        
+                        
                     </BarChart>
 
                 </ResponsiveContainer>

@@ -61,7 +61,8 @@ const getTier=async(req,res,next)=>{
         userBill=parseFloat((userMeter*userRate).toFixed(2));
         res.status(200).json({message :"tier is",
             currentMonth:{tier:userTier, rate:userRate, bill:userBill},
-            lastMonths:userMeters
+            lastMonths:userMeters,
+            consumption:userMeter
         });
     }catch(error){
          next(error);
