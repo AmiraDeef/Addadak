@@ -4,12 +4,15 @@ import { NavLink } from "react-router-dom";
 const RootHeader=()=>{
     return(
         <header className="flex flex-row
-         justify-between align-center
+         justify-between items-center
          border-b border-secondary-purple
-         shadow-lg px-30  py-4
-         sticky top-0 z-50 backdrop-blur-sm bg-white/40">
+         shadow-lg px-4 py-3 md:py-4
+         sm:px-6 md:px-16 lg:px-24 
+         sticky top-0 z-50 w-full
+         backdrop-blur-sm 
+         bg-secondary-purple/20">
             <Logo textcolor="purple" logowidth={65}></Logo>
-            <div className="buttons flex flex-row gap-20 ">
+            <div className="buttons flex flex-row gap-3 sm:gap-6 ">
                 <button className="shadow-md
                  bg-my-white
                  border border-secondary-purple

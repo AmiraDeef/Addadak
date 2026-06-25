@@ -42,14 +42,14 @@ const Login=()=>{
     return (
         
         
-        <section className='  items-center justify-center bg-black/10 px-5 flex flex-col h-208 gap-20 '>
-            <div className="texts w-200">
-                <h2 className='text-center font-bold text-5xl'>Login to your account,</h2>   
+        <section className='  items-center justify-center bg-black/10 px-4 flex flex-col min-h-[calc(100vh-155px)] pb-14 py-6 gap-8  md:gap-12 '>
+            <div className="texts texts w-full max-w-md">
+                <h2 className='text-center font-bold text-5xl'>Login to your account</h2>   
             </div>
         
             
             <form method="post " 
-             className="flex w-150 flex-col gap-15 bg-secondary-purple rounded  px-10 py-12 shadow-lg"
+             className="flex w-full max-w-md flex-col gap-8 bg-secondary-purple rounded-2xl  px-6 py-8 shadow-lg mx-auto md:px-10 md:py-12"
              onSubmit={handleSubmit(gotoProfile)}>
                 <div className="rows flex flex-col justify-around gap-5 ">
                     {
@@ -75,13 +75,13 @@ const Login=()=>{
                     }
 
                 </div>
-                <div className="buttons flex flex-row justify-around">
+                <div className="buttons flex flex-col sm:flex-row justify-center items-center gap-3 sm:gap-4 w-full ">
 
-                    <button type='submit'   className={!isValid||isSubmitting?`bg-my-white px-10 w-40  py-2 font-bold text-blue rounded-lg`:` w-40 bg-blue  px-10 py-2 font-bold text-my-white hover:text-blue hover:bg-my-white rounded-lg`} disabled={!isValid||isSubmitting}>
+                    <button type='submit'   className={!isValid||isSubmitting?`bg-my-white  w-full text-sm md:text-base py-2.5 font-bold text-blue rounded-lg`:` bg-blue w-full text-sm md:text-base py-2.5 font-bold text-my-white hover:text-blue hover:bg-my-white rounded-lg`} disabled={!isValid||isSubmitting}>
                         {isSubmitting||!isValid?"Loading....":"Login"}
                     </button>
 
-                    <button onClick={()=>reset()} className='bg-gas-yellow px-10 py-2 w-40 font-bold text-black hover:text-gas-yellow hover:bg-black duration-300 rounded-lg'>Clear</button>
+                    <button onClick={()=>reset()} className='bg-gas-yellow w-full text-sm md:text-base py-2.5 font-bold text-black hover:text-gas-yellow hover:bg-black duration-300 rounded-lg'>Clear</button>
 
                 </div>  
             </form>  

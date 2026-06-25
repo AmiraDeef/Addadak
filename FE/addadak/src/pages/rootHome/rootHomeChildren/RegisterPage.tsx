@@ -52,18 +52,18 @@ const Register=()=>{
     return (
         
         
-        <section className=' justify-around items-center  bg-black/10 px-5 flex flex-row py-8.5 gap-1 '>
-            <div className="texts w-200 flex flex-col gap-5   ">
-                <h2 className='text-center font-bold text-5xl'>Create your own account,</h2>
-                <h2 className='text-center font-bold text-5xl'>and track your</h2>
-                <h2 className='text-center font-bold text-5xl'>home meters</h2>
+        <section className=' justify-center items-center bg-black/10 px-4 md:px-12 flex flex-col lg:flex-row min-h-[calc(100vh-80px)] py-6 gap-8 lg:gap-16 w-full overflow-hidden '>
+            <div className="texts w-200 flex flex-col gap-5 px-5   ">
+                <h2 className='text-center font-bold text-2xl sm:text-4xl lg:text-5xl'>Create your own account,</h2>
+                <h2 className='text-center font-bold text-2xl sm:text-4xl lg:text-5xl'>and track your</h2>
+                <h2 className='text-center font-bold text-2xl sm:text-4xl lg:text-5xl'>home meters</h2>
             </div>
         
             
             <form method="post" 
-             className="flex w-150 flex-col gap-5 bg-secondary-purple rounded  px-10 py-12 shadow-lg"
+             className="flex w-full lg:w-1/2 max-w-lg flex-col gap-5 bg-secondary-purple rounded-2xl px-6 py-8 md:px-10 md:py-8 shadow-xl mx-auto"
              onSubmit={handleSubmit(gotoProfile)}>
-                <div className="rows flex flex-row gap-15 justify-between">
+                <div className="rows flex flex-col sm:flex-row gap-4 sm:gap-6 justify-between w-full">
                     {
 
                         fields.map
@@ -128,7 +128,7 @@ const Register=()=>{
 
                 </div>
 
-                <div className="buttons flex flex-row justify-around">
+                <div className="buttons flex flex-col sm:flex-row justify-center items-center gap-3 sm:gap-4 w-full  sm:text-4xl lg:text-xl">
 
                     <button type='submit'   className={!isValid||isSubmitting?`bg-my-white px-10 w-40  py-2 font-bold text-blue rounded-lg`:`rounded-lg w-40 bg-blue px-10 py-2 font-bold text-my-white hover:text-blue hover:bg-my-white`} disabled={!isValid||isSubmitting}>
                         {isSubmitting || !isValid? "Loading...." : "Submit" }
