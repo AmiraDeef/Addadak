@@ -30,7 +30,7 @@ const ChartDashboard=()=>{
     useEffect(()=>{getUserReadings()},[])
     return(
         <>
-            <div className="bg-gray-100/10 p-6 rounded-2xl shadow-lg border border-gray-100 max-w-2xl mx-auto my-6">
+            <div className="bg-gray-100/10 p-6 rounded-2xl shadow-lg border border-gray-100 max-w-2xl mx-auto ">
                 <ResponsiveContainer width={300} height={300}>
                     <BarChart data={chartData} barSize={35}>
                         <CartesianGrid strokeDasharray="3 3" vertical={true} stroke="#9d9e9e"/>
@@ -45,11 +45,7 @@ const ChartDashboard=()=>{
                 </ResponsiveContainer>
                 
             </div>
-            <h1>
-                <p>tier: {tier}</p>
-                <p>rate: {rate}</p>
-                <p>bill: {bill}</p>
-            </h1>
+           
             
         </>
         

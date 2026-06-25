@@ -4,11 +4,12 @@ import LoggedHeader from "../../components/LoggedComp/LoggedHeader";
 
 const LoggedRoot=()=>{
     return(
-    <div className="flex flex-row h-screen w-full overflow-hidden justify-start">
+    <div className="flex flex-row h-screen w-full  justify-start items-start">
         <Sidebar/>
-        <div className="leftside flex flex-col flex-1 h-full  min-w-0">
+        <div className="leftside flex flex-col flex-1 h-screen w-screen pl-0 ">
             <LoggedHeader title="Dasboard"></LoggedHeader>
-            <Outlet/>
+            <Outlet />
+            
         </div>
         
     </div>

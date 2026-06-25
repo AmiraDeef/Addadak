@@ -165,24 +165,24 @@ const UserProfile=()=>{
     
    
     return(
-    <section className="flex  flex flex-row   p-10 gap-20 justify-start  items-center">
-        <div className="userIcon w-100 flex justify-center">
+    <section className="flex flex-col md:flex-row p-4 sm:p-10 gap-6 md:gap-20 items-center md:items-start w-fill min-w-0 h-fill ">
+        <div className="userIcon w-50 flex justify-center">
                 <img src={profile} width={155} />
         </div>
         <form 
          
          onSubmit={handleSubmit(editUserInfo)}
-         className="card flex flex-col  w-200 p-10 gap-15 rounded items-end ">
+         className="card flex flex-col w-full max-w-4xl gap-8 md:gap-15 rounded items-center sm:items-end flex-1 min-w-0">
             
-            <div className="data flex flex-wrap gap-10 w-200 ">
+            <div className="data grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 w-full ">
                 {
                     fields.map((ele:any,index:number)=>{
                         return(
-                            <div key={index} className={` singleData flex flex-col gap-5`}>
+                            <div key={index} className={`singleData flex flex-col gap-2 w-full min-w-0`}>
                                 <label  htmlFor={ele.for} className=" text-secondary-purple font-bold text-xl">{ele.label}</label>
                                 <input 
                                 id={ele.id}
-                                className=" rounded-lg border w-40 bg-transparent px-5 py-3 border border-secondary-purple w-50"
+                                className=" rounded-lg border bg-transparent px-4 py-2.5 border-secondary-purple w-full"
                                 disabled={edit}
                                 {...register(ele.id,ele.obj)}
                                 > 
@@ -201,21 +201,25 @@ const UserProfile=()=>{
 
                 }
             </div>
-             <div className="buttons flex  w-120  ">
+             <div className="buttons flex  w-120 items-center justify-center ">
                 {
                     (edit)?
                     (
-                        <button type="button" className="rounded-lg border font-bold px-10 py-2 bg-secondary-purple text-my-white hover:bg-my-white hover:text-secondary-purple hover:cursor-pointer"
-                         onClick={()=>setEdit(false)}>
+                        
+                        <button type="button" className="rounded-lg border duration-300 transition-all font-bold px-10 py-2 bg-secondary-purple text-my-white hover:bg-my-white hover:text-secondary-purple hover:cursor-pointer"
+                            onClick={()=>setEdit(false)}>
                             Edit
                         </button>
 
+                        
+                       
+
                     ):
                     (
-                        <div className="flex flex-row gap-10 py-5">
+                        <div className="flex flex-col gap-3 sm:flex-row items-center md:items-end w-full justify-center md:justify-end">
                             <button 
                             type="submit" 
-                            className="rounded-lg border font-bold px-10 py-2 bg-secondary-purple text-my-white hover:bg-my-white hover:text-secondary-purple hover:cursor-pointer" 
+                            className="rounded-lg border duration-300 transition-all w-36 font-bold px-10 py-2 bg-secondary-purple text-my-white hover:bg-my-white hover:text-secondary-purple hover:cursor-pointer" 
                             disabled={!isValid}
                             >
                                 {isValid? `Save`:`Edit`}
@@ -223,7 +227,7 @@ const UserProfile=()=>{
 
                             <button 
                             type="button" 
-                            className="rounded-lg border font-bold px-10 py-2 bg-gas-yellow hover:bg-my-white  hover:cursor-pointer" 
+                            className="rounded-lg border duration-300 transition-all w-36 font-bold px-10 py-2 bg-gas-yellow hover:bg-my-white  hover:cursor-pointer" 
                             onClick={()=>{
                                 setEdit(true);
                                 reset();
@@ -231,7 +235,7 @@ const UserProfile=()=>{
                                 Cancel
                             </button>
                             <button type="button"
-                            className="rounded-lg border font-bold w-36  py-2 bg-warning hover:bg-my-white  hover:cursor-pointer"
+                            className="rounded-lg border duration-300 transition-all font-bold  w-36   py-2 bg-warning hover:bg-my-white  hover:cursor-pointer"
                             onClick={DeleteUser}> 
                                 Delete Account
                             </button>
@@ -242,10 +246,6 @@ const UserProfile=()=>{
                     )
 
                 }
-
-                <button>
-
-                </button>
                 
 
                 

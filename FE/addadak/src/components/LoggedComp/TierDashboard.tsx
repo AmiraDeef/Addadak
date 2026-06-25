@@ -14,16 +14,20 @@ const TierDashboard=(userTier:any)=>{
     }
     useEffect(()=>{viewAllTiers()},[])
     return (
-        <div className="flex flex-row justify-around w-300  p-3 m-3 "> 
+        <div className="flex flex-col justify-around w-150 gap-3  p-3 m-3 "> 
             {
                 allTiers.map((ele:any,index:number)=>{
                     return (
-                            <div key={index} className={`rounded-full w-35 h-35 shadow-xl flex flex-col justify-center p-5 items-center text-center `} style={{backgroundColor: `${ele.color}50`, }} >
+                            <div key={index} className={`rounded-3xl py-3 w-65 border   gap-3 h-15 shadow-xl flex flex-row justify-center p-5 items-center text-center ${
+                                allTiers.forEach(element => {
+                                    (element===userTier)?`border-secondary-purple text-secondary purple bg-my-white/30`:`bg-secondary-purple text-electric-cyan border-electric-cyan`
+                                })
+                            }`} style={{backgroundColor: `${ele.color}50`, }} >
                                 
                                 
                                     <p>Tier: {ele.tier}</p>
-                                    <p>Rate: {ele.rate} </p> 
-                                    <small>EGP/kWh</small>
+                                    <p>Rate: {ele.rate} <small>EGP/kWh</small></p> 
+                                    
 
                                
                                 

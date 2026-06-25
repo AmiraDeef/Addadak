@@ -1,13 +1,13 @@
 const mongoose=require("mongoose");
 const metricsSchema=require("../metricsModel/metricsModel");
 const tiers=[
-    {tier:1 ,min:0, max:50, rate:0.68,color:"#669afa"},
-    {tier:2 , min: 51, max: 100, rate: 0.78,color: "#3bcaf6" },
-    {tier:3 , min: 101, max: 200, rate: 0.95,color: "#9dff00"},
-    {tier:4 , min: 201, max: 350, rate: 1.55, color:"#F59E0B" },
-    {tier:5 , min: 351, max: 650, rate: 1.95,color:"#f97316" },
-    {tier:6 , min: 651, max: 1000, rate: 2.10,color:"#e4547f" },
-    {tier:7 , min: 1001, max: Infinity, rate: 2.58,color:"#ff0d0d" }
+    {tier:1 ,min:0, max:50, rate:0.68},
+    {tier:2 , min: 51, max: 100, rate: 0.78 },
+    {tier:3 , min: 101, max: 200, rate: 0.95},
+    {tier:4 , min: 201, max: 350, rate: 1.55 },
+    {tier:5 , min: 351, max: 650, rate: 1.95 },
+    {tier:6 , min: 651, max: 1000, rate: 2.10 },
+    {tier:7 , min: 1001, max: Infinity, rate: 2.58 }
 
 ]
 
