@@ -6,7 +6,7 @@ const serverErrorHandler=require("./globalErrorHandler");
 require("dotenv").config();
 const app=express();
 const metricsRouters=require("./metricsRoutes/metricsRoutes")
-
+app.use(morgan(process.env.ENV));
 app.use(express.json());
 app.use(cors());
 
@@ -20,7 +20,7 @@ const DB_connection=async()=>{
 
 DB_connection();
 
-app.use(morgan(process.env.ENV));
+
 
 
 app.use(serverErrorHandler);

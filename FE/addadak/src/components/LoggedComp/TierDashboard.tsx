@@ -1,43 +1,59 @@
 import axios from "axios";
-import { useState } from "react";
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
 
-const TierDashboard=(userTier:any)=>{
-    const [allTiers,setAllTiers]=useState([]);
-    const viewAllTiers=async()=>{
-        const viewallTiers= await axios.get(`http://localhost:3001/logged/user/viewAllTiers`) ;
-        const sevenTiers=viewallTiers.data.Tiers
-        setAllTiers(sevenTiers);
-        console.log(sevenTiers);
-        console.log(allTiers)
+interface Tier {
+    tier: number;
+    rate: number;
+}
 
-    }
-    useEffect(()=>{viewAllTiers()},[])
+interface props {
+    userTier: number;
+}
+
+const TierDashboard = ({ userTier }: props) => {
+    const [allTiers, setAllTiers] = useState<Tier[]>([]);
+
+    const viewAllTiers = async () => {
+        try {
+            const viewallTiers = await axios.get(`http://localhost:3001/logged/user/viewAllTiers`);
+            const sevenTiers = viewallTiers.data.Tiers;
+            setAllTiers(sevenTiers);
+        } catch (error) {
+            console.error("Error fetching tiers:", error);
+        }
+    };
+
+    useEffect(() => {
+        viewAllTiers();
+    }, []);
+
     return (
-        <div className="flex flex-col justify-around w-150 gap-3  p-3 m-3 "> 
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-4 p-4 w-fill max-w-5xl mx-auto"> 
             {
-                allTiers.map((ele:any,index:number)=>{
-                    return (
-                            <div key={index} className={`rounded-3xl py-3 w-65 border   gap-3 h-15 shadow-xl flex flex-row justify-center p-5 items-center text-center ${
-                                allTiers.forEach(element => {
-                                    (element===userTier)?`border-secondary-purple text-secondary purple bg-my-white/30`:`bg-secondary-purple text-electric-cyan border-electric-cyan`
-                                })
-                            }`} style={{backgroundColor: `${ele.color}50`, }} >
-                                
-                                
-                                    <p>Tier: {ele.tier}</p>
-                                    <p>Rate: {ele.rate} <small>EGP/kWh</small></p> 
-                                    
+                allTiers.map((ele: Tier, index: number) => {
+                    const isSelected = ele.tier === userTier;
 
-                               
-                                
-                            </div>
+                    return (
+                        <div 
+                            key={index} 
+                            className={`rounded-3xl py-4 px-6 border shadow-md flex flex-row justify-between items-center text-center transition-all duration-300 w-full h-20 hover:-translate-y-3
+                                ${isSelected 
+                                    ? 'bg-secondary-purple text-gas-yellow  scale-110 font-bold ring-3 ring-electric-cyan/50' 
+                                    : 'border-secondary-purple text-secondary-purple    bg-my-white/30'
+                                }`
+                            }
+                        >
+                            <p className="text-lg"> <small> </small> Tier : {ele.tier} </p>
+                            
+                            <p className="text-base">
+                                <small> </small>Rate: <span className="font-bold">{ele.rate}</span> <small className="text-xs">EGP/kWh</small>
+                            </p> 
+                        </div>
                     )
                 })
             }
-
         </div>
     );
-}
+};
 
 export default TierDashboard;

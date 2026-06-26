@@ -4,23 +4,14 @@ import { useState } from "react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 
 const ChartDashboard=()=>{
-    const token=localStorage.getItem("token");
-    const id=localStorage.getItem("UserId");
-    const NID=localStorage.getItem("UserNid");
     
-    const [tier,setTier]=useState(0);
-    const [rate,setRate]=useState(0);
-    const [bill,setBill]=useState(0);
+    
+   
     const [chartData,setChartdata]=useState([]);
     
     const getUserReadings=async()=>{
-       try{ const readings=await axios.get(`http://localhost:3001/logged/user/getTier/${NID}`,
-            {"headers":{"authorization":`Bearer ${token}`}});
-            console.log(readings);
-            setTier(readings.data.currentMonth.tier)
-            setRate(readings.data.currentMonth.rate);
-            setBill(readings.data.currentMonth.bill);
-            setChartdata(readings.data.lastMonths);
+       try{ 
+           
         }catch(error:any)
         {
             console.log(error.response)

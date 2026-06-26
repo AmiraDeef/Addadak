@@ -44,6 +44,40 @@ const addMetrics=async(req,res,next)=>{
 const getTier=async(req,res,next)=>{
     try{
         let userTier;
+        const {ID}=req.params
+        
+        const userMeters=await metricsSchema.find({nationalID:ID}).sort({readingDate:-1});
+        if(!userMeters || userMeters.length === 0){return res.status(404).json({message:"User metrics are not found!"})}
+    
+        const userMeter=userMeters[0].reading-userMeters[1].reading;
+        for (let i=0; i<tiers.length ;i++){
+            if ((userMeter>=tiers[i].min)&&(userMeter<=tiers[i].max)){
+                userTier=tiers[i].tier;
+                break;
+            }
+        }
+        console.log(userMeter);
+        res.status(200).json({message :"tier is",tier:userTier});
+    }catch(error){
+         next(error);
+    }
+
+}
+
+
+const viewAllTiers=(req,res,next)=>{
+    try{
+
+        res.status(200).json({Tiers:tiers})
+
+    }catch(error){
+        next(error);
+    }
+}
+
+
+/* try{
+        let userTier;
         let userRate;
         let userBill;
         const {ID}=req.params
@@ -69,20 +103,7 @@ const getTier=async(req,res,next)=>{
         });
     }catch(error){
          next(error);
-    }
-
-}
-
-
-const viewAllTiers=(req,res,next)=>{
-    try{
-
-        res.status(200).json({Tiers:tiers})
-
-    }catch(error){
-        next(error);
-    }
-}
+    }*/ 
 
 module.exports={
     getTier,
