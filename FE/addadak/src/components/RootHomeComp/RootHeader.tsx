@@ -1,4 +1,4 @@
-import Logo from "../Logo";
+import Logo from "../Badges/Logo";
 import { NavLink } from "react-router-dom";
 
 const RootHeader=()=>{

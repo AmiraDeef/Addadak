@@ -1,6 +1,6 @@
 import type { ReactElement } from "react";
 import { Link } from "react-router-dom";
-import Logo from "../Logo";
+import Logo from "../Badges/Logo";
 import { useNavigate } from "react-router-dom";
 
 

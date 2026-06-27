@@ -13,6 +13,16 @@ const tiers=[
 
 
 
+const viewAllTiers=(req,res,next)=>{
+    try{
+
+        res.status(200).json({Tiers:tiers})
+
+    }catch(error){
+        next(error);
+    }
+}
+
 
 
 const addMetrics=async(req,res,next)=>{
@@ -41,41 +51,115 @@ const addMetrics=async(req,res,next)=>{
     }
 }
 
+const getAllMeters=async(req,res,next)=>{
+    try{
+         const {ID}=req.params;
+         const userMeters=await metricsSchema.aggregate([
+            {
+                $match:{nationalID:ID},
+            },
+            {
+                $group:{
+                    _id:{
+                        meterType:"$meterType",
+                        meterNumber:"$meterNumber",
+                        address:"$address"
+
+                    }
+                     
+                }
+            }
+         ])
+         if(!userMeters || userMeters.length === 0){return res.status(404).json({message:"User metrics are not found!"})}
+         res.status(200).json({message :"All meters",
+            meters:userMeters
+           
+        });
+    }catch(error){
+        next(error);
+    }
+}
+
 const getTier=async(req,res,next)=>{
     try{
-        let userTier;
-        const {ID}=req.params
+        const {ID,meterNo}=req.params
         
-        const userMeters=await metricsSchema.find({nationalID:ID}).sort({readingDate:-1});
+        const userMeters=await metricsSchema.find({nationalID:ID,meterNumber:meterNo}).sort({readingDate:-1})
+        console.log(userMeters)
         if(!userMeters || userMeters.length === 0){return res.status(404).json({message:"User metrics are not found!"})}
     
-        const userMeter=userMeters[0].reading-userMeters[1].reading;
-        for (let i=0; i<tiers.length ;i++){
-            if ((userMeter>=tiers[i].min)&&(userMeter<=tiers[i].max)){
-                userTier=tiers[i].tier;
+        const latestUserMeter=userMeters[0]
+        let userMeter=0
+        let userTier=1;
+        let userRate=0;
+        if(latestUserMeter.meterType==="Bill"){
+            userMeter=latestUserMeter.reading-userMeters[1].reading;
+        }else if(latestUserMeter.meterType==="Smart Card")
+        {
+            const currentMonthRecords=userMeters.filter(ele=>ele.billingMonth===latestUserMeter.billingMonth);
+            if(currentMonthRecords.length>1){
+                const oldestRecordInCurrentMonth=currentMonthRecords[currentMonthRecords.length-1];
+                userMeter=latestUserMeter.reading-oldestRecordInCurrentMonth.reading
+            }else{
+                userMeter=latestUserMeter.reading-userMeters[1].reading;
+            }
+        }
+
+        for (let i = 0; i < tiers.length; i++) {
+            if (userMeter >= tiers[i].min && userMeter <= tiers[i].max) {
+                userTier = tiers[i].tier;
+                userRate=tiers[i].rate;
                 break;
             }
         }
-        console.log(userMeter);
-        res.status(200).json({message :"tier is",tier:userTier});
+
+        res.status(200).json({ 
+            message: "tier is", 
+            tier: userTier, 
+            rate:userRate,
+            consumptionInMonth: userMeter 
+        });
+
     }catch(error){
          next(error);
     }
 
 }
 
-
-const viewAllTiers=(req,res,next)=>{
+const userConsumptions=async(req,res,next)=>{
     try{
+        const {ID,meterNo}=req.params
+        
+        const userMeters=await metricsSchema.find({nationalID:ID,meterNumber:meterNo}).sort({readingDate:-1})
+        console.log(userMeters)
+        if(!userMeters || userMeters.length === 0){return res.status(404).json({message:"User metrics are not found!"})}
+        const consumptions=[];
+        for (let i = 0; i < userMeters.length; i++) {
+            let currentConsumption = 0;
 
-        res.status(200).json({Tiers:tiers})
+            
+            if (userMeters[i + 1]) {
+                currentConsumption = userMeters[i].reading - userMeters[i + 1].reading;
+            } else {
+                
+                currentConsumption = userMeters[i].reading;
+            }
 
+            consumptions.push({
+                month: userMeters[i].billingMonth,
+                consumption: currentConsumption
+            });
+        }
+
+        res.status(200).json({ 
+            success: true,
+            message: "consumptions fetched successfully", 
+            consumptionTable: consumptions 
+        });
     }catch(error){
         next(error);
     }
 }
-
-
 /* try{
         let userTier;
         let userRate;
@@ -108,5 +192,7 @@ const viewAllTiers=(req,res,next)=>{
 module.exports={
     getTier,
     addMetrics,
-    viewAllTiers
+    viewAllTiers,
+    getAllMeters,
+    userConsumptions
 }

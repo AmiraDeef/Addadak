@@ -15,7 +15,7 @@ const metricsSchema=mongoose.Schema({
    },
    meterType:{
     type:String,
-    enum:["Smart Card","Bill"],
+    enum:["Smart Meter", "Smart Card" ,"Bill"],
     required:true,
     default:"Smart Card"
    },
@@ -23,7 +23,11 @@ const metricsSchema=mongoose.Schema({
     type: String, 
     required: true 
    },
-   billingMonth: { type: String, required: true, index:true }, 
+   billingMonth: 
+   { type: String,
+      required: true, 
+      index:true
+    }, 
    reading: { type: Number, required: true },
 
    readingDate: { type: mongoose.Schema.Types.Date, default: Date.now },
