@@ -3,7 +3,13 @@ import { useEffect } from "react";
 import { useState } from "react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 
-const ChartDashboard=()=>{
+interface chartprop{
+    Nid:string,
+    meterNo:string,
+    Token:string
+}
+
+const ElectricityChartDashboard=({Nid,meterNo,Token}:chartprop)=>{
     
     
    
@@ -11,13 +17,16 @@ const ChartDashboard=()=>{
     
     const getUserReadings=async()=>{
        try{ 
-           
+        const userConsumtions= await axios.get(`http://localhost:3001/logged/user/getUserConsumptions/${Nid}/${meterNo}`,{"headers":{"authorization":`Bearer ${Token}`}})
+        console.log(userConsumtions);
+        
         }catch(error:any)
         {
             console.log(error.response)
         }
 
     }
+    
     useEffect(()=>{getUserReadings()},[])
     return(
         <>
@@ -44,4 +53,4 @@ const ChartDashboard=()=>{
 
 }
 
-export default ChartDashboard;
+export default ElectricityChartDashboard;

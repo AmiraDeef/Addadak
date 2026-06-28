@@ -1,4 +1,4 @@
-import SpeedoMeter from "../assets/SpeedoMeter.gif"
+import SpeedoMeter from "../../assets/SpeedoMeter.gif"
 import { NavLink } from "react-router-dom";
 
  interface LogoProps{
