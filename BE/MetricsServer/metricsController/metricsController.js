@@ -142,7 +142,10 @@ const userConsumptions=async(req,res,next)=>{
                 currentConsumption = userMeters[i].reading - userMeters[i + 1].reading;
             } else {
                 
-                currentConsumption = userMeters[i].reading;
+                currentConsumption = userMeters[i].reading-0;
+                if(currentConsumption<0){
+                    currentConsumption=Math.abs(currentConsumption)
+                }
             }
 
             consumptions.push({

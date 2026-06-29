@@ -28,7 +28,7 @@ const ElectricityTierDashboard = ({ userTier }: props) => {
     }, []);
 
     return (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md: grid-cols-3 lg:grid-cols-1 gap-4 p-4 w-fill max-w-5xl mx-auto"> 
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-1 gap-4 p-4 w-fill max-w-5xl "> 
             {
                 allTiers.map((ele: Tier, index: number) => {
                     const isSelected = ele.tier === userTier;

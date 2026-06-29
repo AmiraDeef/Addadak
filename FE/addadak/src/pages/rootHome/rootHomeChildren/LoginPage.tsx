@@ -42,7 +42,7 @@ const Login=()=>{
     return (
         
         
-        <section className='  items-center justify-center bg-black/10 px-4 flex flex-col min-h-[calc(100vh-155px)] pb-14 py-6 gap-8  md:gap-12 '>
+        <section className='  items-center justify-center bg-black/10 px-4 flex flex-col min-h-[calc(100vh-106px)] pb-14 py-6 gap-8  md:gap-12 '>
             <div className="texts texts w-full max-w-md">
                 <h2 className='text-center font-bold text-5xl'>Login to your account</h2>   
             </div>
