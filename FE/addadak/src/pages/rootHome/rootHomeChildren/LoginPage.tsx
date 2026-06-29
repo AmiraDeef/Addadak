@@ -1,12 +1,15 @@
 
 import {useForm,} from 'react-hook-form'
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../../Contexts/AuthContext';
 import axios from 'axios';
 
 
 const Login=()=>{
     const {register, handleSubmit, formState:{errors,isValid,isSubmitting}, reset}=useForm({mode:"onChange"});
     const navigate=useNavigate();
+
+    const {Login}=useAuth()!;
 
     interface inputs{
 
@@ -25,11 +28,13 @@ const Login=()=>{
 
     const gotoProfile=async(data:any)=>{
         try{
-            const res=await axios.post("http://localhost:3000/user/login",data);
+            const res=await axios.post("http://localhost:3000/user/login",data,{withCredentials:true});
+            console.log(res);
             if(res.status==200){
-                localStorage.setItem('token',res.data.Token);
-                localStorage.setItem("UserId",res.data.User._id);
-                localStorage.setItem("UserNid",res.data.User.nationalID);
+                //localStorage.setItem('token',res.data.Token);
+                //localStorage.setItem("UserId",res.data.User._id);
+                //localStorage.setItem("UserNid",res.data.User.nationalID);
+                Login(res.data.User.nationalID,res.data.User._id);
                 navigate("/logged/user/profile");
                 reset();
             }

@@ -1,26 +1,28 @@
 
 import TierDashboard from "./ElectricityTierDashboard";
-
+import { useAuth } from "../../../Contexts/AuthContext";
 import ElectricityChartDashboard from "./ElectricityChartDashboard";
 import axios from "axios";
 import { useEffect,useState } from "react";
 
 const ElectricDashboard=()=>{
 
-    const token=localStorage.getItem("token")|| " ";
+    //const Token=localStorage.getItem("token")|| " ";
     //const id=localStorage.getItem("UserId");
-    const NID=localStorage.getItem("UserNid")|| " ";
+    //const NID=localStorage.getItem("UserNid")|| " ";
+
+    const {nid}=useAuth()!;
 
     const[meters,setMeters]=useState([]);
     const [userTier,setUserTier]=useState(0);
     const [meterNo,setMeterNo]=useState("");
-     const [chartData,setChartdata]=useState([]);
-
+    const [chartData,setChartdata]=useState([]);
+    console.log(nid)
     const getUserMeters=async()=>{
        try{
-         const userMeters= await axios.get(`http://localhost:3001/logged/user/viewAllMeters/${NID}`,{"headers":{"authorization":`Bearer ${token}`}})
-        const fetchedMeters = userMeters.data.meters;
-        setMeters(fetchedMeters); 
+         const userMeters= await axios.get(`http://localhost:3001/logged/user/viewAllMeters/${nid}`,{withCredentials: true })
+         const fetchedMeters = userMeters.data.meters;
+         setMeters(fetchedMeters); 
 
         
         if (fetchedMeters && fetchedMeters.length > 0) {
@@ -40,7 +42,7 @@ const ElectricDashboard=()=>{
 
     const getUserTier=async(currentMeterNumber:string)=>{
         try{
-            const tier= await axios.get(`http://localhost:3001/logged/user/getTier/${NID}/${currentMeterNumber}`,{"headers":{"authorization":`Bearer ${token}`}}) ;
+            const tier= await axios.get(`http://localhost:3001/logged/user/getTier/${nid}/${currentMeterNumber}`,{withCredentials: true }) ;
             setUserTier(tier.data.tier);
         }catch(error:any){
             const msg=error.response.data.message||error.response.data.msg
@@ -53,7 +55,7 @@ const ElectricDashboard=()=>{
             
            try{ 
             
-            const userConsumtions= await axios.get(`http://localhost:3001/logged/user/getUserConsumptions/${NID}/${selectedMeterNo}`,{"headers":{"authorization":`Bearer ${token}`}});
+            const userConsumtions= await axios.get(`http://localhost:3001/logged/user/getUserConsumptions/${nid}/${selectedMeterNo}`,{withCredentials: true });
             console.log(userConsumtions);
             setChartdata(userConsumtions.data.consumptionTable);
             

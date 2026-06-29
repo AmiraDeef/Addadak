@@ -2,17 +2,17 @@ import type { ReactElement } from "react";
 import { Link } from "react-router-dom";
 import Logo from "../Badges/Logo";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../Contexts/AuthContext";
 
 
 
 const Sidebar=()=>{
 
     const navigate=useNavigate();
+    const{Logout}=useAuth()!
 
     const logout=()=>{
-        localStorage.removeItem("token");
-   
-        localStorage.removeItem("UserId");
+        Logout();
 
     navigate('/user/login');
 } 

@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import profile from "../../../assets/Profile.gif";
 import {useForm,} from 'react-hook-form'
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../../Contexts/AuthContext";
 
 
 const UserProfile=()=>{
@@ -12,8 +13,9 @@ const UserProfile=()=>{
     const {register, handleSubmit, reset ,formState:{errors, isValid}}=useForm({mode:"onChange"});
     const navigate=useNavigate();
 
-    const token=localStorage.getItem("token");
-    const id=localStorage.getItem("UserId");
+    //const Token=localStorage.getItem("token");
+    //const ID=localStorage.getItem("UserId");
+    const{id}=useAuth()!;
 
 
     let fname:string;
@@ -57,17 +59,16 @@ const UserProfile=()=>{
 
 
     useEffect(()=>{
-            const token=localStorage.getItem("token");
-            if(!token){
+            
+            if(!id){
                 navigate('/user/notfound')
             }
-            const getUserInfo=async(token:any,id:any)=>{
+            const getUserInfo=async(id:any)=>{
 
                 try{
                     
-                    const userData=await axios.get(`http://localhost:3000/logged/user/${id}`,{
-                        "headers":{"authorization":`Bearer ${token}`}
-                    });
+                    const userData=await axios.get(`http://localhost:3000/logged/user/${id}`,{withCredentials: true });
+                    console.log(userData)
                     fname=userData.data.User.firstName;
                     lname=userData.data.User.lastName;
                     age=userData.data.User.age;
@@ -99,7 +100,7 @@ const UserProfile=()=>{
                 }
     }
         
-        getUserInfo(token,id);
+        getUserInfo(id);
 
         
         
@@ -110,7 +111,7 @@ const UserProfile=()=>{
         try {
             const updatedData= await axios.put(`http://localhost:3000/logged/user/update/${id}`,
             data,
-            {"headers":{"authorization":`Bearer ${token}`}});
+            {withCredentials: true });
 
             
 
@@ -148,7 +149,7 @@ const UserProfile=()=>{
         const confirmation=window.confirm("Are you sure you want to delete your account? ")
         if(!confirmation){return;}
         try{
-            const deletedUser=await axios.delete(`http://localhost:3000/logged/user/delete/${id}`, {"headers":{"authorization":`Bearer ${token}`}})
+            const deletedUser=await axios.delete(`http://localhost:3000/logged/user/delete/${id}`, {withCredentials: true })
             console.log(deletedUser);
             alert(deletedUser.data.message);
             navigate("/");
