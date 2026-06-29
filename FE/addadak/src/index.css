@@ -4,7 +4,7 @@
   --color-electric-cyan:#00E5FF ;
   --color-secondary-purple:#380D44 ;
   --color-warning:#EF4444 ;
-  --color-gas-yellow:#F59E0B ;
+  --color-gas-yellow:#ffa200 ;
   --color-light-background:#E5E0D9 ;
   --color-blue:#3B82F6 ;
   --color-my-white:#FDF8FF;
@@ -12,4 +12,8 @@
 
 body{
   background-color: var(--color-light-background);
+}
+
+bg{
+  color: #ffa200;
 }

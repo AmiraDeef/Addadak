@@ -17,7 +17,7 @@ const ElectricityChartDashboard=({chartData}:chartprop)=>{
                         <XAxis dataKey="month" stroke="#64686e" fontSize={12} tickLine={false}/>
                         <YAxis stroke="#64686e" fontSize={12} tickLine={false} axisLine={false}></YAxis>
                         <Tooltip cursor={{ fill: '#abb0b6' }}></Tooltip>
-                        <Bar dataKey="consumption" fill="#3B82F6" radius={[6, 6, 0, 0]}></Bar>
+                        <Bar dataKey="consumption" fill="#3ecfdf" radius={[6, 6, 0, 0]}></Bar>
                         
                         
                     </BarChart>

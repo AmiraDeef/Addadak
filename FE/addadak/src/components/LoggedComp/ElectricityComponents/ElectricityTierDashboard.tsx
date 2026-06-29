@@ -28,7 +28,7 @@ const ElectricityTierDashboard = ({ userTier }: props) => {
     }, []);
 
     return (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-1 gap-4 p-4 w-fill max-w-5xl "> 
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-1 gap-4 p-6 w-fill max-w-5xl "> 
             {
                 allTiers.map((ele: Tier, index: number) => {
                     const isSelected = ele.tier === userTier;
@@ -36,9 +36,9 @@ const ElectricityTierDashboard = ({ userTier }: props) => {
                     return (
                         <div 
                             key={index} 
-                            className={`rounded-3xl py-4 px-6 border shadow-md flex flex-row justify-between items-center text-center transition-all duration-300 w-full h-20 hover:-translate-y-3
+                            className={`rounded-3xl gap-5 py-4 px-6 border shadow-md flex flex-row justify-between items-center text-center transition-all duration-300 w-75 h-20 hover:-translate-y-3
                                 ${isSelected 
-                                    ? 'bg-secondary-purple text-gas-yellow  scale-110 font-bold ring-3 ring-electric-cyan/50' 
+                                    ? 'bg-secondary-purple text-gas-yellow  scale-110 font-bold  ' 
                                     : 'border-secondary-purple text-secondary-purple    bg-my-white/30'
                                 }`
                             }

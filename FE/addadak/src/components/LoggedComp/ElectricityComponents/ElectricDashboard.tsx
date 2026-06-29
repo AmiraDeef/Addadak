@@ -72,8 +72,14 @@ const ElectricDashboard=()=>{
     
          console.log(chartData)
     return(
-        <div className="flex flex-col w-fill  min-w-0 justify-center  items-around pt-4">
-            <div className="grid grid-cols-2 md:grid-cols-4  gap-4 p-4 w-fill max-w-7xl mx-auto ">
+        <div className="flex flex-col w-fill duration-300 transition-all min-w-0 justify-around  items-around pt-10 sm:flex-row">
+            
+            
+
+
+            <div className="flex  flex-col w-fill min-w-0 justify-around  items-center gap-10">
+
+                <div className="grid grid-cols-2 md:grid-cols-4  gap-6 p-4 w-fill max-w-7xl  ">
                {meters && meters.length > 0 ? 
                (
                     meters.map((ele, index) => {
@@ -94,23 +100,20 @@ const ElectricDashboard=()=>{
                                 }}
                                 className={`rounded-3xl py-4 px-6 border shadow-md flex flex-col justify-center items-center text-center transition-all duration-300 w-full h-24 hover:-translate-y-1 ${
                                     meterNo === currentMeterNumber 
-                                        ? "border-gas-yellow bg-my-white/33 text-gas-yellow font-bold ring-1 ring-gas-yellow" 
-                                        : "border-gray-200 bg-white text-gray-700"
+                                        ? "border-gas-yellow bg-secondary-purple transition-all duration-300 scale-112 text-gas-yellow font-bold " 
+                                        : "border-gray-200 bg-secondary-purple text-gray-300"
                                 }`}
                             >
                                 
                                 <p className="font-bold text-base">{currentMeterType || " No type"}</p>
-                                <p className="text-gray-500 font-medium">{currentMeterNumber || "No Number"}</p>
-                                <p className="text-sm text-gray-400">{currentAddress || "No address"}</p>
+                                <p className="0 font-medium">{currentMeterNumber || "No Number"}</p>
+                                <p className="text-sm ">{currentAddress || "No address"}</p>
                             </button>
                         );
                     })
                 ) : (<p className="text-gray-500 text-center">No Meters for this user  </p>)}
 
             </div>
-
-
-            <div className="flex pt-5 flex-col w-fill min-w-0 justify-around  items-center md:flex-row">
 
                 {chartData && chartData.length > 0 ? 
                 (
@@ -119,9 +122,10 @@ const ElectricDashboard=()=>{
                 (
                     <div className="text-gray-400 text-sm italic py-20">Loading data ...</div>
                 )}
-                <TierDashboard userTier={userTier}></TierDashboard>
+                
             </div>
             
+            <TierDashboard userTier={userTier}></TierDashboard>
 
         </div>
     )
