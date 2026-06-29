@@ -76,10 +76,11 @@ const ElectricDashboard=()=>{
     return(
         <div className="flex flex-col w-fill duration-300 transition-all min-w-0 justify-around  items-around pt-10 sm:flex-row">
             
-            
+        
 
 
             <div className="flex  flex-col w-fill min-w-0 justify-around  items-center gap-10">
+                
 
                 <div className="grid grid-cols-2 md:grid-cols-4  gap-6 p-4 w-fill max-w-7xl  ">
                {meters && meters.length > 0 ? 
