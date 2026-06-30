@@ -31,6 +31,6 @@ DB_connection();
 
 
 app.use(serverErrorHandler);
-app.listen(process.env.PORT,()=>{
+app.listen(process.env.PORT||3001,()=>{
     console.log(`Metrics Server ia listening to port: ${process.env.PORT}`)
 })

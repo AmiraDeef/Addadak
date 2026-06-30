@@ -16,7 +16,7 @@ const UserProfile=()=>{
 
     //const Token=localStorage.getItem("token");
     //const ID=localStorage.getItem("UserId");
-    const{id}=useAuth()!;
+    const{nid,id}=useAuth()!;
 
 
     let fname:string;
@@ -61,6 +61,9 @@ const UserProfile=()=>{
 
     useEffect(()=>{
             
+            if (id === undefined || id === null || id === "") {
+                return; 
+                }
             if(!id){
                 navigate('/user/notfound')
             }
@@ -110,7 +113,7 @@ const UserProfile=()=>{
         
         
        
-    },[]);
+    },[id]);
 
     const editUserInfo=async (data:any)=>{
         try {
@@ -164,10 +167,12 @@ const UserProfile=()=>{
         
         if (result.isConfirmed) {
             try {
+                const deletMetrics=await axios.delete(`http://localhost:3001/logged/user/deleteAllMeters/${nid}`,{ withCredentials: true })
                 const deletedUser = await axios.delete(`http://localhost:3000/logged/user/delete/${id}`, { withCredentials: true });
-                console.log(deletedUser);
                 
-               
+                
+                
+               if(deletedUser.status===200 && deletMetrics.status===200)
                 await Swal.fire({
                     title: 'Deleted!',
                     text: deletedUser.data.message || 'Your account has been deleted.',

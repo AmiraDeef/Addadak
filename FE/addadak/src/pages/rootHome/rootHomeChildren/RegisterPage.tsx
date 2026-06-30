@@ -1,6 +1,7 @@
 import {useForm} from 'react-hook-form'
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import Swal from 'sweetalert2'
 
 
 const Register=()=>{
@@ -38,13 +39,32 @@ const Register=()=>{
         {
 
             const res=await axios.post("http://localhost:3000/user/register",data);
+            if(res.status===201){
+                
+                Swal.fire({
+                    title: 'Registration Completed!',
+                    text: 'Please login ',
+                    icon: 'success',
+                    confirmButtonText: 'Ok'
+                }); 
+                                        
+                navigate("/user/login");
+                reset();
+            }
             console.log(res)
-            alert(res.data.message);
-            navigate("/user/login");
-            reset();
+            
+           
         }catch(error:any){
-            const msg=error.response.data.message||error.response.data.msg
-            alert(msg);
+            const msg=error.response.status
+            if (msg ===400){
+                Swal.fire({
+                    title: 'User Already Registered',
+                    text: 'Please login',
+                    icon: 'error',
+                    confirmButtonText: 'Ok'
+                    }); 
+            }
+            navigate("/user/login");
             
         }
     }
@@ -145,5 +165,6 @@ const Register=()=>{
         
     );
 }
+
 
 export default Register;

@@ -164,11 +164,28 @@ const userConsumptions=async(req,res,next)=>{
     }
 }
  
+const deleteUserMeters=async(req,res,next)=>{
+    try{
+        const {ID}=req.params
+        
+        const result=await metricsSchema.deleteMany({nationalID:ID})
+        console.log(userMeters)
+        if (result.deletedCount === 0){return res.status(404).json({message:"User metrics are not found!"})}
+        res.status(200).json({ 
+            success: true,
+            message: "user deleted ", 
+        });
+    }catch(error){
+        next(error);
+    }
+}
+
 
 module.exports={
     getTier,
     addMetrics,
     viewAllTiers,
     getAllMeters,
-    userConsumptions
+    userConsumptions,
+    deleteUserMeters
 }

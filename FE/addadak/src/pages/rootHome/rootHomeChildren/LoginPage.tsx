@@ -41,16 +41,28 @@ const Login=()=>{
             }
         }catch(error:any){
             const msg=error.response.data.message||error.response.data.msg
+            const status=error.response.status
             if (msg ==="jwt expired"){
-                                    Swal.fire({
-                                        title: 'Session Expired!',
-                                        text: 'Please login again.',
-                                        icon: 'error',
-                                        confirmButtonText: 'Ok'
-                                        }); 
-                                    navigate("/user/login");
-            
-                                }
+                Swal.fire({
+                    title: 'Session Expired!',
+                    text: 'Please login again.',
+                    icon: 'error',
+                    confirmButtonText: 'Ok'
+                    }); 
+                navigate("/user/login");
+
+            }
+
+            if (status ===404){
+                Swal.fire({
+                    title: 'Login Failed!',
+                    text: 'wrong email or password please try again.',
+                    icon: 'error',
+                    confirmButtonText: 'Ok'
+                    }); 
+                navigate("/user/login");
+
+            }
         }
     }
     

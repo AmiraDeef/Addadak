@@ -18,4 +18,12 @@ userRouter.delete('/logged/user/delete/:_id',authZmiddleware,userController.dele
 //update
 userRouter.put('/logged/user/update/:_id',authZmiddleware,userController.userUpdate);
 
+//cookie checker
+userRouter.get('/logged/user', authZmiddleware, (req, res) => {
+    if (req.user) {
+        return res.status(200).json({ loggedIn: true, userId: req.user });
+    }
+    return res.status(401).json({ loggedIn: false, message: "Not authorized" });
+});
+
 module.exports=userRouter;
