@@ -29,7 +29,8 @@ const ElectricityTierDashboard = ({ userTier }: props) => {
 
     return (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 border border-secondary-purple lg:grid-cols-1 gap-4 p-6 w-fill max-w-5xl flex flex-col  rounded-2xl gap-5"> 
-            <h1 className="text-secondary-purple text-2xl">Consumption tiers</h1>
+            <div><h1 className="text-secondary-purple text-2xl">Consumption tiers</h1></div>
+            
             {
                 
                 allTiers.map((ele: Tier, index: number) => {

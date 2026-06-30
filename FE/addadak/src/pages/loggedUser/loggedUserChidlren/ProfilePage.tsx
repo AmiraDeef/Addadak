@@ -2,8 +2,9 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import profile from "../../../assets/Profile.gif";
 import {useForm,} from 'react-hook-form'
-import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../../Contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
+import Swal from 'sweetalert2';
 
 
 const UserProfile=()=>{
@@ -91,12 +92,16 @@ const UserProfile=()=>{
                 }catch(error:any){
                     const problem=error.response.data.message ||error.response.data.msg;
                     if (problem ==="jwt expired"){
-                        alert ("session expired");
+                        Swal.fire({
+                            title: 'Session Expired!',
+                            text: 'Please login again.',
+                            icon: 'error',
+                            confirmButtonText: 'Ok'
+                            }); 
                         navigate("/user/login");
 
                     }
                     console.log(problem);
-                    alert(problem);
                 }
     }
         
@@ -145,23 +150,49 @@ const UserProfile=()=>{
     }
 
     const DeleteUser=async()=>{
+   
+    Swal.fire({
+        title: 'Are you sure?',
+        text: "You won't be able to revert this account deletion!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',         
+        cancelButtonColor: '#6B46C1',      
+        confirmButtonText: 'Yes, delete it!',
+        cancelButtonText: 'Cancel'
+    }).then(async (result) => {
+        
+        if (result.isConfirmed) {
+            try {
+                const deletedUser = await axios.delete(`http://localhost:3000/logged/user/delete/${id}`, { withCredentials: true });
+                console.log(deletedUser);
+                
+               
+                await Swal.fire({
+                    title: 'Deleted!',
+                    text: deletedUser.data.message || 'Your account has been deleted.',
+                    icon: 'success',
+                    confirmButtonColor: '#6B46C1'
+                });
 
-        const confirmation=window.confirm("Are you sure you want to delete your account? ")
-        if(!confirmation){return;}
-        try{
-            const deletedUser=await axios.delete(`http://localhost:3000/logged/user/delete/${id}`, {withCredentials: true })
-            console.log(deletedUser);
-            alert(deletedUser.data.message);
-            navigate("/");
-           
+                
+                navigate("/");
 
-        }catch(error:any){
-            const problem=error.response?.data?.message ||error.response?.data?.msg;
-            console.log(problem);
-
-
+            } catch (error: any) {
+                const problem = error.response?.data?.message || error.response?.data?.msg || "Something went wrong";
+                console.log(problem);
+                
+                
+                Swal.fire({
+                    title: 'Error!',
+                    text: problem,
+                    icon: 'error',
+                    confirmButtonColor: '#6B46C1'
+                });
+            }
         }
-    }
+    });
+};
 
     
    

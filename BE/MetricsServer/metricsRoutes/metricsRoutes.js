@@ -1,12 +1,13 @@
 const express=require("express");
 const metricsRouter=express.Router();
 const metricsController=require("../metricsController/metricsController");
+const authz=require("../Authorization/authzMiddleware")
 
 metricsRouter.post("/addElectricMetric",metricsController.addMetrics)
-metricsRouter.get("/getTier/:ID/:meterNo",metricsController.getTier);
+metricsRouter.get("/getTier/:ID/:meterNo",authz,metricsController.getTier);
 metricsRouter.get("/viewAllTiers",metricsController.viewAllTiers);
-metricsRouter.get("/viewAllMeters/:ID",metricsController.getAllMeters);
-metricsRouter.get("/getUserConsumptions/:ID/:meterNo",metricsController.userConsumptions)
+metricsRouter.get("/viewAllMeters/:ID",authz,metricsController.getAllMeters);
+metricsRouter.get("/getUserConsumptions/:ID/:meterNo",authz,metricsController.userConsumptions)
 
 
 module.exports=metricsRouter;

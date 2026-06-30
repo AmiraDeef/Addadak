@@ -19,7 +19,7 @@ const createUser=async (req,res,next)=>{
         if(!newUser){
             return next (new clientErrorHandler(400,"user's entered data is invalid, please try again!"));
         }
-        res.status(201).json({message:"User registered "})
+        return res.status(201).json({message:"User registered "})
     }catch(error){
         next(error);
     }
@@ -44,8 +44,8 @@ const logUser=async(req,res,next)=>{
 
         const token=generateToken(userSaved._id,userSaved.phone,process.env.SECRET_KEY,"10m");
         const userID=userSaved.nationalID
-        res.status(200).json({message:"logging succeeded", User:userSaved ,Token:token});
-        //.cookie("Authtoken",token,{httpOnly:true, secure:false,sameSite: 'lax', maxAge:60*60})
+        return res.status(200).cookie("Authdata",token,{httpOnly:true, secure:false,sameSite: 'lax', maxAge:60*60*1000}).json({message:"logging succeeded", User:userSaved });
+        
 
     }catch(error){
         next(error);
@@ -62,7 +62,7 @@ const deleteUser=async(req,res,next)=>{
             return res.status(404).json({message:"User is not found"});
         }
     
-        res.status(200).json({message:`user  deleted `});
+        return res.status(200).clearCookie("Authdata").json({message:`user  deleted `});
        
 
 
@@ -80,7 +80,7 @@ const getUserById=async(req,res,next)=>{
             return res.status(404).json({message:"User is not found"});
         }
          console.log(req.headers)
-        res.status(200).json({message:`success `,User:uzer});
+        return res.status(200).json({message:`success `,User:uzer});
     }catch(error){
         next(error);
     }
@@ -93,7 +93,7 @@ const getAllUsers=async(req,res,next)=>{
         if(!users){
             return next( new clientErrorHandler(404,"Users not found"));
         }
-        res.status(200).json({message:`users: `,users});
+        return res.status(200).json({message:`users: `,users});
     }catch(error){
         next(error);
     }
@@ -112,7 +112,7 @@ const userUpdate=async (req,res,next)=>{
         if(!updatedUser){
             return res.status(404).json({message:"User not found"});
         }
-        res.status(200).json({message:`user updated: `,updatedUser});
+        return res.status(200).json({message:`user updated: `,updatedUser});
 
     }catch(error){
         next(error);

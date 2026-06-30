@@ -163,34 +163,7 @@ const userConsumptions=async(req,res,next)=>{
         next(error);
     }
 }
-/* try{
-        let userTier;
-        let userRate;
-        let userBill;
-        const {ID}=req.params
-        
-        const userMeters=await metricsSchema.find({nationalID:ID}).sort({readingDate:-1});
-        if(!userMeters || userMeters.length === 0){return res.status(404).json({message:"User metrics are not found!"})}
-    
-        const userMeter=userMeters[0].reading-userMeters[1].reading;
-        for (let i=0; i<tiers.length ;i++){
-            if ((userMeter>=tiers[i].min)&&(userMeter<=tiers[i].max)){
-
-                userRate=tiers[i].rate;
-                userTier=tiers[i].tier;
-                break;
-            }
-        }
-        console.log(userMeter);
-        userBill=parseFloat((userMeter*userRate).toFixed(2));
-        res.status(200).json({message :"tier is",
-            currentMonth:{tier:userTier, rate:userRate, bill:userBill},
-            lastMonths:userMeters,
-            consumption:userMeter
-        });
-    }catch(error){
-         next(error);
-    }*/ 
+ 
 
 module.exports={
     getTier,

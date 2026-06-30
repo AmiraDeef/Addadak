@@ -17,6 +17,7 @@
     "react-hook-form": "^7.76.1",
     "react-router-dom": "^7.16.0",
     "recharts": "^3.8.1",
+    "sweetalert2": "^11.26.25",
     "tailwindcss": "^4.3.0"
   },
   "devDependencies": {

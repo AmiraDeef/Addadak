@@ -13,6 +13,9 @@ import GasForecast from './components/LoggedComp/GasComponents/GasForecast'
 import GasCredit from './components/LoggedComp/GasComponents/GasCredit'
 import ELectricForecast from './components/LoggedComp/ElectricityComponents/ElectricForecast'
 import ElectricCredit from './components/LoggedComp/ElectricityComponents/ElectricCredit'
+import WaterDashboard from './components/LoggedComp/WaterComponents/WaterDashboard'
+import WaterForecast from './components/LoggedComp/WaterComponents/WaterForecast'
+import WaterCredit from './components/LoggedComp/WaterComponents/WaterCredit'
 import './App.css'
 import type { ReactElement } from 'react'
 import { Routes,Route } from 'react-router-dom'
@@ -44,7 +47,8 @@ function App() {
       children:
       [
         {path:'electricity',element:<ElectricDashboard ></ElectricDashboard>},
-        {path:'gas',element:<GasDashboard></GasDashboard>}
+        {path:'gas',element:<GasDashboard></GasDashboard>},
+        {path:'water',element:<WaterDashboard></WaterDashboard>}
       ]
     },
     {
@@ -53,7 +57,8 @@ function App() {
       children:
       [
         {path:'electricity',element:<ELectricForecast></ELectricForecast>},
-        {path:'gas',element:<GasForecast></GasForecast>}
+        {path:'gas',element:<GasForecast></GasForecast>},
+        {path:'water',element:<WaterForecast></WaterForecast>}
       ]
     },
     {
@@ -62,7 +67,8 @@ function App() {
       children:
       [
         {path:'electricity',element:<ElectricCredit ></ElectricCredit>},
-        {path:'gas',element:<GasCredit></GasCredit>}
+        {path:'gas',element:<GasCredit></GasCredit>},
+        {path:'water',element:<WaterCredit></WaterCredit>}
       ]
     },    
   ]

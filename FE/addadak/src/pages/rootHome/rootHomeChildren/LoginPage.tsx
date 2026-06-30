@@ -3,6 +3,7 @@ import {useForm,} from 'react-hook-form'
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../Contexts/AuthContext';
 import axios from 'axios';
+import Swal from 'sweetalert2';
 
 
 const Login=()=>{
@@ -35,12 +36,21 @@ const Login=()=>{
                 //localStorage.setItem("UserId",res.data.User._id);
                 //localStorage.setItem("UserNid",res.data.User.nationalID);
                 Login(res.data.User.nationalID,res.data.User._id);
-                navigate("/logged/user/profile");
+                navigate("/logged/user/dashboard/electricity");
                 reset();
             }
         }catch(error:any){
             const msg=error.response.data.message||error.response.data.msg
-            alert(msg);
+            if (msg ==="jwt expired"){
+                                    Swal.fire({
+                                        title: 'Session Expired!',
+                                        text: 'Please login again.',
+                                        icon: 'error',
+                                        confirmButtonText: 'Ok'
+                                        }); 
+                                    navigate("/user/login");
+            
+                                }
         }
     }
     
