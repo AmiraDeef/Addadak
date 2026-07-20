@@ -154,11 +154,16 @@ class NotificationService {
   async getStats() {
     const stats = await Notification.aggregate([
       {
+        $match: {
+          userId: new mongoose.Types.ObjectId(userId)
+        }
+      },
+      {
         $group: {
           _id: '$status',
-          count: { $sum: 1 },
-        },
-      },
+          count: { $sum: 1 }
+        }
+      }
     ]);
     
     // Format to a nice object: { sent: 10, failed: 2, etc }

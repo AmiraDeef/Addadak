@@ -15,21 +15,31 @@ const AppError = require('../shared/helpers/AppError');
  */
 const validate = (schema, source = 'body') => {
   return (req, res, next) => {
-    const { error, value } = schema.validate(req[source], {
-      abortEarly: false,    // Collect ALL validation errors, not just the first
-      stripUnknown: true,   // Remove extra fields not in schema
+
+    const { value, error } = schema.validate(req[source], {
+      abortEarly: false,
+      stripUnknown: true,
     });
 
     if (error) {
-      // Format all validation messages into a clean array
-      const messages = error.details.map((d) => d.message.replace(/"/g, "'"));
-      return next(new AppError(`Validation failed: ${messages.join(', ')}`, 400));
+      return next(error);
     }
 
-    // Replace req[source] with the sanitized/validated value
-    req[source] = value;
+    switch (source) {
+      case 'body':
+        req.body = value;
+        break;
+
+      case 'params':
+        req.params = value;
+        break;
+
+      case 'query':
+        req.validatedQuery = value;
+        break;
+    }
+
     next();
   };
 };
-
 module.exports = validate;
