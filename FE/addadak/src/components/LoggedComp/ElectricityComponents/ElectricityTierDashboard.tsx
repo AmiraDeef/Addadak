@@ -1,5 +1,5 @@
-import axios from "axios";
 import { useState, useEffect } from "react";
+import api from "../../../api/axios.tsx";
 
 interface Tier {
     tier: number;
@@ -15,7 +15,7 @@ const ElectricityTierDashboard = ({ userTier }: props) => {
 
     const viewAllTiers = async () => {
         try {
-            const viewallTiers = await axios.get(`http://localhost:3001/logged/user/viewAllTiers`);
+            const viewallTiers = await api.elecApi.get(`/viewAllTiers`);
             const sevenTiers = viewallTiers.data.Tiers;
             setAllTiers(sevenTiers);
         } catch (error) {

@@ -2,10 +2,11 @@
 import TierDashboard from "./ElectricityTierDashboard";
 import { useAuth } from "../../../Contexts/AuthContext";
 import ElectricityChartDashboard from "./ElectricityChartDashboard";
-import axios from "axios";
+
 import { useEffect,useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Swal from 'sweetalert2';
+import api from "../../../api/axios.tsx";
 
 const ElectricDashboard=()=>{
 
@@ -19,7 +20,7 @@ const ElectricDashboard=()=>{
     console.log(nid)
     const getUserMeters=async()=>{
        try{
-         const userMeters= await axios.get(`http://localhost:3001/logged/user/viewAllMeters/${nid}`,{withCredentials: true })
+         const userMeters= await api.elecApi.get(`/viewAllMeters/${nid}`,{withCredentials: true })
          const fetchedMeters = userMeters.data.meters;
          setMeters(fetchedMeters); 
 
@@ -50,7 +51,7 @@ const ElectricDashboard=()=>{
 
     const getUserTier=async(currentMeterNumber:string)=>{
         try{
-            const tier= await axios.get(`http://localhost:3001/logged/user/getTier/${nid}/${currentMeterNumber}`,{withCredentials: true }) ;
+            const tier= await api.elecApi.get(`/getTier/${nid}/${currentMeterNumber}`,{withCredentials: true }) ;
             setUserTier(tier.data.tier);
         }catch(error:any){
             const msg=error.response.data.message||error.response.data.msg
@@ -72,7 +73,7 @@ const ElectricDashboard=()=>{
             
            try{ 
             
-            const userConsumtions= await axios.get(`http://localhost:3001/logged/user/getUserConsumptions/${nid}/${selectedMeterNo}`,{withCredentials: true });
+            const userConsumtions= await api.elecApi.get(`/getUserConsumptions/${nid}/${selectedMeterNo}`,{withCredentials: true });
             console.log(userConsumtions);
             setChartdata(userConsumtions.data.consumptionTable);
             

@@ -1,10 +1,11 @@
-import axios from "axios";
+
 import { useEffect, useState } from "react";
 import profile from "../../../assets/Profile.gif";
 import {useForm,} from 'react-hook-form'
 import { useAuth } from "../../../Contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import Swal from 'sweetalert2';
+import api from "../../../api/axios.tsx";
 
 
 const UserProfile=()=>{
@@ -71,7 +72,7 @@ const UserProfile=()=>{
 
                 try{
                     
-                    const userData=await axios.get(`http://localhost:3000/logged/user/${id}`,{withCredentials: true });
+                    const userData=await api.authApi.get(`/${id}`,{withCredentials: true });
                     console.log(userData)
                     fname=userData.data.User.firstName;
                     lname=userData.data.User.lastName;
@@ -117,11 +118,7 @@ const UserProfile=()=>{
 
     const editUserInfo=async (data:any)=>{
         try {
-            const updatedData= await axios.put(`http://localhost:3000/logged/user/update/${id}`,
-            data,
-            {withCredentials: true });
-
-            
+            const updatedData= await api.authApi.put(`/update/${id}`, data, {withCredentials: true });
 
             fname=updatedData.data.updatedUser.firstName;
             lname=updatedData.data.updatedUser.lastName;
@@ -167,8 +164,8 @@ const UserProfile=()=>{
         
         if (result.isConfirmed) {
             try {
-                const deletMetrics=await axios.delete(`http://localhost:3001/logged/user/deleteAllMeters/${nid}`,{ withCredentials: true })
-                const deletedUser = await axios.delete(`http://localhost:3000/logged/user/delete/${id}`, { withCredentials: true });
+                const deletMetrics=await api.elecApi.delete(`/deleteAllMeters/${nid}`,{ withCredentials: true })
+                const deletedUser = await api.authApi.delete(`/delete/${id}`, { withCredentials: true });
                 
                 
                 
