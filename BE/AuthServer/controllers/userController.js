@@ -1,4 +1,5 @@
-const user=require("../models/User.js");
+const mongoose=require('mongoose')
+const {user}=require("addadak-db-models")(mongoose);
 const clientErrorHandler=require("../middlewres/clientErrorhandler.js");
 const generateToken=require("../middlewres/authn.js");
 
