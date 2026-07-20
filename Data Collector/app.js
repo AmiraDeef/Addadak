@@ -6,7 +6,7 @@ const app = express();
 const port = process.env.PORT
 
 //logger
-const {logger} = require('./config/logger')
+const {logger} = require('./utils/logger')
 //mongoose 
 const DB_connection = require('./config/database');
 DB_connection();

@@ -1,4 +1,5 @@
 const winston = require('winston');
+const config = require('../config/index')
 const path = require('path');
 
 const logDirectory = path.join(__dirname, '..', 'logs');
@@ -10,7 +11,7 @@ const logFormat = winston.format.combine(
 );
 
 const logger = winston.createLogger({
-    level: process.env.NODE_ENV === "dev" ? 'debug' : 'info',
+    level: config.env === "dev" ? 'debug' : 'info',
     format:logFormat,
     transports:[
         new winston.transports.File({ filename: path.join(logDirectory,'error.log'), level: 'error' }),
@@ -20,7 +21,7 @@ const logger = winston.createLogger({
 
 //To print the logger on the screen.
 
-if (process.env.NODE_ENV === 'dev') {
+if (config.env === 'dev') {
   logger.add(new winston.transports.Console({
     format: winston.format.combine(
       winston.format.colorize(),
