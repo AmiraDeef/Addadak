@@ -1,7 +1,8 @@
 const express=require("express");
 const router=express.Router()
-const {chargeMeters}=require("../controllers/walletPayment.controller")
+const {chargeMeters,getWallet}=require("../controllers/walletPayment.controller")
 const authz=require("../middlewares/authzMiddleware")
 
-router.post("/chargeMeters",authz,chargeMeters)
+router.post("/chargeMeters/:userNId/:meterNum",authz,chargeMeters)
+router.get("/getwallet/:userNId",authz,getWallet)
 module.exports = router;
