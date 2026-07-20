@@ -1,22 +1,29 @@
 const Metrics = require('../models/reading.model');
 
-exports.saveReadings = async (readingData)=>{
+const ReadingRepository = {
+  
+  async save(readingData) {
     const reading = new Metrics(readingData);
     return await reading.save();
-}
+  },
 
-
-exports.findLatest = (meterId)=>{
+  
+  async findLatest(meterNumber) {
     return await Metrics.findOne({ meterNumber })
-      .sort({ readingTimestamp: -1 });
-}
+      .sort({ readingDate: -1 });
+  },
 
-exports.exists = async (meterId,readingTimestamp)=>{
+  
+  async exists(meterNumber, readingDate) {
     const result = await Metrics.exists({ meterNumber, readingDate });
     return !!result;
-}
+  },
 
-exports.findByMeter = async (meterId)=>{
+  
+  async findByMeter(meterNumber) {
     return await Metrics.find({ meterNumber })
       .sort({ readingDate: 1 });
-  } 
+  }
+};
+
+module.exports = ReadingRepository;
