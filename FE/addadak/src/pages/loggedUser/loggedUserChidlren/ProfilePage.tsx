@@ -72,7 +72,7 @@ const UserProfile=()=>{
 
                 try{
                     
-                    const userData=await api.authApi.get(`/${id}`,{withCredentials: true });
+                    const userData=await api.authApi.get(`logged/user/${id}`,{withCredentials: true });
                     console.log(userData)
                     fname=userData.data.User.firstName;
                     lname=userData.data.User.lastName;
@@ -118,8 +118,8 @@ const UserProfile=()=>{
 
     const editUserInfo=async (data:any)=>{
         try {
-            const updatedData= await api.authApi.put(`/update/${id}`, data, {withCredentials: true });
-
+            const updatedData= await api.authApi.put(`/logged/user/update/${id}`, data, {withCredentials: true });
+{console.log(updatedData)}
             fname=updatedData.data.updatedUser.firstName;
             lname=updatedData.data.updatedUser.lastName;
             age=updatedData.data.updatedUser.age;
@@ -165,7 +165,7 @@ const UserProfile=()=>{
         if (result.isConfirmed) {
             try {
                 const deletMetrics=await api.elecApi.delete(`/deleteAllMeters/${nid}`,{ withCredentials: true })
-                const deletedUser = await api.authApi.delete(`/delete/${id}`, { withCredentials: true });
+                const deletedUser = await api.authApi.delete(`/logged/user/delete/${id}`, { withCredentials: true });
                 
                 
                 

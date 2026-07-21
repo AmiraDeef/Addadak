@@ -38,7 +38,7 @@ const Register=()=>{
         try
         {
 
-            const res=await api.authApi.post("/register",data);
+            const res=await api.authApi.post("user/register",data);
             if(res.status===201){
                 
                 Swal.fire({

@@ -30,7 +30,7 @@ const Login=()=>{
 
     const gotoProfile=async(data:any)=>{
         try{
-            const res=await api.authApi.post("/login",data,{withCredentials:true});
+            const res=await api.authApi.post("user/login",data,{withCredentials:true});
             console.log(res);
             if(res.status==200){
                 //localStorage.setItem('token',res.data.Token);
