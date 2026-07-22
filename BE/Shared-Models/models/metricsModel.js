@@ -30,15 +30,16 @@ const metricSchema=new mongoose.Schema({
     type: String, 
     required: true 
    },
-   billingMonth: 
-   { type: String,
-      required: true, 
-      index:true
-    }, 
-    user: {
-    type: mongoose.Schema.Types.ObjectId, 
-    ref: 'User',                           
-    required: true                         
+   billingMonth: {
+    type: String,
+    required: true,
+    set: function (val) {
+      
+      const [year, month] = val.split('-');
+      const paddedMonth = month.padStart(2, '0'); 
+      return `${year}-${paddedMonth}`;
+    },
+    index:true
   },
    reading: { type: Number, required: true },
 
