@@ -44,32 +44,11 @@ const ElectricityCollectorService = {
           continue;
         }
 
-        //cehck if we need to add this field 
-        // 5. Load Previous Reading: Fetch the latest stored reading for this meter
-        // const previousReading = await ReadingRepository.findLatest(transformedData.meterNumber);
-
-        // // 6. Calculate Consumption Delta
-        // if (previousReading) {
-        //   // Delta = New Value - Previous Value
-        //   transformedData.consumptionDelta = transformedData.reading - previousReading.reading;
-          
-        //   // Safeguard: Handle meter resets or anomalies
-        //   if (transformedData.consumptionDelta < 0) {
-        //     logger.warn(`Negative consumption detected for meter ${transformedData.meterNumber}. Resetting delta to 0`);
-        //     transformedData.consumptionDelta = 0;
-        //   }
-        // } else {
-        //   // First time this meter is registered in the system
-        //   transformedData.consumptionDelta = 0;
-        //   logger.info(`New meter discovered in the system: ${transformedData.meterNumber}`);
-        // }
-
-        // 7. Save Reading: Store processed record in MongoDB
         await ReadingRepository.save(transformedData);
         processedCount++;
       }
 
-      // 8. Write Logs: Summary of the current cycle
+      // 5. Write Logs: Summary of the current cycle
       logger.info(`Sync cycle completed successfully. Saved: ${processedCount}, Skipped: ${skippedCount}`);
 
     } catch (error) {

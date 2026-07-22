@@ -1,6 +1,6 @@
 const express = require('express');
 const app = express();
-const PORT = 4000; // يعمل على منفذ مختلف عن تطبيقك الرئيسي
+const PORT = 4000; 
 
 app.use(express.json());
 
@@ -28,5 +28,5 @@ app.get('/meters/readings', (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`[Fake Company API] running smoothly on http://localhost:${PORT}`);
+  console.log(`[Fake Company API] running on http://localhost:${PORT}`);
 });

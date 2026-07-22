@@ -1,5 +1,5 @@
 /*This file was made to organize and check on the env variables
- and to centralize it, it's best practice to use it, so I will check it later....
+ and to centralize it, it's best practice, to use it, so I will check it later....
 */
 const path = require("path");
 require("dotenv").config({ path: path.resolve(__dirname, '../.env')});
@@ -13,7 +13,7 @@ requiredENV.forEach((envName) => {
 });
 
 const config = {
-    env: process.env.NODE_ENV || dev,
+    env: process.env.NODE_ENV || "dev",
     mongo: {
         uri: process.env.DB_URL,
     },

@@ -7,7 +7,6 @@ const {logger}  = require('../utils/logger');
 const apiClient = axios.create({
     baseURL:config.provider.electricityApiUrl, // THe link of the company API
     timeout:config.provider.timeout, //in seconds 
-    headers: {'Content-Type': 'application/json'}
 });
 
 const ELectricityProvider = {
