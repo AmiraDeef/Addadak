@@ -1,5 +1,5 @@
 const mongoose = require("mongoose")
-const { walletSchema, metricsSchema } = require("addadak-db-models")(mongoose);
+const { walletSchema, metricsSchema, user } = require("addadak-db-models")(mongoose);
 const stripe = require("stripe")(process.env.STRIP_SK);
 const axios = require("axios");
 
@@ -21,7 +21,7 @@ const getRate = (cons) => {
 
 
 }
-console.log(getRate(75)); // Output: 0.78
+
 const chargeMeters = async (req, res, next) => {
     try {
         //get meternum w nid from request body or param 
@@ -30,11 +30,9 @@ const chargeMeters = async (req, res, next) => {
         if (!userNId || !meterNum) {
             return res.status(400).json({ message: "National ID and Meter Number are required!" });
         }
-
         //adding autopay value when added
 
         // console.log(req.headers.cookie);
-
         //get consumption,amount from axios endpoint userconsumption
         const consumptionRes = await axios.get(
             `${process.env.API_CONSUMPTION_URL}/${userNId}/${meterNum}`,
@@ -51,12 +49,12 @@ const chargeMeters = async (req, res, next) => {
         console.log(latestConsumption);
 
 
-        console.log(getRate(75)); // Output: 0.78
+        // console.log(getRate(75)); 
 
 
         //calc consuption amount 
         const rate = getRate(latestConsumption);
-        const amount = latestConsumption * rate; // Assuming 0.5 EGP per unit of consumption
+        const amount = latestConsumption * rate;
         console.log({ rate, amount });
         if (!meterNum) {
             return res.status(400).json({ message: "Meter Number is required!" });
@@ -93,15 +91,20 @@ const chargeMeters = async (req, res, next) => {
                 userNId: userNId,
                 metricId: meter.meterNumber,
                 meterType: meter.meterType,
-                // utility: meter.utility
+                utility: meter.utility
 
             },
 
         })
-        console.log(meter.user);
+
+        //getting user id obj from user
+        const userOfMet = await user.findOne({ nationalID: userNId })
+
+        console.log(userOfMet);
+
         // store in db 
         const paymentTransaction = await walletSchema.create({
-            userId: meter.user,
+            userId: userOfMet._id,
             meterId: meter._id,
             status: "pending",
             meterType: meter.meterType,
@@ -126,8 +129,9 @@ const chargeMeters = async (req, res, next) => {
 
 const getWallet = async (req, res, next) => {
     try {
-        const { userId } = req.params;
-        const walletTransactions = await walletSchema.find({ userId: userId }).sort({ createdAt: -1 });
+        const { userNId } = req.params;
+        const userOfMet = await user.findOne({ nationalID: userNId })
+        const walletTransactions = await walletSchema.find({ userId: userOfMet._id }).sort({ payingDate: -1 });
         if (!walletTransactions || walletTransactions.length === 0) {
             return res.status(404).json({ message: "No wallet transactions found for this user!" });
         }
@@ -142,10 +146,69 @@ const getWallet = async (req, res, next) => {
     }
 }
 
-
-
-const autoPay = async (req, res, next) => {
+//user enable autopay
+const enableAutopay=async (params) => {
     try {
+        
+    } catch (error) {
+        
+    }
+}
+
+//server-managed when autopay-->true
+const autoPayProcess = async (req, res, next) => {
+    try {
+        //get all autopaymeters
+        const autopayMeters = await metricsSchema.find({ autoPay: true })
+        if (!autopayMeters || autopayMeters.length === 0) return res.status(200).json({ message: "no meters are autopay " })
+
+        const succedMeters = []
+
+        //calc amount for each meters
+
+// foreach not suitable with awit and axios
+
+
+        // autopayMeters.forEach(met => {
+        //     try {
+        //         const ConsumptionMet = await axios.get(
+        //             `${process.env.API_CONSUMPTION_URL}/${met.nationalID}/${met.meterNumber}`,
+        //             {
+        //                 headers: {
+        //                     cookie: req.headers.cookie
+        //                 }
+        //             }
+        //         )
+        //         const consumptions = ConsumptionMet.data.consumptionTable;
+        //         if (!consumptions || consumptions.length === 0) continue;
+
+        //         const latestConsumption = consumptions[0].consumption;
+        //         const rate = getRate(latestConsumption);
+        //         const amount = latestConsumption * rate;
+
+        //         if (amount <= 0) continue;
+
+
+
+
+
+
+            // } catch (payError) {
+            // console.error(`autopay faild for meter ${met.meterNumber}`);
+            // await walletSchema.create({
+            //         // userId: ,
+            //         meterId: meter._id,
+            //         status: "failed",
+            //         meterType: meter.meterType,
+            //         amount: 0,
+            //         stripePaymentIntentId: "N/A"
+            //     });
+            
+
+            // }
+        // });
+
+
 
     } catch (error) {
         next(error)
@@ -160,13 +223,13 @@ const getPaymentDetails = async (req, res, next) => {
         if (!userNId || !meterNum) {
             return res.status(400).json({ message: "National ID and Meter Number are required!" });
         }
-    //get meter to collect data
+        //get meter to collect data
         const meter = await metricsSchema.findOne({ meterNumber: meterNum });
         if (!meter) {
             return res.status(404).json({ message: "Meter details not found!" });
         }
-        
-     //get latest payment transaction
+
+        //get latest payment transaction
         const transaction = await walletSchema.findOne({
             meterId: meter._id
         }).sort({ payingDate: -1 });
@@ -183,11 +246,12 @@ const getPaymentDetails = async (req, res, next) => {
                 stripePaymentIntentId: transaction.stripePaymentIntentId,
                 nationalID: userNId,
                 meterNumber: meter.meterNumber,
+                utility:meter.utility,
                 meterType: meter.meterType,
                 address: meter.address,
                 amount: transaction.amount,
                 status: transaction.status,
-                
+
             }
         });
 
@@ -198,13 +262,10 @@ const getPaymentDetails = async (req, res, next) => {
 
 
 
-
-
-
-
 module.exports = {
     chargeMeters,
     getWallet,
-    autoPay,
+    enableAutopay,
+    autoPayProcess,
     getPaymentDetails
 }

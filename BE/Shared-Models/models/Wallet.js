@@ -24,6 +24,15 @@ const walletSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    // if autopay -->true and this for account for each client that return from strip when transaction success
+    stripeCustomerId: {
+        type: String,
+        required: false 
+    },
+    stripePaymentMethodId: {
+        type: String,
+        required: false //card code that saved if autopay=true
+    },
     status:{
         type:String,
         enum:["pending","paid","failed"],
