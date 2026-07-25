@@ -2,8 +2,9 @@
 import {useForm,} from 'react-hook-form'
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../Contexts/AuthContext';
-import axios from 'axios';
+
 import Swal from 'sweetalert2';
+import api from "../../../api/axios.tsx";
 
 
 const Login=()=>{
@@ -29,7 +30,7 @@ const Login=()=>{
 
     const gotoProfile=async(data:any)=>{
         try{
-            const res=await axios.post("http://localhost:3000/user/login",data,{withCredentials:true});
+            const res=await api.authApi.post("user/login",data,{withCredentials:true});
             console.log(res);
             if(res.status==200){
                 //localStorage.setItem('token',res.data.Token);

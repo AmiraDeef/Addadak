@@ -23,6 +23,7 @@
     "mongodb": "^7.5.0",
     "mongoose": "^9.6.2",
     "morgan": "^1.10.1",
+    "strip": "^3.0.0",
     "xss-clean": "^0.1.4"
   }
 }

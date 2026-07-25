@@ -35,11 +35,7 @@ const metricSchema=new mongoose.Schema({
       required: true, 
       index:true
     }, 
-    user: {
-    type: mongoose.Schema.Types.ObjectId, 
-    ref: 'User',                           
-    required: true                         
-  },
+    
    reading: { type: Number, required: true },
 
    readingDate: { type: mongoose.Schema.Types.Date, default: Date.now },
