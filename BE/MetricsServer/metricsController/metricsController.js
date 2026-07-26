@@ -1,5 +1,5 @@
 const mongoose=require("mongoose");
-const {metricsSchema}=require("addadak-db-models")(mongoose);
+const metricsSchema=require("../model/metricsModel")
 const tiers=[
     {tier:1 ,min:0, max:50, rate:0.68},
     {tier:2 , min: 51, max: 100, rate: 0.78 },
