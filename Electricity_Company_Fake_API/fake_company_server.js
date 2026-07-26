@@ -15,7 +15,7 @@ app.get('/meters/readings', (req, res) => {
       readingDate: new Date().toISOString()
     },
     {
-      nationalID: "30108220209876",
+      //nationalID: "30108220209876",
       meterNumber: "9876543210",
       meterType: "Smart Meter",
       address: "45 Abbas El-Akkad, Cairo, Egypt",

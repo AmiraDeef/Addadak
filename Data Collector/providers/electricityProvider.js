@@ -1,4 +1,5 @@
 const axios = require('axios');
+const axiosRetry = require('axios-retry').default;
 const config = require('../config/index')
 const {logger}  = require('../utils/logger');
 
@@ -9,6 +10,19 @@ const apiClient = axios.create({
     timeout:config.provider.timeout, //in seconds 
 });
 
+axiosRetry(apiClient, {
+  retries: 3, //make three trailes 
+  retryDelay: axiosRetry.exponentialDelay, //increase the time between each trail and another 
+  retryCondition: (error) => {
+    //try again only if it was networking error or server error.
+    return axiosRetry.isNetworkOrIdempotentRequestError(error) || (error.response && error.response.status >= 500);
+  },
+  onRetry: (retryCount, error, requestConfig) => {
+    logger.warn(`API Connection failed. Retrying request (${retryCount}/3)... URL: ${requestConfig.url}`);
+  }
+});
+
+axios.Retry
 const ELectricityProvider = {
     async getLatestReadings (){
         try {
