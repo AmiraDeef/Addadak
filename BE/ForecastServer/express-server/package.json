@@ -11,8 +11,7 @@
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
-    "addadak-db-models": "file:../../shared-models",
-    "axios": "^1.18.1",
+    "addadak-db-models": "file:../shared-models",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",

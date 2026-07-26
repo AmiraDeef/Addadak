@@ -63,8 +63,7 @@ const getAllMeters=async(req,res,next)=>{
                     _id:{
                         meterType:"$meterType",
                         meterNumber:"$meterNumber",
-                        address:"$address",
-                        utility:"$utility"
+                        address:"$address"
 
                     }
                      

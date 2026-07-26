@@ -4,7 +4,6 @@ const app=express();
 
 //dotenv activation
 require("dotenv").config();
-const forecastRoutes=require("./routes/aiRoutes.js");
 
 //dependencies
 const mongoose=require("mongoose");
@@ -24,7 +23,7 @@ app.use(cors({
 }));
 
 app.use(morgan(process.env.ENV))
-app.use("/logged/user",forecastRoutes);
+
 
 
 //db connection
