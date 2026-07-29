@@ -4,18 +4,10 @@ import Login from './pages/rootHome/rootHomeChildren/LoginPage'
 import RootBody from './components/RootHomeComp/RootBody'
 import UserProfile from './pages/loggedUser/loggedUserChidlren/ProfilePage'
 import LoggedRoot from './pages/loggedUser/LoggedUserRoot'
-import ElectricDashboard from './components/LoggedComp/ElectricityComponents/ElectricDashboard'
-import GasDashboard from './components/LoggedComp/GasComponents/GasDashboard'
-import Dashboard from './pages/loggedUser/loggedUserChidlren/Dashboard'
+import ChartDashboard from "./components/LoggedComp/ElectricityComponents/ChartDashboard";
+import TemplateDashboard from './pages/loggedUser/loggedUserChidlren/TemplateDashboard'
 import Forecast from './pages/loggedUser/loggedUserChidlren/Forecast'
 import Mycredit from './pages/loggedUser/loggedUserChidlren/Mycredit'
-import GasForecast from './components/LoggedComp/GasComponents/GasForecast'
-import GasCredit from './components/LoggedComp/GasComponents/GasCredit'
-import ELectricForecast from './components/LoggedComp/ElectricityComponents/ElectricForecast'
-import ElectricCredit from './components/LoggedComp/ElectricityComponents/ElectricCredit'
-import WaterDashboard from './components/LoggedComp/WaterComponents/WaterDashboard'
-import WaterForecast from './components/LoggedComp/WaterComponents/WaterForecast'
-import WaterCredit from './components/LoggedComp/WaterComponents/WaterCredit'
 import './App.css'
 import type { ReactElement } from 'react'
 import { Routes,Route } from 'react-router-dom'
@@ -43,34 +35,15 @@ function App() {
     {path:'user/profile',element:<UserProfile></UserProfile>},
     {
       path:'user/dashboard',
-      element:<Dashboard></Dashboard>, 
+      element:<TemplateDashboard></TemplateDashboard>, 
       children:
       [
-        {path:'electricity',element:<ElectricDashboard ></ElectricDashboard>},
-        {path:'gas',element:<GasDashboard></GasDashboard>},
-        {path:'water',element:<WaterDashboard></WaterDashboard>}
+        //{path:'electricity',element:<ChartDashboard chartData={chartData}></ChartDashboard>},
+        {path:'forecast' ,element:<Forecast></Forecast>},
+        {path:'credit',element:<Mycredit></Mycredit>}
+       
       ]
     },
-    {
-      path:'user/forecast',
-      element:<Forecast></Forecast>,
-      children:
-      [
-        {path:'electricity',element:<ELectricForecast></ELectricForecast>},
-        {path:'gas',element:<GasForecast></GasForecast>},
-        {path:'water',element:<WaterForecast></WaterForecast>}
-      ]
-    },
-    {
-      path:'user/credit',
-      element:<Mycredit></Mycredit>,
-      children:
-      [
-        {path:'electricity',element:<ElectricCredit ></ElectricCredit>},
-        {path:'gas',element:<GasCredit></GasCredit>},
-        {path:'water',element:<WaterCredit></WaterCredit>}
-      ]
-    },    
   ]
 
   const rootchildrenRoutings:Array<routings>=[

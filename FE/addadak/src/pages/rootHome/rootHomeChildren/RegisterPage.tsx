@@ -1,7 +1,7 @@
 import {useForm} from 'react-hook-form'
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import Swal from 'sweetalert2'
+import api from '../../../api/axios.tsx'
 
 
 const Register=()=>{
@@ -38,7 +38,7 @@ const Register=()=>{
         try
         {
 
-            const res=await axios.post("http://localhost:3000/user/register",data);
+            const res=await api.authApi.post("user/register",data);
             if(res.status===201){
                 
                 Swal.fire({

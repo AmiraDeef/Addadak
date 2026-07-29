@@ -1,6 +1,6 @@
 import { Outlet } from "react-router-dom";
-import Sidebar from "../../components/LoggedComp/Sidebar";
-import LoggedHeader from "../../components/LoggedComp/LoggedHeader";
+import Sidebar from "../../components/shared/Sidebar";
+import LoggedHeader from "../../components/shared/LoggedHeader";
 
 const LoggedRoot=()=>{
     return(
