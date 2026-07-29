@@ -47,5 +47,6 @@ const metricSchema=new mongoose.Schema({
 });
 
 
+const Metric=mongoose.model("Metrics",metricSchema);
 
-module.exports=metricSchema;
+module.exports=Metric;

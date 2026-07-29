@@ -22,7 +22,7 @@ app.use(cors({
 }));
 
 app.use(morgan(process.env.ENV));
-app.use("/wallet",walletRoutes)
+app.use("/logged/user/wallet",walletRoutes)
 
 const DB_connection=async()=>{
     await mongoose.connect(process.env.DB_URL);
