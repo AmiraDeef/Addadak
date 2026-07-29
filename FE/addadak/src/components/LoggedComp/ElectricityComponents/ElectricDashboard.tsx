@@ -1,6 +1,7 @@
 
 import TierDashboard from "./ElectricityTierDashboard";
-import { useAuth } from "../../../Contexts/AuthContext";
+import { useSelector } from "react-redux";
+import type { RootState } from "../../../store/store";
 import ElectricityChartDashboard from "./ElectricityChartDashboard";
 import axios from "axios";
 import { useEffect,useState } from "react";
@@ -11,7 +12,7 @@ const ElectricDashboard=()=>{
 
     const navigate=useNavigate();
 
-    const {nid}=useAuth()!;
+    const nid = useSelector((state: RootState) => state.auth.nid);
     const[meters,setMeters]=useState([]);
     const [userTier,setUserTier]=useState(0);
     const [meterNo,setMeterNo]=useState("");

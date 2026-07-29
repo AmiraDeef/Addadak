@@ -1,7 +1,9 @@
 
 import {useForm,} from 'react-hook-form'
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../../Contexts/AuthContext';
+import { useDispatch } from 'react-redux';
+import { login } from '../../../store/authSlice';
+import type { AppDispatch } from '../../../store/store';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 
@@ -9,8 +11,7 @@ import Swal from 'sweetalert2';
 const Login=()=>{
     const {register, handleSubmit, formState:{errors,isValid,isSubmitting}, reset}=useForm({mode:"onChange"});
     const navigate=useNavigate();
-
-    const {Login}=useAuth()!;
+    const dispatch = useDispatch<AppDispatch>();
 
     interface inputs{
 
@@ -35,7 +36,7 @@ const Login=()=>{
                 //localStorage.setItem('token',res.data.Token);
                 //localStorage.setItem("UserId",res.data.User._id);
                 //localStorage.setItem("UserNid",res.data.User.nationalID);
-                Login(res.data.User.nationalID,res.data.User._id);
+                dispatch(login({ nid: res.data.User.nationalID, id: res.data.User._id }));
                 navigate("/logged/user/dashboard/electricity");
                 reset();
             }

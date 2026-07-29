@@ -2,20 +2,22 @@ import type { ReactElement } from "react";
 import { Link } from "react-router-dom";
 import Logo from "../Badges/Logo";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../../Contexts/AuthContext";
+import { useDispatch } from "react-redux";
+import { logout } from "../../store/authSlice";
+import type { AppDispatch } from "../../store/store";
 
 
 
 const Sidebar=()=>{
 
     const navigate=useNavigate();
-    const{Logout}=useAuth()!
+    const dispatch = useDispatch<AppDispatch>();
 
-    const logout=()=>{
-        Logout();
+    const handleLogout=()=>{
+        dispatch(logout());
+        navigate('/user/login');
+    }
 
-    navigate('/user/login');
-} 
     interface tabstemp{
         icon:ReactElement,
         title:string,
@@ -52,7 +54,7 @@ const Sidebar=()=>{
             </div>
 
             <div className="logout text-xl border-t border-white/20 mt-auto pb-4">
-                <button type="button" className="flex flex-row items-center  gap-5 pt-5 hover:text-electric-cyan" onClick={logout}>
+                <button type="button" className="flex flex-row items-center  gap-5 pt-5 hover:text-electric-cyan" onClick={handleLogout}>
                     <i className="fa-solid fa-arrow-right-from-bracket"></i>
                     <div>Logout </div>
                 </button>
