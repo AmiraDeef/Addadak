@@ -15,7 +15,7 @@ const LoggedHeader=({title}:props)=>{
             </div>
 
             <div className="buttons gap-5 flex flex-row border rounded-xl p-1 border-secondary-purple shadow-md shadow-secondary-purple/40 ">
-                 <NavLink to="/logged/user/dashboard" 
+                 <NavLink to="/logged/user/dashboard/electricity" 
                     className={({ isActive }: { isActive: boolean }): string => 
                         `rounded-xl flex flex-row items-center gap-3   w-40 justify-center w-auto md:w-40   p-2 sm:p-0 duration-300
                         ${isActive ? 'bg-secondary-purple text-my-white hover:text-electric-cyan' : 'text-black/40  hover:text-black'}`
