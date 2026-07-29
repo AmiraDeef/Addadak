@@ -6,7 +6,7 @@ const config = require('./env');
 const transporter = nodemailer.createTransport({
   host: config.mail.host,
   port: config.mail.port,
-  secure: false, // false = STARTTLS on port 587
+  secure: true, // false = STARTTLS on port 587
   auth: {
     user: config.mail.user,
     pass: config.mail.pass, // Gmail App Password (16 chars, no spaces)
