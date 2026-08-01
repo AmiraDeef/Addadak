@@ -35,7 +35,7 @@ const walletSchema = new mongoose.Schema({
     },
     status:{
         type:String,
-        enum:["pending","paid","failed"],
+        enum:["pending","success","failed"],
         default: "pending"
     },
     autoPay: {

@@ -4,7 +4,7 @@ const {chargeMeters,getWallet,getPaymentDetails,enableAutopay}=require("../contr
 const authz=require("../middlewares/authzMiddleware")
 
 router.post("/chargeMeters/:userNId/:meterNum",authz,chargeMeters)
-router.get("/getwallet/:userNId",authz,getWallet)
+router.get("/getwallet/:meterNum",authz,getWallet)
 router.get("/getPaymentDetails/:userNId/:meterNum",authz,getPaymentDetails)
 router.patch("/enableAutopay/:userNId/:meterNum",authz,enableAutopay)
 

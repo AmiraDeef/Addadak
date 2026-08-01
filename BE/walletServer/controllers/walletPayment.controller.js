@@ -1,7 +1,7 @@
 const mongoose = require("mongoose")
-const walletSchema =require("../models/Wallet")
-const metricsSchema =require("../models/metricsModel")
-const user  = require("../models/User")
+const walletSchema = require("../models/Wallet")
+const metricsSchema = require("../models/metricsModel")
+const user = require("../models/User")
 const stripe = require("stripe")(process.env.STRIP_SK);
 const axios = require("axios");
 
@@ -15,14 +15,56 @@ const tiers = [
     { tier: 7, min: 1001, max: Infinity, rate: 2.58 }
 
 ]
-
+//calc rate
 const getRate = (cons) => {
+    console.log(cons);
+
     if (cons < 0 || typeof cons !== "number") return 0
     const matchTier = tiers.find(tier => cons >= tier.min && cons <= tier.max);
     return matchTier ? matchTier.rate : 0;
 
 
 }
+//create payment stripe 
+const createPaymentWay = async (amount,
+    userNId,
+    meter,
+    userOfMet
+) => {
+    const payment = await stripe.paymentIntents.create({
+
+        //convert to cents
+        amount: Math.round(amount * 100),
+        currency: "egp",
+
+        metadata: {
+            userNId: userNId,
+            metricId: meter.meterNumber,
+            meterType: meter.meterType,
+            utility: meter.utility
+
+        },
+
+    })
+
+
+    const paymentTransaction = await walletSchema.create({
+        userId: userOfMet._id,
+        meterId: meter._id,
+        status: "pending",
+        meterType: meter.meterType,
+        amount: amount,
+        stripePaymentIntentId: payment.id
+
+    })
+
+    return {
+        payment,
+        paymentTransaction
+    }
+
+}
+
 
 const chargeMeters = async (req, res, next) => {
     try {
@@ -47,7 +89,8 @@ const chargeMeters = async (req, res, next) => {
         //   handle res of array of consuptions
         console.log(consumptionRes.data.consumptionTable)
         const consumptionTable = consumptionRes.data.consumptionTable;
-        const latestConsumption = consumptionTable[0].consumption;
+        const rawConsumption = consumptionTable[0]?.consumption || 0;
+        const latestConsumption = Math.abs(rawConsumption);
         console.log(latestConsumption);
 
 
@@ -68,53 +111,121 @@ const chargeMeters = async (req, res, next) => {
         if (!meter) {
             return res.status(404).json({ message: "Meter not found!" });
         }
+
+
+        const userOfMet = await user.findOne({
+            nationalID: userNId
+        });
+
+        if (!userOfMet) {
+
+            return res.status(404).json({
+                message: "User not found"
+            });
+
+        }
+
         //check amount validation
         if (amount <= 0 || !amount) {
             return res.status(400).json({ message: "Amount must be greater than zero!" });
         }
 
-        //type of meter  
+        //type of meter  in 3 cases
+        switch (meter.meterType) {
+            case "Bill":
+                const lastPay = await walletSchema.findOne({
+                    meterId: meter._id,
+                    status: "success"
+                }).sort({ payingDate: -1 });
 
-        if (meter.meterType === "Bill") {
-            //sara code
-            return res.status(400).json({ message: "This route is only for Smart Cards and Smart Meters!" });
+                if (lastPay) {
+                    const nextDate = new Date(lastPay.payingDate)
+                    nextDate.setDate(nextDate.getDate() + 30)
+
+                    if (new Date() < nextDate) {
+
+                        return res.status(400).json({
+                            message: "Bill is already paid."
+                        });
+
+                    }
+                }
+                const billPayment = await createPaymentWay(
+                    amount,
+                    userNId,
+                    meter,
+                    userOfMet
+                )
+                return res.status(200).json({
+
+                    success: true,
+
+                    clientSecret: billPayment.payment.client_secret,
+
+                    transaction: billPayment.paymentTransaction
+
+                });
+
+
+
+                break;
+
+            case "Smart Card":
+
+                const cardPayment = await createPaymentWay(
+                    amount,
+                    userNId,
+                    meter,
+                    userOfMet
+                );
+
+                return res.status(200).json({
+
+                    success: true,
+
+                    clientSecret: cardPayment.payment.client_secret,
+
+                    transaction: cardPayment.paymentTransaction
+
+                });
+                break;
+
+            case "Smart Meter":
+                const smartPayment = await createPaymentWay(
+                    amount,
+                    userNId,
+                    meter,
+                    userOfMet
+                );
+
+                return res.status(200).json({
+
+                    success: true,
+
+                    clientSecret: smartPayment.payment.client_secret,
+
+                    transaction: smartPayment.paymentTransaction
+
+                });
+                break;
+
+            default:
+
+                return res.status(400).json({
+                    message: "Invalid meter type"
+                });
         }
 
 
 
+
+
         //stripe create payment 
-        const payment = await stripe.paymentIntents.create({
 
-            //convert to cents
-            amount: Math.round(amount * 100),
-            currency: "egp",
-
-            metadata: {
-                userNId: userNId,
-                metricId: meter.meterNumber,
-                meterType: meter.meterType,
-                utility: meter.utility
-
-            },
-
-        })
-
-        //getting user id obj from user
-        const userOfMet = await user.findOne({ nationalID: userNId })
-
-        console.log(userOfMet);
-
-        // store in db 
-        const paymentTransaction = await walletSchema.create({
-            userId: userOfMet._id,
-            meterId: meter._id,
-            status: "pending",
-            meterType: meter.meterType,
-            amount: amount,
-            stripePaymentIntentId: payment.id
-
-        })
-
+        const { payment, paymentTransaction } = await createPaymentWay(amount,
+            userNId,
+            meter,
+            userOfMet)
 
         return res.status(200).json({
             success: true,
@@ -131,16 +242,19 @@ const chargeMeters = async (req, res, next) => {
 
 const getWallet = async (req, res, next) => {
     try {
-        const { userNId } = req.params;
-        const userOfMet = await user.findOne({ nationalID: userNId })
-        const walletTransactions = await walletSchema.find({ userId: userOfMet._id }).sort({ payingDate: -1 });
-        if (!walletTransactions || walletTransactions.length === 0) {
-            return res.status(404).json({ message: "No wallet transactions found for this user!" });
+        const { meterNum } = req.params;
+        console.log(meterNum);
+        
+        const meter = await metricsSchema.findOne({ meterNumber:meterNum });
+        if (!meter) {
+            return res.status(404).json({ message: "Meter not found!" });
         }
+        const walletTransactions = await walletSchema.find({ meterId: meter._id })
+            .sort({ payingDate: -1 });
 
         return res.status(200).json({
             success: true,
-            transactions: walletTransactions
+            transactions: walletTransactions || []
         });
 
     } catch (error) {
@@ -149,11 +263,11 @@ const getWallet = async (req, res, next) => {
 }
 
 //user enable autopay
-const enableAutopay=async (params) => {
+const enableAutopay = async (params) => {
     try {
-        
+
     } catch (error) {
-        
+
     }
 }
 
@@ -168,7 +282,7 @@ const autoPayProcess = async (req, res, next) => {
 
         //calc amount for each meters
 
-// foreach not suitable with awit and axios
+        // foreach not suitable with awit and axios
 
 
         // autopayMeters.forEach(met => {
@@ -195,19 +309,19 @@ const autoPayProcess = async (req, res, next) => {
 
 
 
-            // } catch (payError) {
-            // console.error(`autopay faild for meter ${met.meterNumber}`);
-            // await walletSchema.create({
-            //         // userId: ,
-            //         meterId: meter._id,
-            //         status: "failed",
-            //         meterType: meter.meterType,
-            //         amount: 0,
-            //         stripePaymentIntentId: "N/A"
-            //     });
-            
+        // } catch (payError) {
+        // console.error(`autopay faild for meter ${met.meterNumber}`);
+        // await walletSchema.create({
+        //         // userId: ,
+        //         meterId: meter._id,
+        //         status: "failed",
+        //         meterType: meter.meterType,
+        //         amount: 0,
+        //         stripePaymentIntentId: "N/A"
+        //     });
 
-            // }
+
+        // }
         // });
 
 
@@ -248,7 +362,7 @@ const getPaymentDetails = async (req, res, next) => {
                 stripePaymentIntentId: transaction.stripePaymentIntentId,
                 nationalID: userNId,
                 meterNumber: meter.meterNumber,
-                utility:meter.utility,
+                utility: meter.utility,
                 meterType: meter.meterType,
                 address: meter.address,
                 amount: transaction.amount,
