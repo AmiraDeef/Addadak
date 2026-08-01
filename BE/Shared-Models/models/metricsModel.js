@@ -13,7 +13,7 @@ const metricSchema=new mongoose.Schema({
       enum:["Electricity", "Water", "Gas"],
       trim:true
    },
-   
+
    meterNumber:{
     type:String,
     required:true,
@@ -44,5 +44,7 @@ const metricSchema=new mongoose.Schema({
 
    readingDate: { type: mongoose.Schema.Types.Date, default: Date.now },
 });
+
+
 
 module.exports=metricSchema;
