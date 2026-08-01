@@ -4,7 +4,7 @@ const Mycredit=()=>{
         <>
             <p>E-wallet Under Construction ......</p>
             <div className="w-fill flex justify-center">
-                <img src={work} alt="" width={700}/>
+                <img src={work} alt="" width={500}/>
             </div>
         </>
     )

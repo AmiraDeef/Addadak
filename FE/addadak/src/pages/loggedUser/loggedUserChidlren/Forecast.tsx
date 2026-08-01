@@ -5,7 +5,7 @@ const Forecast=()=>{
         <>
             <p>Forecast Under Construction ......</p>
             <div className="w-fill flex justify-center">
-                <img src={work} alt="" width={700}/>
+                <img src={work} alt="" width={500}/>
             </div>
             
         </>
