@@ -1,12 +1,12 @@
 
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
+import { useSelector } from 'react-redux'
+import type{ RootState } from '../../../store/store';
 
-interface chartprop{
-    chartData:Array<object>,
-}
 
-const ChartDashboard=({chartData}:chartprop)=>{
-    console.log(chartData)
+const ChartDashboard=()=>{
+     const { consumptionTable } = useSelector((state: RootState) => state.consumptions);
+     console.log(consumptionTable)
     
     return(
         <>
@@ -14,7 +14,7 @@ const ChartDashboard=({chartData}:chartprop)=>{
                 <h1 className='text-secondary-purple text-2xl pb-2'>Monthly consumption</h1>
                 <ResponsiveContainer width="100%" height="100%" >
                     
-                    <BarChart data={chartData} barSize={35}>
+                    <BarChart data={consumptionTable} barSize={35}>
                         
                         <CartesianGrid strokeDasharray="3 3" vertical={true} stroke="#9d9e9e"/>
                         

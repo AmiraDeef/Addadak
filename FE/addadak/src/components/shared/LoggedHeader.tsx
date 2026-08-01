@@ -2,16 +2,17 @@ import { NavLink } from "react-router-dom";
 import gas from "../../assets/Gas.png"
 import spark from "../../assets/spark.png"
 import water from "../../assets/WaterDrop.png"
+import { useSelector } from 'react-redux'
+import type{ RootState } from '../../store/store'
 
-interface props{
-    title:string
-}
 
-const LoggedHeader=({title}:props)=>{
+const LoggedHeader=()=>{
+    const { firstName } = useSelector((state: RootState) => state.auth);
+    
     return(
         <header className="flex  flex-row justify-between items-center px-4 md:px-10 h-20 bg-secondary-purple/20 border-b border-b-secondary-purple shadow-lg w-full py-3">
             <div className="title text-xl sm:text-2xl md:text-4xl font-bold transition-all">
-                {title}
+                Welcome, {firstName}
             </div>
 
             <div className="buttons gap-5 flex flex-row border rounded-xl p-1 border-secondary-purple shadow-md shadow-secondary-purple/40 ">
@@ -23,6 +24,7 @@ const LoggedHeader=({title}:props)=>{
                     >
                     <img src={spark} alt="sparkIcon"   className="w-10 h-10 sm:w-10 sm:h-10 md:w-12 md:h-12 object-contain" />
                     <span className="font-bold hidden md:inline">Electricity</span>
+                    
 
 
                 </NavLink>

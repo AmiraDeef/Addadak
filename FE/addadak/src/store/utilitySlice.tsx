@@ -1,46 +1,33 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
-
-
-interface utilityState {
-  //utility: string;
-  meterNumber: string;
-  //meterType: string;
-  allMeters:Array<any>
+//state interface
+interface utilityState{
+    utility:string,
+    meterNumber:string,
+    meterType:string
+    //allMeters:Array<any>
 }
-
-interface consumptionsState {
-  consumps:Array<any>
-}
-/*
+//initial state
 const initialState: utilityState = {
-  //utility: "Electricity",
+  utility: "Electricity",
   meterNumber: "",
-  //meterType: "",
-  allMeters:[],
-};*/
-
-const initialState: consumptionsState={
-  consumps:[]
+  meterType: "",
+  //allMeters:[],
 };
+//slice
 
-const utilitySlice = createSlice({
-  name: "utility",
-  initialState,
-  reducers: {
-    /*
-    utilityHandler(state, action: PayloadAction<{  meterNumber: string ,allMeters:Array<any>}>) {
-      //state.utility = action.payload.utility;
-      state.meterNumber = action.payload.meterNumber;
-      //state.meterType=action.payload.meterType;
-      state.allMeters=action.payload.allMeters
-    },*/
-
-    consumptions(state, action:PayloadAction <{consumps:Array<any>}>){
-        state.consumps=action.payload.consumps;
+const utilitySlice=createSlice({
+    name:"utility",
+    initialState,
+    reducers:{
+        utilityHandler(state, action: PayloadAction<{ utility:string, meterNumber: string ,meterType:string}>) 
+        {
+            state.utility = action.payload.utility;
+            state.meterNumber = action.payload.meterNumber;
+            state.meterType=action.payload.meterType;
+            //state.allMeters=action.payload.allMeters
+        }
     }
-    
-  },
-});
+})
 
-export const { consumptions } = utilitySlice.actions;
+export const { utilityHandler } = utilitySlice.actions;
 export default utilitySlice.reducer;

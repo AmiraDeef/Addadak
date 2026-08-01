@@ -34,11 +34,9 @@ const Login=()=>{
             const res=await api.authApi.post("user/login",data,{withCredentials:true});
             console.log(res);
             if(res.status==200){
-                //localStorage.setItem('token',res.data.Token);
-                //localStorage.setItem("UserId",res.data.User._id);
-                //localStorage.setItem("UserNid",res.data.User.nationalID);
-                dispatch(login({ nid: res.data.User.nationalID, id: res.data.User._id }));
-                navigate("/logged/user/profile");
+               
+                dispatch(login({ nid: res.data.User.nationalID, id: res.data.User._id,firstName:res.data.User.firstName }));
+                navigate("/logged/user/dashboard/electricity");
                 reset();
             }
         }catch(error:any){

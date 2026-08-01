@@ -1,5 +1,5 @@
 import type { ReactElement } from "react";
-import { Link } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import Logo from "../Badges/Logo";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
@@ -25,7 +25,7 @@ const Sidebar=()=>{
     }
     const tabs:Array<tabstemp>=[
         {icon:<i className="fa-regular fa-circle-user"></i>, title:"Profile", link:"/logged/user/profile"},
-        {icon:<i className="fa-solid fa-chart-line"></i> ,title:"Dashboard", link:"/logged/user/dashboard"},
+        {icon:<i className="fa-solid fa-chart-line"></i> ,title:"Dashboard", link:"/logged/user/dashboard/electricity"},
         {icon:<i className="fa-solid fa-eye"></i>,title:"Forecast", link:"/logged/user/dashboard/forecast"},
         {icon:<i className="fa-regular fa-credit-card"></i>,title:"My wallet", link:"/logged/user/dashboard/credit"}
 
@@ -41,10 +41,13 @@ const Sidebar=()=>{
                     tabs.map((ele,index)=>{
                         return(
                             <div key={index} className={`${ele.title} `}>
-                                <Link to={ele.link} className="flex flex-row gap-5 hover:text-electric-cyan">
+                                <NavLink to={ele.link} className={({ isActive }: { isActive: boolean }): string => 
+                        `flex flex-row gap-5 hover:text-electric-cyan
+                        ${isActive ? 'text-electric-cyan' : 'text-my-white'}`
+                    }>
                                     <div>{ele.icon}</div>
                                     <div>{ele.title}</div>
-                                </Link>
+                                </NavLink>
                             </div>
 
                         );

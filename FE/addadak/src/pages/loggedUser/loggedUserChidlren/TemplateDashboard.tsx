@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 import Swal from 'sweetalert2';
 import api from "../../../api/axios.tsx";
 import type{ RootState,AppDispatch } from '../../../store/store.tsx';
-import { consumptions } from "../../../store/utilitySlice.tsx";
+import { consumptions } from "../../../store/consumptionSlice.tsx";
 
 const Dashboard=()=>{
 
@@ -17,7 +17,6 @@ const Dashboard=()=>{
     
     const[meters,setMeters]=useState([]);
     const [userTier,setUserTier]=useState(0);
-    const [meterNo,setMeterNo]=useState("");
     const [chartData,setChartdata]=useState([]);
 
     
@@ -32,7 +31,6 @@ const Dashboard=()=>{
             const firstMeterNumber = fetchedMeters[0]._id?.meterNumber;
             
             if (firstMeterNumber) {
-                setMeterNo(firstMeterNumber);  
                 getUserTier(firstMeterNumber);     
                 getUserReadings(firstMeterNumber);
         }
@@ -79,9 +77,7 @@ const Dashboard=()=>{
             const userConsumtions= await api.elecApi.get(`/getUserConsumptions/${nid}/${selectedMeterNo}`,{withCredentials: true });
             console.log(userConsumtions);
             setChartdata(userConsumtions.data.consumptionTable);
-            dispatch(consumptions(userConsumtions.data.consumptionTable));
-            const {consumps}=useSelector((state:RootState)=>state.utility)
-            console.log(consumps)
+            dispatch(consumptions(userConsumtions.data));
             
             
             }catch(error:any)
@@ -110,9 +106,9 @@ const Dashboard=()=>{
     
 
     return(
-        <div className="flex flex-col w-fill duration-300 transition-all min-w-0 justify-around gap-80 pt-10 sm:flex-row">
+        <div className="flex flex-col w-fill duration-300 transition-all min-w-0 justify-around gap-10 pt-10 sm:flex-row">
 
-            <div className="flex  flex-col w-fill min-w-0  items-center  gap-18 ">
+            <div className="flex  flex-col w-fill min-w-0  items-center gap-8 ">
                 <OwnedMeters meters={meters} getUserReadings={getUserReadings } getUserTier={getUserTier}/>
                 
                 {chartData && chartData.length > 0 ? 

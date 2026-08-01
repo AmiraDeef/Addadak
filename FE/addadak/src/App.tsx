@@ -12,15 +12,14 @@ import './App.css'
 import type { ReactElement } from 'react'
 import { Routes,Route } from 'react-router-dom'
 import NotFound from './pages/NotFound'
-import { useSelector,useDispatch } from 'react-redux'
-import type{ RootState,AppDispatch } from './store/store';
+
 
 
 
 
 function App() {
 
-  const {consumps}=useSelector((state:RootState)=>state.utility)
+ 
   
   
   
@@ -41,7 +40,7 @@ function App() {
       element:<TemplateDashboard></TemplateDashboard>, 
       children:
       [
-        {path:'electricity',element:<ChartDashboard  chartData={consumps}></ChartDashboard>},
+        {path:'electricity',element:<ChartDashboard></ChartDashboard>},
         {path:'forecast' ,element:<Forecast></Forecast>},
         {path:'credit',element:<Mycredit></Mycredit>}
        
