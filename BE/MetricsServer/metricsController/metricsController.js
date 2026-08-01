@@ -10,10 +10,10 @@ const tiers=[
     {tier:7 , min: 1001, max: Infinity, rate: 2.58 }
 
 ]
+// The tiers has been already mentioned in the domain file for each type, what are these tiers for ? 
 
 
-
-const viewAllTiers=(req,res,next)=>{
+const viewAllTiers=(req,res,next)=>{ 
     try{
 
         res.status(200).json({Tiers:tiers})
