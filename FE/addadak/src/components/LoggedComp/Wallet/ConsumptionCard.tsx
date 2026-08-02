@@ -17,7 +17,6 @@ const ConsumptionCard = ({ meterNumber, onTransactionSuccess }: ConsumptionCardP
     const [loading, setLoading] = useState<boolean>(true);
     const [chargeLoading, setChargeLoading] = useState<boolean>(false);
 
-    const [latestReading, setLatestReading] = useState<number>(0);
     const [latestConsumption, setLatestConsumption] = useState<number>(0);
     const [recentCharges, setRecentCharges] = useState<any[]>([]);
 
@@ -34,7 +33,7 @@ const ConsumptionCard = ({ meterNumber, onTransactionSuccess }: ConsumptionCardP
         );
         const latest = res.data.consumptionTable?.[0];
         if (latest) {
-            setLatestReading(latest.reading || 0);
+        
             setLatestConsumption(Math.abs(latest.consumption || 0));
         }
     };
@@ -142,24 +141,21 @@ const ConsumptionCard = ({ meterNumber, onTransactionSuccess }: ConsumptionCardP
                             </span>
                         </div>
 
-                        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Last Month Consumption</p>
+                       
+
+                        <div className="grid grid-cols-2 gap-3 mt-4 bg-white/60 p-3 rounded-xl border border-white/80">
+                          <div> <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Last Month Consumption</p>
                         <div className="flex items-baseline gap-1.5 mt-1">
                             <span className="text-3xl font-extrabold text-[var(--color-secondary-purple)] tracking-tight">
                                 {loading ? "..." : latestConsumption}
                             </span>
                             <span className="text-sm font-bold text-gray-500">kWh</span>
                         </div>
-
-                        <div className="grid grid-cols-2 gap-3 mt-4 bg-white/60 p-3 rounded-xl border border-white/80">
+                        </div>
+                          
                             <div>
-                                <p className="text-[11px] text-gray-400 font-medium">Last Reading</p>
-                                <p className="text-sm font-bold text-gray-700">
-                                    {loading ? "..." : `${latestReading} kWh`}
-                                </p>
-                            </div>
-                            <div>
-                                <p className="text-[11px] text-gray-400 font-medium">Last Amount Charged</p>
-                                <p className="text-sm font-bold text-emerald-600">
+                                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Last Amount Charged</p>
+                                <p className="text-2xl font-bold text-emerald-600 m-2">
                                     {recentCharges.length > 0 ? `${recentCharges[0].amount} EGP` : "N/A"}
                                 </p>
                             </div>
