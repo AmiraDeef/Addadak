@@ -25,7 +25,7 @@ const Sidebar=()=>{
     }
     const tabs:Array<tabstemp>=[
         {icon:<i className="fa-regular fa-circle-user"></i>, title:"Profile", link:"/logged/user/profile"},
-        {icon:<i className="fa-solid fa-chart-line"></i> ,title:"Dashboard", link:"/logged/user/dashboard/electricity"},
+        {icon:<i className="fa-solid fa-chart-line"></i> ,title:"Dashboard", link:"/logged/user/dashboard/chart"},
         {icon:<i className="fa-solid fa-eye"></i>,title:"Forecast", link:"/logged/user/dashboard/forecast"},
         {icon:<i className="fa-regular fa-credit-card"></i>,title:"My wallet", link:"/logged/user/dashboard/credit"}
 

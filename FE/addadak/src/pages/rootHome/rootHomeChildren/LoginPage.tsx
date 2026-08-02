@@ -36,7 +36,7 @@ const Login=()=>{
             if(res.status==200){
                
                 dispatch(login({ nid: res.data.User.nationalID, id: res.data.User._id,firstName:res.data.User.firstName }));
-                navigate("/logged/user/dashboard/electricity");
+                navigate("/logged/user/dashboard/chart");
                 reset();
             }
         }catch(error:any){

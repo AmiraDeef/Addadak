@@ -40,7 +40,7 @@ function App() {
       element:<TemplateDashboard></TemplateDashboard>, 
       children:
       [
-        {path:'electricity',element:<ChartDashboard></ChartDashboard>},
+        {path:'chart',element:<ChartDashboard></ChartDashboard>},
         {path:'forecast' ,element:<Forecast></Forecast>},
         {path:'credit',element:<Mycredit></Mycredit>}
        
