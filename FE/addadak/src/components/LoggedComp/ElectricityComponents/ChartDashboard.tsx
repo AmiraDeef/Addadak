@@ -1,12 +1,29 @@
 
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
+import { useSelector } from 'react-redux'
+import type{ RootState } from '../../../store/store';
 
-interface chartprop{
-    chartData:Array<object>,
-}
 
-const ChartDashboard=({chartData}:chartprop)=>{
-    console.log(chartData)
+
+const ChartDashboard=()=>{
+     const { consumptionTable } = useSelector((state: RootState) => state.consumptions);
+     const {utility}=useSelector((state:RootState)=>state.utility)
+     
+     
+     const getColor = () => {
+        switch (utility) {
+            case 'electricity':
+                return '#3ecfdf'; 
+            case 'water':
+                return '#3b82f6'; 
+            case 'gas':
+                return '#f9a916'; 
+            default:
+                return '#515e5f';
+        }
+    };
+
+    const color = getColor();
     
     return(
         <>
@@ -14,14 +31,14 @@ const ChartDashboard=({chartData}:chartprop)=>{
                 <h1 className='text-secondary-purple text-2xl pb-2'>Monthly consumption</h1>
                 <ResponsiveContainer width="100%" height="100%" >
                     
-                    <BarChart data={chartData} barSize={35}>
+                    <BarChart data={consumptionTable} barSize={35}>
                         
                         <CartesianGrid strokeDasharray="3 3" vertical={true} stroke="#9d9e9e"/>
                         
                         <XAxis dataKey="month" stroke="#64686e" fontSize={12} tickLine={false} label={{ value: 'Month', position: 'insideBottom', offset: -5 }}/>
                         <YAxis stroke="#64686e" fontSize={12} tickLine={false} axisLine={false} label={{ value: 'Kwh', angle: -90, position: 'insideLeft', offset: 10 }}></YAxis>
                         <Tooltip cursor={{ fill: '#abb0b6' }}></Tooltip>
-                        <Bar dataKey="consumption" fill="#3ecfdf" radius={[6, 6, 0, 0]}></Bar>
+                        <Bar dataKey="consumption" fill={color} radius={[6, 6, 0, 0]}></Bar>
                         
                         
                     </BarChart>

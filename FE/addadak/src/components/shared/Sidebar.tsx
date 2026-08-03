@@ -1,21 +1,23 @@
 import type { ReactElement } from "react";
-import { Link } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import Logo from "../Badges/Logo";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../../Contexts/AuthContext";
+import { useDispatch } from "react-redux";
+import { logout } from "../../store/authSlice";
+import type { AppDispatch } from "../../store/store";
 
 
 
 const Sidebar=()=>{
 
     const navigate=useNavigate();
-    const{Logout}=useAuth()!
+    const dispatch = useDispatch<AppDispatch>();
 
-    const logout=()=>{
-        Logout();
+    const handleLogout=()=>{
+        dispatch(logout());
+        navigate('/user/login');
+    }
 
-    navigate('/user/login');
-} 
     interface tabstemp{
         icon:ReactElement,
         title:string,
@@ -23,7 +25,7 @@ const Sidebar=()=>{
     }
     const tabs:Array<tabstemp>=[
         {icon:<i className="fa-regular fa-circle-user"></i>, title:"Profile", link:"/logged/user/profile"},
-        {icon:<i className="fa-solid fa-chart-line"></i> ,title:"Dashboard", link:"/logged/user/dashboard"},
+        {icon:<i className="fa-solid fa-chart-line"></i> ,title:"Dashboard", link:"/logged/user/dashboard/chart"},
         {icon:<i className="fa-solid fa-eye"></i>,title:"Forecast", link:"/logged/user/dashboard/forecast"},
         {icon:<i className="fa-regular fa-credit-card"></i>,title:"My wallet", link:"/logged/user/dashboard/credit"}
 
@@ -39,10 +41,13 @@ const Sidebar=()=>{
                     tabs.map((ele,index)=>{
                         return(
                             <div key={index} className={`${ele.title} `}>
-                                <Link to={ele.link} className="flex flex-row gap-5 hover:text-electric-cyan">
+                                <NavLink to={ele.link} className={({ isActive }: { isActive: boolean }): string => 
+                        `flex flex-row gap-5 hover:text-electric-cyan
+                        ${isActive ? 'text-electric-cyan' : 'text-my-white'}`
+                    }>
                                     <div>{ele.icon}</div>
                                     <div>{ele.title}</div>
-                                </Link>
+                                </NavLink>
                             </div>
 
                         );
@@ -52,7 +57,7 @@ const Sidebar=()=>{
             </div>
 
             <div className="logout text-xl border-t border-white/20 mt-auto pb-4">
-                <button type="button" className="flex flex-row items-center  gap-5 pt-5 hover:text-electric-cyan" onClick={logout}>
+                <button type="button" className="flex flex-row items-center  gap-5 pt-5 hover:text-electric-cyan" onClick={handleLogout}>
                     <i className="fa-solid fa-arrow-right-from-bracket"></i>
                     <div>Logout </div>
                 </button>

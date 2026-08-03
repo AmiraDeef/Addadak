@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Zap, Brain, CreditCard, Calendar, ArrowUpRight, CheckCircle2 } from "lucide-react";
-import { useAuth } from "../../../Contexts/AuthContext";
+import { useSelector } from "react-redux";
+import type { RootState } from "../../../store/store";
 import api from "../../../api/axios";
 import { StripeModal } from "./StripeModal";
 
@@ -9,16 +10,22 @@ interface ConsumptionCardProps {
     onTransactionSuccess?: () => void;
 }
 
-const ConsumptionCard = ({ meterNumber, onTransactionSuccess }: ConsumptionCardProps) => {
-    const auth = useAuth();
-    const userNId = auth?.nid;
-    const userId = auth?.id;
+const ConsumptionCard = ({ meterNumber: propMeterNumber, onTransactionSuccess }: ConsumptionCardProps) => {
 
-    const [loading, setLoading] = useState<boolean>(true);
-    const [chargeLoading, setChargeLoading] = useState<boolean>(false);
+    const { nid: userNId, id: userId } = useSelector((state: RootState) => state.auth);
+    const { meterNumber: reduxMeterNumber } = useSelector((state: RootState) => state.utility);
+    const meterNumber = propMeterNumber || reduxMeterNumber;
+    console.log(meterNumber);
+    
 
-    const [latestConsumption, setLatestConsumption] = useState<number>(0);
+    const { consumptionTable } = useSelector((state: RootState) => state.consumptions);
+
+    const latestConsumption = consumptionTable?.[0]?.consumption
+        ? Math.abs(consumptionTable[0].consumption)
+        : 0;
+
     const [recentCharges, setRecentCharges] = useState<any[]>([]);
+    const [chargeLoading, setChargeLoading] = useState<boolean>(false);
 
     const [clientSecret, setClientSecret] = useState<string | null>(null);
     const [showStripeModal, setShowStripeModal] = useState<boolean>(false);
@@ -26,50 +33,35 @@ const ConsumptionCard = ({ meterNumber, onTransactionSuccess }: ConsumptionCardP
     const [latestInvoice, setLatestInvoice] = useState<any>(null);
     const [showSuccessModal, setShowSuccessModal] = useState<boolean>(false);
 
-    const getConsumption = async () => {
-        const res = await api.elecApi.get(
-            `/getUserConsumptions/${userNId}/${meterNumber}`,
-            { withCredentials: true }
-        );
-        const latest = res.data.consumptionTable?.[0];
-        if (latest) {
-        
-            setLatestConsumption(Math.abs(latest.consumption || 0));
-        }
-    };
 
     const getWalletHistory = async () => {
-        const res = await api.walletApi.get(
-            `/getWallet/${meterNumber}`,
-            { withCredentials: true }
-        );
-        if (res.data.success && Array.isArray(res.data.transactions)) {
-            const successful = res.data.transactions
-                .filter((t: any) => t.status === "success" || t.status === "succeeded")
-                .slice(0, 3);
-            setRecentCharges(successful);
+        if (!meterNumber) return;
+        try {
+            const res = await api.walletApi.get(
+                `/getWallet/${meterNumber}`,
+                { withCredentials: true }
+            );
+            console.log(res.data);
+            
+            if (res.data.success && Array.isArray(res.data.transactions)) {
+                const successful = res.data.transactions
+                    .filter((t: any) => t.status === "success" || t.status === "succeeded")
+                    .slice(0, 3);
+                setRecentCharges(successful);
+            }
+        } catch (error) {
+            console.error(error);
         }
     };
 
     const getLastInvoice = async () => {
+        if (!userNId || !meterNumber) return;
         const res = await api.walletApi.get(
             `/getPaymentDetails/${userNId}/${meterNumber}`,
             { withCredentials: true }
         );
         if (res.data.success) {
             setLatestInvoice(res.data.transaction);
-        }
-    };
-
-    const getAllData = async () => {
-        if (!userId || !meterNumber) return;
-        try {
-            setLoading(true);
-            await Promise.all([getConsumption(), getWalletHistory()]);
-        } catch (error) {
-            console.error(error);
-        } finally {
-            setLoading(false);
         }
     };
 
@@ -93,43 +85,36 @@ const ConsumptionCard = ({ meterNumber, onTransactionSuccess }: ConsumptionCardP
         }
     };
 
-
     const handlePaymentSuccess = async () => {
         setShowStripeModal(false);
-
         await new Promise((resolve) => setTimeout(resolve, 500));
-
         await Promise.all([
-            getAllData(),
+            getWalletHistory(),
             getLastInvoice()
         ]);
-
         setShowSuccessModal(true);
     };
 
-   
     const handleModalClose = async () => {
         setShowStripeModal(false);
-    
-        await getAllData();
+        await getWalletHistory();
         onTransactionSuccess?.();
     };
 
-   
     const handleDone = async () => {
         setShowSuccessModal(false);
-        await getAllData();
+        await getWalletHistory();
         onTransactionSuccess?.();
     };
 
     useEffect(() => {
-        getAllData();
+        getWalletHistory();
     }, [meterNumber, userNId, userId]);
 
     return (
         <div className="w-full bg-white/40 backdrop-blur-md rounded-2xl border border-white/60 shadow-sm p-5 relative">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
-                
+
                 <div className="flex flex-col justify-between space-y-4 md:border-r border-gray-300/40 md:pr-6">
                     <div>
                         <div className="flex items-center justify-between mb-3">
@@ -141,18 +126,17 @@ const ConsumptionCard = ({ meterNumber, onTransactionSuccess }: ConsumptionCardP
                             </span>
                         </div>
 
-                       
-
                         <div className="grid grid-cols-2 gap-3 mt-4 bg-white/60 p-3 rounded-xl border border-white/80">
-                          <div> <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Last Month Consumption</p>
-                        <div className="flex items-baseline gap-1.5 mt-1">
-                            <span className="text-3xl font-extrabold text-[var(--color-secondary-purple)] tracking-tight">
-                                {loading ? "..." : latestConsumption}
-                            </span>
-                            <span className="text-sm font-bold text-gray-500">kWh</span>
-                        </div>
-                        </div>
-                          
+                            <div>
+                                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Last Month Consumption</p>
+                                <div className="flex items-baseline gap-1.5 mt-1">
+                                    <span className="text-3xl font-extrabold text-[var(--color-secondary-purple)] tracking-tight">
+                                        {latestConsumption}
+                                    </span>
+                                    <span className="text-sm font-bold text-gray-500">kWh</span>
+                                </div>
+                            </div>
+
                             <div>
                                 <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Last Amount Charged</p>
                                 <p className="text-2xl font-bold text-emerald-600 m-2">
@@ -174,7 +158,7 @@ const ConsumptionCard = ({ meterNumber, onTransactionSuccess }: ConsumptionCardP
                             </label>
                         </div>
 
-                        <button 
+                        <button
                             onClick={handleCharge}
                             disabled={chargeLoading}
                             className="w-full py-2.5 px-4 bg-[var(--color-secondary-purple)] hover:opacity-90 text-white text-xs font-bold rounded-xl shadow-sm transition-all flex items-center justify-center gap-2 active:scale-[0.99]"

@@ -2,7 +2,8 @@
 import { useEffect, useState } from "react";
 import profile from "../../../assets/Profile.gif";
 import {useForm,} from 'react-hook-form'
-import { useAuth } from "../../../Contexts/AuthContext";
+import { useSelector } from "react-redux";
+import type { RootState } from "../../../store/store";
 import { useNavigate } from "react-router-dom";
 import Swal from 'sweetalert2';
 import api from "../../../api/axios.tsx";
@@ -17,7 +18,8 @@ const UserProfile=()=>{
 
     //const Token=localStorage.getItem("token");
     //const ID=localStorage.getItem("UserId");
-    const{nid,id}=useAuth()!;
+    const nid = useSelector((state: RootState) => state.auth.nid);
+    const id = useSelector((state: RootState) => state.auth.id);
 
 
     let fname:string;

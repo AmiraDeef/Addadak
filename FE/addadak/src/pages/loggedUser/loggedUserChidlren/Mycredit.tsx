@@ -1,10 +1,17 @@
 import { useState } from "react";
-import { useOutletContext } from "react-router-dom";
+import { useSelector } from "react-redux";
+import type { RootState } from "../../../store/store";
 import ConsumptionCard from "../../../components/LoggedComp/Wallet/ConsumptionCard";
 import TransTable from "../../../components/LoggedComp/Wallet/TransTable";
 
 const Mycredit = () => {
-    const { meterNo } = useOutletContext<{ meterNo: string }>();
+    // Read meterNumber from Redux store if available
+    const utility = useSelector((state: RootState) => state.utility);
+
+console.log("UTILITY =", utility);
+    const { meterNumber } = useSelector((state: RootState) => state.utility);
+    console.log(meterNumber);
+
     const [refreshKey, setRefreshKey] = useState<number>(0);
 
     const handleTransactionSuccess = () => {
@@ -14,11 +21,11 @@ const Mycredit = () => {
     return (
         <div className="w-full space-y-2 p-4">
             <ConsumptionCard 
-                meterNumber={meterNo} 
+          
                 onTransactionSuccess={handleTransactionSuccess} 
             />
             <TransTable 
-                meterNumber={meterNo} 
+                
                 refreshKey={refreshKey} 
             />
         </div>

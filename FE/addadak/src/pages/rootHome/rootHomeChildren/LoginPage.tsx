@@ -1,7 +1,9 @@
 
 import {useForm,} from 'react-hook-form'
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../../Contexts/AuthContext';
+import { useDispatch } from 'react-redux';
+import { login } from '../../../store/authSlice';
+import type { AppDispatch } from '../../../store/store';
 
 import Swal from 'sweetalert2';
 import api from "../../../api/axios.tsx";
@@ -10,8 +12,7 @@ import api from "../../../api/axios.tsx";
 const Login=()=>{
     const {register, handleSubmit, formState:{errors,isValid,isSubmitting}, reset}=useForm({mode:"onChange"});
     const navigate=useNavigate();
-
-    const {Login}=useAuth()!;
+    const dispatch = useDispatch<AppDispatch>();
 
     interface inputs{
 
@@ -33,11 +34,9 @@ const Login=()=>{
             const res=await api.authApi.post("user/login",data,{withCredentials:true});
             console.log(res);
             if(res.status==200){
-                //localStorage.setItem('token',res.data.Token);
-                //localStorage.setItem("UserId",res.data.User._id);
-                //localStorage.setItem("UserNid",res.data.User.nationalID);
-                Login(res.data.User.nationalID,res.data.User._id);
-                navigate("/logged/user/profile");
+               
+                dispatch(login({ nid: res.data.User.nationalID, id: res.data.User._id,firstName:res.data.User.firstName }));
+                navigate("/logged/user/dashboard/chart");
                 reset();
             }
         }catch(error:any){
