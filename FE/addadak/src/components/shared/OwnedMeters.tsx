@@ -32,7 +32,7 @@ const OwnedMeters=({meters,getUserTier,getUserReadings}:props)=>{
                                                 }
                                             }}
                                             className={`rounded-3xl py-4 px-12 border shadow-md flex flex-col justify-center items-center text-center transition-all duration-300 w-full h-24 hover:-translate-y-1 ${
-                                                (meterNo === currentMeterNumber || index===0)
+                                                (meterNo === currentMeterNumber )||(meterNo==="" && index==0)
                                                     ? "border-gas-yellow bg-secondary-purple transition-all duration-300 scale-112 text-gas-yellow font-bold " 
                                                     : "border-gray-200 bg-secondary-purple text-gray-300"
                                             }`}

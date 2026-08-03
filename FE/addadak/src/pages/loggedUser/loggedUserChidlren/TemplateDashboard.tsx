@@ -89,7 +89,7 @@ const Dashboard = () => {
 
     return (
         <div className="flex flex-col w-fill duration-300 transition-all min-w-0 justify-around gap-10 pt-10 sm:flex-row">
-            <div className="flex flex-col w-fill min-w-0 items-center gap-8">
+            <div className="flex flex-col w-250 min-w-0 items-center gap-8">
                 <OwnedMeters meters={meters} getUserReadings={getUserReadings} getUserTier={getUserTier} />
                 
                 {chartData && chartData.length > 0 ? (
