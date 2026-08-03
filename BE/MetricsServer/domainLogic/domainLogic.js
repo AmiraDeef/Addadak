@@ -33,62 +33,214 @@ const waterTiers = [
 ];
 
 
-
-const billEnvoice =(userMeters,tiers)=>{
-  //##TO handle the emptyArrays
-  if(!userMeters || userMeters.length === 0) return null;
-
-  const latestUserMeter=userMeters[0];
-  let userMeter=0
-  let userTier=1;
-  let userRate=0;
-  //#2nd adjustment handled the case if the customer have a new meter and there is only one reading.
-  if(userMeters.length == 1)
-  {
-    userMeter = latestUserMeter.reading ; 
-  }else{
-    userMeter=latestUserMeter.reading-userMeters[1].reading;
+const getTiersByUtility = (utility) => {
+  switch (utility) {
+    case "Electricity": return electricTiers;
+    case "Gas": return gasTiers;
+    case "Water": return waterTiers;
+    default: return [];
   }
- //how to handle negative values which can be caused by mistake?
+};
+
+const calculateTier = (consumption, tiers) => {
+  const safeConsumption = Math.abs(consumption || 0);
   for (let i = 0; i < tiers.length; i++) {
-    if (userMeter >= tiers[i].min && userMeter <= tiers[i].max) {
-        userTier = tiers[i].tier;
-        userRate=tiers[i].rate;
-        break;
-      }
+    if (safeConsumption >= tiers[i].min && safeConsumption <= tiers[i].max) {
+      return { tier: tiers[i].tier, rate: tiers[i].rate };
+    }
   }
+  return { tier: 1, rate: 0 };
+};
 
-  const envoice ={
-    tier:userTier,
-    rate:userRate,
-    consumptionInMonth: userMeter,
-    utility:latestUserMeter.utility//Do we need to add utility type here? so it can be printed with the invoice 
-  }
-  return envoice;
+const generateInvoice = (consumptionRecord, utility) => {
+  if (!consumptionRecord) return null;
+
+  const tiers = getTiersByUtility(utility);
+
+  const consumption = consumptionRecord.consumption ?? consumptionRecord.consumptionSoFar ?? 0;
+
+  const { tier, rate } = calculateTier(consumption, tiers);
+
+  return {
+    utility: utility,
+    month: consumptionRecord.month,
+    consumptionInMonth: consumption,
+    tier: tier,
+    rate: rate,
+    totalBillAmount: Number((consumption * rate).toFixed(2)) 
+};
 }
 
+const billHistoryConsumption = async (meterNumber, utility) => {
+  return await metricsSchema.aggregate([
 
-const billHistoryConsumption=(userMeters)=>{ //Checked no adjustments are needed for this function. 
-  const consumptions=[];
-  for (let i = 0; i < userMeters.length; i++) {
-      let currentConsumption = 0;
-      if (userMeters[i + 1]) {
-        currentConsumption = userMeters[i].reading - userMeters[i + 1].reading;
-        } else {       
-        currentConsumption = userMeters[i].reading-0;
-        if(currentConsumption<0){
-          currentConsumption=Math.abs(currentConsumption)
+    { 
+      $match: { 
+        meterNumber: meterNumber, 
+        utility: utility 
+      } 
+    },
+    { 
+      $sort: { readingDate: -1 } 
+    },
+    {
+      $group: {
+        _id: "$billingMonth",
+        latestReadingDate: { $first: "$readingDate" },
+        latestReading: { $first: "$reading" }
+      }
+    },
+
+    { 
+      $sort: { latestReadingDate: -1 } 
+    },
+    
+    {
+      $setWindowFields: {
+        sortBy: { latestReadingDate: -1 },
+        output: {
+          previousMonthReading: {
+            $shift: {
+              output: "$latestReading",
+              by: 1 
+            }
           }
         }
-      consumptions.push({
-        month: userMeters[i].billingMonth,
-        consumption: currentConsumption
-        });
-  }
-  return consumptions;
+      }
+    },
+    {
+      $project: {
+        _id: 0,
+        month: "$_id",
+        consumption: {
+          $cond: {
+            if: { $ne: ["$previousMonthReading", null] },
+            then: { $abs: { $subtract: ["$latestReading", "$previousMonthReading"] } },
+            else: { $abs: "$latestReading" } 
+          }
+        }
+      }
+    }
+  ]);
+};
+
+//check this function again you need to mermorize it greate logic...
+const smartMonthlyHistoryConsumption= async (meterNumber ,utility) => {
+  return await metricsSchema.aggregate([
+    { $match: { meterNumber: meterNumber,utility:utility} },
+    { $sort: { readingDate: -1 } },
+    // Group hourly/daily readings to take only the latest reading per billing month
+    {
+      $group: {
+        _id: "$billingMonth",
+        latestReadingDate: { $first: "$readingDate" },
+        latestReading: { $first: "$reading" }
+      }
+    },
+    { $sort: { latestReadingDate: -1 } },
+    // Window Operator to shift and calculate delta between months
+    {
+      $setWindowFields: {
+        sortBy: { latestReadingDate: -1 },
+        output: {
+          previousMonthReading: {
+            $shift: {
+              output: "$latestReading",
+              by: 1
+            }
+          }
+        }
+      }
+    },
+    {
+      $project: {
+        _id: 0,
+        month: "$_id",
+        consumption: {
+          $cond: {
+            if: { $ne: ["$previousMonthReading", null] },
+            then: { $abs: { $subtract: ["$latestReading", "$previousMonthReading"] } },
+            else: "$latestReading"
+          }
+        }
+      }
+    }
+  ]);
+};
+const currentMonthSmartConsumption = async (meterNumber,currentMonth,utility)=>{
+  return await metricsSchema.aggregate([
+    { $match: { meterNumber: meterNumber, billingMonth: currentMonth , utility: utility } },
+    { $sort: { readingDate: -1 } },
+    {
+      $group: {
+        _id: "$billingMonth",
+        latestReading: { $first: "$reading" },
+        firstReading: { $last: "$reading" },
+        latestDate: { $first: "$readingDate" }
+      }
+    },
+    {
+      $project: {
+        _id: 0,
+        month: "$_id",
+        latestReadingDate: "$latestDate",
+        consumptionSoFar: { $abs: { $subtract: ["$latestReading", "$firstReading"] } }
+      }
+    }
+  ]);
 }
 
-const viewAllTiers = ()=>{
+const prepaidMonthlyHistoryConsumption= async (meterNumber , utility) => {
+  return await metricsSchema.aggregate([
+    
+    { $match: { meterNumber: meterNumber,utility:utility } },
+    
+   
+    { $sort: { readingDate: -1 } },
+    
+    {
+      $group: {
+        _id: "$billingMonth",
+        latestReadingDate: { $first: "$readingDate" },
+        latestReadingFromCard: { $first: "$reading" }
+      }
+    },
+    
+    { $sort: { latestReadingDate: -1 } },
+    
+
+    {
+      $setWindowFields: {
+        sortBy: { latestReadingDate: -1 },
+        output: {
+          previousMonthReading: {
+            $shift: {
+              output: "$latestReadingFromCard",
+              by: 1
+            }
+          }
+        }
+      }
+    },
+    
+  
+    {
+      $project: {
+        _id: 0,
+        month: "$_id",
+        consumption: {
+          $cond: {
+            if: { $ne: ["$previousMonthReading", null] },
+            then: { $abs: { $subtract: ["$latestReadingFromCard", "$previousMonthReading"] } },
+            else: "$latestReadingFromCard" 
+          }
+        }
+      }
+    }
+  ]);
+};
+
+const viewAllTiers = ()=>{ // move this function 
   return {
     electricTiers:electricTiers,
     gasTiers:gasTiers,
@@ -128,19 +280,23 @@ const deleteUserMeters = async(ID,utility)=>{
 //addmeter were made for testing purposes no need to apply it...
 
 module.exports ={
-  billEnvoice,
+  calculateTier,
+  generateInvoice,
   billHistoryConsumption,
   viewAllTiers,
   getAllMeters,
-  deleteUserMeters
+  deleteUserMeters,
+  currentMonthSmartConsumption,
+  smartMonthlyHistoryConsumption,
+  prepaidMonthlyHistoryConsumption
 }
 
 
 /*
 1̶-̶t̶r̶a̶n̶s̶f̶e̶r̶ t̶h̶e̶ r̶e̶m̶a̶i̶n̶i̶n̶g̶ f̶u̶n̶c̶t̶i̶o̶n̶s̶ e̶x̶c̶l̶u̶d̶e̶(̶a̶d̶d̶m̶e̶t̶e̶r̶-̶g̶e̶t̶T̶i̶e̶r̶-̶u̶s̶e̶r̶C̶o̶n̶s̶u̶m̶p̶t̶i̶o̶n̶s̶)̶
-2-make user consumptions smart and card
-3-get all tiers
-4-delete meter
+2̶-̶m̶a̶k̶e̶ u̶s̶e̶r̶ c̶o̶n̶s̶u̶m̶p̶t̶i̶o̶n̶s̶ s̶m̶a̶r̶t̶ a̶n̶d̶ p̶r̶e̶p̶a̶i̶d̶ c̶a̶r̶d̶
+3̶-̶g̶e̶t̶ a̶l̶l̶ t̶i̶e̶r̶s̶
+4̶-̶d̶e̶l̶e̶t̶e̶ m̶e̶t̶e̶r̶
 5- make utilities controllers 
 6-make the end points
 
