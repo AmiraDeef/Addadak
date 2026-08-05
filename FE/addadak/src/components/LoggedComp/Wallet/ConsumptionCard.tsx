@@ -10,13 +10,14 @@ interface ConsumptionCardProps {
     onTransactionSuccess?: () => void;
 }
 
-const ConsumptionCard = ({ meterNumber: propMeterNumber, onTransactionSuccess }: ConsumptionCardProps) => {
+const ConsumptionCard = ({ onTransactionSuccess }: ConsumptionCardProps) => {
 
     const { nid: userNId, id: userId } = useSelector((state: RootState) => state.auth);
     const { meterNumber: reduxMeterNumber } = useSelector((state: RootState) => state.utility);
-    const meterNumber = propMeterNumber || reduxMeterNumber;
+    const { meterType } = useSelector((state: RootState) => state.utility);
+    const meterNumber = reduxMeterNumber;
     console.log(meterNumber);
-    
+
 
     const { consumptionTable } = useSelector((state: RootState) => state.consumptions);
 
@@ -42,7 +43,7 @@ const ConsumptionCard = ({ meterNumber: propMeterNumber, onTransactionSuccess }:
                 { withCredentials: true }
             );
             console.log(res.data);
-            
+
             if (res.data.success && Array.isArray(res.data.transactions)) {
                 const successful = res.data.transactions
                     .filter((t: any) => t.status === "success" || t.status === "succeeded")
@@ -119,7 +120,7 @@ const ConsumptionCard = ({ meterNumber: propMeterNumber, onTransactionSuccess }:
                     <div>
                         <div className="flex items-center justify-between mb-3">
                             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-[var(--color-secondary-purple)] text-white">
-                                <Zap className="w-3.5 h-3.5 text-[var(--color-gas-yellow)]" /> Smart Meter
+                                <Zap className="w-3.5 h-3.5 text-[var(--color-gas-yellow)]" /> {meterType}
                             </span>
                             <span className="text-xs text-gray-500 font-mono tracking-wider">
                                 {meterNumber}
@@ -147,7 +148,8 @@ const ConsumptionCard = ({ meterNumber: propMeterNumber, onTransactionSuccess }:
                     </div>
 
                     <div className="space-y-3 pt-1">
-                        <div className="flex items-center justify-between bg-white/60 p-2.5 rounded-xl border border-white/80">
+
+                        {meterType === "Smart Meter" && (<div className="flex items-center justify-between bg-white/60 p-2.5 rounded-xl border border-white/80">
                             <div className="flex items-center gap-2">
                                 <CreditCard className="w-4 h-4 text-[var(--color-secondary-purple)]" />
                                 <span className="text-xs font-bold text-gray-700">AutoPay</span>
@@ -156,14 +158,25 @@ const ConsumptionCard = ({ meterNumber: propMeterNumber, onTransactionSuccess }:
                                 <input type="checkbox" className="sr-only peer" />
                                 <div className="w-9 h-5 bg-gray-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[var(--color-secondary-purple)]"></div>
                             </label>
+
                         </div>
+                        )}
+
 
                         <button
                             onClick={handleCharge}
                             disabled={chargeLoading}
                             className="w-full py-2.5 px-4 bg-[var(--color-secondary-purple)] hover:opacity-90 text-white text-xs font-bold rounded-xl shadow-sm transition-all flex items-center justify-center gap-2 active:scale-[0.99]"
                         >
-                            <span>{chargeLoading ? "Processing..." : "Charge Meter Now"}</span>
+                            <span>
+                                {
+                                    chargeLoading
+                                        ? "Processing..."
+                                        : meterType === "Bill"
+                                            ? "Pay Bill"
+                                            : "Charge Meter"
+                                }
+                            </span>
                             <ArrowUpRight className="w-4 h-4 text-[var(--color-gas-yellow)]" />
                         </button>
                     </div>
@@ -207,7 +220,7 @@ const ConsumptionCard = ({ meterNumber: propMeterNumber, onTransactionSuccess }:
                                             })}
                                         </span>
                                         <span className="font-bold text-[var(--color-secondary-purple)]">
-                                            {item.amount} EGP
+                                            {Math.round(item.amount)} EGP
                                         </span>
                                     </div>
                                 ))

@@ -1,4 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
+import { useSelector } from "react-redux";
+import type { RootState } from "../../../store/store";
 import { History, Loader2, ChevronLeft, ChevronRight } from "lucide-react";
 import api from "../../../api/axios";
 
@@ -15,7 +17,10 @@ interface TransTableProps {
     refreshKey?: number | string;
 }
 
-const TransTable = ({ meterNumber, refreshKey }: TransTableProps) => {
+const TransTable = ({ refreshKey }: TransTableProps) => {
+     const { meterNumber: reduxMeterNumber } = useSelector((state: RootState) => state.utility);
+    const meterNumber = reduxMeterNumber;
+    console.log(meterNumber);
     const [trans, setTrans] = useState<Transaction[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);

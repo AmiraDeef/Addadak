@@ -53,7 +53,7 @@ const createPaymentWay = async (amount,
         meterId: meter._id,
         status: "pending",
         meterType: meter.meterType,
-        amount: amount,
+        amount: Number(amount.toFixed(2)),
         stripePaymentIntentId: payment.id
 
     })
@@ -156,13 +156,16 @@ const chargeMeters = async (req, res, next) => {
                     meter,
                     userOfMet
                 )
+                const dueDate = new Date();
+                dueDate.setDate(dueDate.getDate() + 30);
                 return res.status(200).json({
 
                     success: true,
 
                     clientSecret: billPayment.payment.client_secret,
-
-                    transaction: billPayment.paymentTransaction
+                    transaction: billPayment.paymentTransaction,
+                    dueDate: dueDate.toISOString().split('T')[0],
+                    
 
                 });
 
@@ -244,8 +247,8 @@ const getWallet = async (req, res, next) => {
     try {
         const { meterNum } = req.params;
         console.log(meterNum);
-        
-        const meter = await metricsSchema.findOne({ meterNumber:meterNum });
+
+        const meter = await metricsSchema.findOne({ meterNumber: meterNum });
         if (!meter) {
             return res.status(404).json({ message: "Meter not found!" });
         }
@@ -365,7 +368,7 @@ const getPaymentDetails = async (req, res, next) => {
                 utility: meter.utility,
                 meterType: meter.meterType,
                 address: meter.address,
-                amount: transaction.amount,
+                amount:Number( transaction.amount.toFixed(2)),
                 status: transaction.status,
 
             }
