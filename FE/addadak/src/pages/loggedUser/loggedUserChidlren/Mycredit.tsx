@@ -9,7 +9,7 @@ const Mycredit = () => {
     const utility = useSelector((state: RootState) => state.utility);
 
 console.log("UTILITY =", utility);
-    const { meterNumber } = useSelector((state: RootState) => state.utility);
+    const { meterNumber } = useSelector((state: RootState) => state.meter);
     console.log(meterNumber);
 
     const [refreshKey, setRefreshKey] = useState<number>(0);

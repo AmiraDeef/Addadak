@@ -18,7 +18,7 @@ interface TransTableProps {
 }
 
 const TransTable = ({ refreshKey }: TransTableProps) => {
-     const { meterNumber: reduxMeterNumber } = useSelector((state: RootState) => state.utility);
+     const { meterNumber: reduxMeterNumber } = useSelector((state: RootState) => state.meter);
     const meterNumber = reduxMeterNumber;
     console.log(meterNumber);
     const [trans, setTrans] = useState<Transaction[]>([]);

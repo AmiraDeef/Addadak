@@ -13,11 +13,10 @@ interface ConsumptionCardProps {
 const ConsumptionCard = ({ onTransactionSuccess }: ConsumptionCardProps) => {
 
     const { nid: userNId, id: userId } = useSelector((state: RootState) => state.auth);
-    const { meterNumber: reduxMeterNumber } = useSelector((state: RootState) => state.utility);
-    const { meterType } = useSelector((state: RootState) => state.utility);
+    const { meterNumber: reduxMeterNumber } = useSelector((state: RootState) => state.meter);
+    const { meterType } = useSelector((state: RootState) => state.meter);
     const meterNumber = reduxMeterNumber;
     console.log(meterNumber);
-
 
     const { consumptionTable } = useSelector((state: RootState) => state.consumptions);
 
@@ -27,13 +26,24 @@ const ConsumptionCard = ({ onTransactionSuccess }: ConsumptionCardProps) => {
 
     const [recentCharges, setRecentCharges] = useState<any[]>([]);
     const [chargeLoading, setChargeLoading] = useState<boolean>(false);
+    const [amount, setAmount] = useState<string>("");
 
     const [clientSecret, setClientSecret] = useState<string | null>(null);
     const [showStripeModal, setShowStripeModal] = useState<boolean>(false);
 
     const [latestInvoice, setLatestInvoice] = useState<any>(null);
+    const [dueDate, setDueDate] = useState<string | null>(null);
     const [showSuccessModal, setShowSuccessModal] = useState<boolean>(false);
 
+    const calculateDueDate = (payingDate: string | Date) => {
+        const date = new Date(payingDate);
+        date.setDate(date.getDate() + 30);
+        return date.toLocaleDateString('en-GB', {
+            day: '2-digit',
+            month: 'short',
+            year: 'numeric'
+        });
+    };
 
     const getWalletHistory = async () => {
         if (!meterNumber) return;
@@ -57,22 +67,44 @@ const ConsumptionCard = ({ onTransactionSuccess }: ConsumptionCardProps) => {
 
     const getLastInvoice = async () => {
         if (!userNId || !meterNumber) return;
-        const res = await api.walletApi.get(
-            `/getPaymentDetails/${userNId}/${meterNumber}`,
-            { withCredentials: true }
-        );
-        if (res.data.success) {
-            setLatestInvoice(res.data.transaction);
+        try {
+            const res = await api.walletApi.get(
+                `/getPaymentDetails/${userNId}/${meterNumber}`,
+                { withCredentials: true }
+            );
+            if (res.data.success) {
+                setLatestInvoice(res.data.transaction);
+                if (res.data.dueDate) {
+                    setDueDate(res.data.dueDate);
+                } else if (recentCharges.length > 0 && recentCharges[0].payingDate) {
+                    setDueDate(calculateDueDate(recentCharges[0].payingDate));
+                }
+            }
+        } catch (error) {
+            console.error(error);
         }
     };
 
+    useEffect(() => {
+        if (recentCharges.length > 0 && recentCharges[0].payingDate) {
+            setDueDate(calculateDueDate(recentCharges[0].payingDate));
+        }
+    }, [recentCharges]);
+
     const handleCharge = async () => {
         if (!userNId || !meterNumber) return;
+
+        if (meterType === "Smart Meter" && (!amount || Number(amount) < 25)) {
+            alert("Please enter a valid amount to charge and greater than 25 EG");
+            return;
+        }
+
         try {
             setChargeLoading(true);
+           
             const res = await api.walletApi.post(
                 `chargeMeters/${userNId}/${meterNumber}`,
-                {},
+                { amount: Number(amount) },
                 { withCredentials: true }
             );
             if (res.data.clientSecret) {
@@ -104,12 +136,14 @@ const ConsumptionCard = ({ onTransactionSuccess }: ConsumptionCardProps) => {
 
     const handleDone = async () => {
         setShowSuccessModal(false);
+        setAmount("");
         await getWalletHistory();
         onTransactionSuccess?.();
     };
 
     useEffect(() => {
         getWalletHistory();
+        getLastInvoice();
     }, [meterNumber, userNId, userId]);
 
     return (
@@ -148,37 +182,86 @@ const ConsumptionCard = ({ onTransactionSuccess }: ConsumptionCardProps) => {
                     </div>
 
                     <div className="space-y-3 pt-1">
+                        <div className="space-y-3 pt-1">
+                            {meterType === "Bill" ? (
+                                /* Billing Section */
+                                <div className="p-3.5 rounded-xl bg-white/70 border border-[var(--color-secondary-purple)]/20 shadow-sm flex flex-col gap-2.5">
+                                    {dueDate && (
+                                        <div className="flex items-center justify-between pb-2 border-b border-[var(--color-secondary-purple)]/10">
+                                            <span className="text-[11px] font-semibold text-slate-600 uppercase tracking-wider flex items-center gap-1.5">
+                                                <Calendar className="w-3.5 h-3.5 text-[var(--color-secondary-purple)]" /> Next Due Date
+                                            </span>
+                                            <span className="text-xs font-bold text-[var(--color-secondary-purple)] bg-[var(--color-secondary-purple)]/10 px-2.5 py-0.5 rounded-md border border-[var(--color-secondary-purple)]/20">
+                                                {dueDate}
+                                            </span>
+                                        </div>
+                                    )}
 
-                        {meterType === "Smart Meter" && (<div className="flex items-center justify-between bg-white/60 p-2.5 rounded-xl border border-white/80">
-                            <div className="flex items-center gap-2">
-                                <CreditCard className="w-4 h-4 text-[var(--color-secondary-purple)]" />
-                                <span className="text-xs font-bold text-gray-700">AutoPay</span>
-                            </div>
-                            <label className="relative inline-flex items-center cursor-pointer">
-                                <input type="checkbox" className="sr-only peer" />
-                                <div className="w-9 h-5 bg-gray-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[var(--color-secondary-purple)]"></div>
-                            </label>
+                                    {latestInvoice?.status === "success" || latestInvoice?.status === "succeeded" ? (
+                                        <div className="flex items-center justify-between pt-0.5">
+                                            <div className="flex items-center gap-2.5">
+                                                <div className="w-7 h-7 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0 border border-emerald-200">
+                                                    <CheckCircle2 className="w-4 h-4" />
+                                                </div>
+                                                <div>
+                                                    <p className="text-xs font-bold text-slate-800">Bill Settled</p>
+                                                    <p className="text-[10px] text-slate-500 font-medium">Paid for this month</p>
+                                                </div>
+                                            </div>
+                                            <span className="text-[11px] font-bold text-emerald-700 bg-emerald-50/80 px-2.5 py-1 rounded-lg border border-emerald-200">
+                                                Paid
+                                            </span>
+                                        </div>
+                                    ) : (
+                                        <button
+                                            onClick={handleCharge}
+                                            disabled={chargeLoading}
+                                            className="w-full mt-1 py-2.5 px-4 bg-[var(--color-secondary-purple)] hover:opacity-90 text-white text-xs font-bold rounded-xl shadow-sm transition-all flex items-center justify-center gap-2 active:scale-[0.99]"
+                                        >
+                                            <span>{chargeLoading ? "Processing..." : "Pay Current Bill"}</span>
+                                            <ArrowUpRight className="w-4 h-4 text-[var(--color-gas-yellow)]" />
+                                        </button>
+                                    )}
+                                </div>
+                            ) : (
+                      
+                                <div className="space-y-3">
+                 
+                                    <div>
+                                        <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+                                            <CreditCard className="w-4 h-4 text-[var(--color-secondary-purple)]" />
+                                            Enter Amount to Charge (Min 25 EGP)
+                                        </label>
+                                        <input
+                                            type="number"
+                                            min="25"
+                                            value={amount}
+                                            onChange={(e) => setAmount(e.target.value)}
+                                            placeholder="e.g. 100"
+                                            className={`w-full px-3 py-2 text-xs bg-white/80 border rounded-xl focus:outline-none text-slate-800 font-semibold transition-colors ${amount && Number(amount) < 25
+                                                    ? "border-red-400 focus:border-red-500"
+                                                    : "border-slate-200 focus:border-[var(--color-secondary-purple)]"
+                                                }`}
+                                        />
 
+                                        {amount && Number(amount) < 25 && (
+                                            <p className="text-[10px] text-red-500 font-medium mt-1">
+                                                Amount must be at least 25 EGP
+                                            </p>
+                                        )}
+                                    </div>
+
+                                    <button
+                                        onClick={handleCharge}
+                                        disabled={chargeLoading || !amount || Number(amount) < 25}
+                                        className="w-full py-2.5 px-4 bg-[var(--color-secondary-purple)] hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed text-white text-xs font-bold rounded-xl shadow-sm transition-all flex items-center justify-center gap-2 active:scale-[0.99]"
+                                    >
+                                        <span>{chargeLoading ? "Processing..." : "Charge Meter"}</span>
+                                        <ArrowUpRight className="w-4 h-4 text-[var(--color-gas-yellow)]" />
+                                    </button>
+                                </div>
+                            )}
                         </div>
-                        )}
-
-
-                        <button
-                            onClick={handleCharge}
-                            disabled={chargeLoading}
-                            className="w-full py-2.5 px-4 bg-[var(--color-secondary-purple)] hover:opacity-90 text-white text-xs font-bold rounded-xl shadow-sm transition-all flex items-center justify-center gap-2 active:scale-[0.99]"
-                        >
-                            <span>
-                                {
-                                    chargeLoading
-                                        ? "Processing..."
-                                        : meterType === "Bill"
-                                            ? "Pay Bill"
-                                            : "Charge Meter"
-                                }
-                            </span>
-                            <ArrowUpRight className="w-4 h-4 text-[var(--color-gas-yellow)]" />
-                        </button>
                     </div>
                 </div>
 
@@ -215,7 +298,7 @@ const ConsumptionCard = ({ onTransactionSuccess }: ConsumptionCardProps) => {
                                         className="flex justify-between items-center text-xs p-2 px-3 rounded-lg bg-white/50 border border-white/70 hover:bg-white/80 transition-colors"
                                     >
                                         <span className="font-semibold text-gray-600">
-                                            {new Date(item.payingDate || item.createdAt).toLocaleDateString('en-GB', {
+                                            {new Date(item.payingDate).toLocaleDateString('en-GB', {
                                                 day: '2-digit', month: 'short', year: 'numeric'
                                             })}
                                         </span>

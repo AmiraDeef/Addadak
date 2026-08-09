@@ -23,7 +23,6 @@ const getRate = (cons) => {
     const matchTier = tiers.find(tier => cons >= tier.min && cons <= tier.max);
     return matchTier ? matchTier.rate : 0;
 
-
 }
 //create payment stripe 
 const createPaymentWay = async (amount,
@@ -70,6 +69,7 @@ const chargeMeters = async (req, res, next) => {
     try {
         //get meternum w nid from request body or param 
         const { userNId, meterNum } = req.params;
+        const { amount: bodyAmount } = req.body;
 
         if (!userNId || !meterNum) {
             return res.status(400).json({ message: "National ID and Meter Number are required!" });
@@ -129,6 +129,7 @@ const chargeMeters = async (req, res, next) => {
         if (amount <= 0 || !amount) {
             return res.status(400).json({ message: "Amount must be greater than zero!" });
         }
+       let finalAmount=0
 
         //type of meter  in 3 cases
         switch (meter.meterType) {
@@ -175,32 +176,41 @@ const chargeMeters = async (req, res, next) => {
 
             case "Smart Card":
 
-                const cardPayment = await createPaymentWay(
-                    amount,
-                    userNId,
-                    meter,
-                    userOfMet
-                );
 
-                return res.status(200).json({
+            //QR code simulation
 
-                    success: true,
+                // const cardPayment = await createPaymentWay(
+                //     amount,
+                //     userNId,
+                //     meter,
+                //     userOfMet
+                // );
 
-                    clientSecret: cardPayment.payment.client_secret,
+                // return res.status(200).json({
 
-                    transaction: cardPayment.paymentTransaction
+                //     success: true,
 
-                });
-                break;
+                //     clientSecret: cardPayment.payment.client_secret,
+
+                //     transaction: cardPayment.paymentTransaction
+
+                // });
+                 break;
 
             case "Smart Meter":
+                finalAmount = Number(bodyAmount);
+                if (!finalAmount || finalAmount <= 0||finalAmount<25) {
+                    return res.status(400).json({ message: "Minimum charge amount for smart meters is 25 EGP." });}
+            
+            //user enter amount (in case it not autoPay ) in stipe window or app front
                 const smartPayment = await createPaymentWay(
-                    amount,
+                    finalAmount,
                     userNId,
                     meter,
                     userOfMet
                 );
 
+                
                 return res.status(200).json({
 
                     success: true,
