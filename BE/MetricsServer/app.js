@@ -7,7 +7,7 @@ require("dotenv").config();
 const app=express();
 const metricsRouters=require("./metricsRoutes/metricsRoutes")
 const cookies=require("cookie-parser");
-
+const ElmetricsRouter = require("./metricsRoutes/electicityRoutes") //for testing
 app.use(express.json());
 app.use(cookies())
 app.use(cors({
@@ -28,7 +28,7 @@ const DB_connection=async()=>{
 DB_connection();
 
 
-
+app.use("/elec",ElmetricsRouter);
 
 app.use(serverErrorHandler);
 app.listen(process.env.PORT||3001,()=>{

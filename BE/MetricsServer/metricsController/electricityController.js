@@ -1,23 +1,16 @@
-const electricTiers=[
-    {tier:1 ,min:0, max:50, rate:0.68},
-    {tier:2 , min: 51, max: 100, rate: 0.78 },
-    {tier:3 , min: 101, max: 200, rate: 0.95},
-    {tier:4 , min: 201, max: 350, rate: 1.55 },
-    {tier:5 , min: 351, max: 650, rate: 1.95 },
-    {tier:6 , min: 651, max: 1000, rate: 2.10 },
-    {tier:7 , min: 1001, max: Infinity, rate: 2.58 }
+//check the function check if any additional functions needed...
+const utility = 'Electricity';
 
-];
 
 const {
+  electricTiers,
   calculateTier,
   generateInvoice,
-  billHistoryConsumption,
   getAllMeters,
   deleteUserMeters,
   currentMonthSmartConsumption,
-  smartMonthlyHistoryConsumption,
-  prepaidMonthlyHistoryConsumption
+  getMonthlyHistoryConsumption,
+ 
 } = require("../domainLogic/domainLogic");
 
 const viewAllTiers = (req,res,next)=>{
@@ -30,7 +23,7 @@ const viewAllTiers = (req,res,next)=>{
 
 const getAllElectricityMeters = async(req,res,next)=>{
     try {
-        const {ID,utility} = req.params;
+        const {ID} = req.params;
         const userMeters = await getAllMeters(ID,utility);
         if(userMeters.length === 0){
          return  res.status(404).json({message:"User metrics are not found!"})
@@ -42,11 +35,58 @@ const getAllElectricityMeters = async(req,res,next)=>{
     }
 }
 
-//const getTier = asyc(req,res,next)=>{
+const getInvoice = async(req,res,next)=>{
     try {
+        const meterNumber = req.params.meterNo;
+        const consumption= await getMonthlyHistoryConsumption(meterNumber,utility);
+        if(!consumption || consumption.length === 0 ){
+            return res.status(404).json({message:"User metrics are not found!"});
+        }
+        const invoice = generateInvoice(consumption[0],utility);
+        if(!invoice) return res.status(500).json({Message:"unexcepected eror"});
+        return res.status(200).json(invoice);
 
-        calculateTier()
     } catch (error) {
-        
+        next(error);
     }
-//}
+}
+//check if we need it later...
+const getElectricityMonthlyHistoryConsumption= async(req,res,next)=>{
+    try {
+        const meterNumber = req.params.meterNo;
+        const consumption= await getMonthlyHistoryConsumption(meterNumber,utility);
+        if(consumption.length === 0 ){
+            return res.status(404).json({message:"User metrics are not found!"});
+        }
+        return res.status(200).json(consumption); 
+    } catch (error) {
+        next(error);
+    }
+}
+
+//To get the real time consumption of the user for smart meter which will be within 12 hours as desgined
+const getcurrentMonthSmartConsumption = async(req,res,next)=>{
+    try {
+        const meterNumber = req.params.meterNo;
+
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const currentMonth = `${year}-${month}`;
+        
+        const currentConsumption = await currentMonthSmartConsumption(meterNumber,currentMonth,utility);
+        if(!currentConsumption || currentConsumption.length === 0) return res.status(200).json({message:"The consumptions isn't available right now"});
+        return res.status(200).json(currentConsumption);
+    } catch (error) {
+        next(error);
+    }
+}
+
+
+module.exports = {
+    viewAllTiers,
+    getAllElectricityMeters,
+    getInvoice,
+    getElectricityMonthlyHistoryConsumption,
+    getcurrentMonthSmartConsumption
+}
