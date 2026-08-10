@@ -12,11 +12,11 @@ const ChartDashboard=()=>{
      
      const getColor = () => {
         switch (utility) {
-            case 'electricity':
+            case 'Electricity':
                 return '#3ecfdf'; 
-            case 'water':
+            case 'Water':
                 return '#3b82f6'; 
-            case 'gas':
+            case 'Gas':
                 return '#f9a916'; 
             default:
                 return '#515e5f';

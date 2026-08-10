@@ -7,7 +7,7 @@ import Swal from 'sweetalert2';
 import api from "../../../api/axios.tsx";
 import type { RootState, AppDispatch } from '../../../store/store.tsx';
 import { consumptions } from "../../../store/consumptionSlice.tsx";
-
+import {meter} from "../../../store/meterSlice.tsx"
 const Dashboard = () => {
     const navigate = useNavigate();
     const dispatch = useDispatch<AppDispatch>();
@@ -53,14 +53,17 @@ const Dashboard = () => {
         const endpoints = getEndpoints();
         try {
             const userMeters = await api.elecApi.get(endpoints.allMeters, { withCredentials: true });
-            const fetchedMeters = userMeters.data.meters;
-            setMeters(fetchedMeters);
+            const fetchedMeters = userMeters.data.meters.map((item:any) =>item._id);
+
+            
+             setMeters(fetchedMeters);
 
             if (fetchedMeters && fetchedMeters.length > 0) {
-                const firstMeterNumber = fetchedMeters[0]._id?.meterNumber;
+                const firstMeterNumber = fetchedMeters[0].meterNumber;
                 if (firstMeterNumber) {
                     getUserTier(firstMeterNumber);
                     getUserReadings(firstMeterNumber);
+                    dispatch(meter({ meterNumber: firstMeterNumber }))
                 }
             }
         } catch (error: any) {

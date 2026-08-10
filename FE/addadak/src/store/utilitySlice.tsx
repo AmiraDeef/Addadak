@@ -8,7 +8,7 @@ interface utilityState{
 }
 //initial state
 const initialState: utilityState = {
-  utility: "electricity",
+  utility: "Electricity",
  // meterNumber: "",
   //meterType: "",
   //allMeters:[],

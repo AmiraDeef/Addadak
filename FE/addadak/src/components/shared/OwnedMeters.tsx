@@ -1,4 +1,8 @@
 import {useState } from "react";
+import type { RootState, AppDispatch } from '../../store/store';
+import { useSelector, useDispatch } from 'react-redux';
+import {meter} from "../../store/meterSlice"
+
 interface props{
     meters:Array<object>,
     getUserTier:Function,
@@ -8,17 +12,20 @@ interface props{
 
 const OwnedMeters=({meters,getUserTier,getUserReadings}:props)=>{
     const [meterNo,setMeterNo]=useState("");
+    const dispatch = useDispatch<AppDispatch>();
+   
     return(
          <div className="border border-secondary-purple rounded-2xl px-4 py-3 flex flex-col gap-6">
                     <h1 className="text-secondary-purple text-2xl " > Owned Meters</h1>
                     <div className="grid grid-cols-2 md:grid-cols-4  gap-6  w-fill max-w-7xl  ">
                          
                         {meters && meters.length > 0 ? 
-                        (
+                        (       
+                                
                                 meters.map((ele, index) => {
-                                    const currentMeterNumber = ele._id.meterNumber;
-                                    const currentMeterType = ele._id.meterType;
-                                    const currentAddress = ele._id.address;
+                                    const currentMeterNumber = ele.meterNumber;
+                                    const currentMeterType = ele.meterType;
+                                    const currentAddress = ele.address;
                                     
 
                                     return (
@@ -26,10 +33,12 @@ const OwnedMeters=({meters,getUserTier,getUserReadings}:props)=>{
                                             key={index}
                                             onClick={() => {
                                                 if (currentMeterNumber) {
+                                                    dispatch(meter({ meterNumber: currentMeterNumber }))
                                                     setMeterNo(currentMeterNumber); 
                                                     getUserTier(currentMeterNumber); 
                                                     getUserReadings(currentMeterNumber);
                                                 }
+                                                console.log(currentMeterNumber);
                                             }}
                                             className={`rounded-3xl py-4 px-12 border shadow-md flex flex-col justify-center items-center text-center transition-all duration-300 w-full h-24 hover:-translate-y-1 ${
                                                 (meterNo === currentMeterNumber )||(meterNo==="" && index==0)
