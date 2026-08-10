@@ -7,7 +7,10 @@ require("dotenv").config();
 const app=express();
 const metricsRouters=require("./metricsRoutes/metricsRoutes")
 const cookies=require("cookie-parser");
-const ElmetricsRouter = require("./metricsRoutes/electicityRoutes") //for testing
+
+const electricMetricsRouter = require("./metricsRoutes/electicityRoutes") //for testing
+const gasMetricsRouter = require('./metricsRoutes/gasRoutes');
+const waterMetricsRouter = require('./metricsRoutes/waterRoutes');
 app.use(express.json());
 app.use(cookies())
 app.use(cors({
@@ -28,7 +31,9 @@ const DB_connection=async()=>{
 DB_connection();
 
 
-app.use("/elec",ElmetricsRouter);
+app.use("/elec",electricMetricsRouter);
+app.use("/gas",gasMetricsRouter);
+app.use("/water",waterMetricsRouter);
 
 app.use(serverErrorHandler);
 app.listen(process.env.PORT||3001,()=>{

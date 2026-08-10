@@ -75,6 +75,7 @@ const getcurrentMonthSmartConsumption = async(req,res,next)=>{
         const currentMonth = `${year}-${month}`;
         
         const currentConsumption = await currentMonthSmartConsumption(meterNumber,currentMonth,utility);
+        console.log(currentConsumption);
         if(!currentConsumption || currentConsumption.length === 0) return res.status(200).json({message:"The consumptions isn't available right now"});
         return res.status(200).json(currentConsumption);
     } catch (error) {
