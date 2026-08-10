@@ -129,7 +129,7 @@ const chargeMeters = async (req, res, next) => {
         if (amount <= 0 || !amount) {
             return res.status(400).json({ message: "Amount must be greater than zero!" });
         }
-       let finalAmount=0
+        let finalAmount = 0
 
         //type of meter  in 3 cases
         switch (meter.meterType) {
@@ -166,7 +166,7 @@ const chargeMeters = async (req, res, next) => {
                     clientSecret: billPayment.payment.client_secret,
                     transaction: billPayment.paymentTransaction,
                     dueDate: dueDate.toISOString().split('T')[0],
-                    
+
 
                 });
 
@@ -175,34 +175,17 @@ const chargeMeters = async (req, res, next) => {
                 break;
 
             case "Smart Card":
+                //QR code simulation
 
-
-            //QR code simulation
-
-                // const cardPayment = await createPaymentWay(
-                //     amount,
-                //     userNId,
-                //     meter,
-                //     userOfMet
-                // );
-
-                // return res.status(200).json({
-
-                //     success: true,
-
-                //     clientSecret: cardPayment.payment.client_secret,
-
-                //     transaction: cardPayment.paymentTransaction
-
-                // });
-                 break;
+                break;
 
             case "Smart Meter":
                 finalAmount = Number(bodyAmount);
-                if (!finalAmount || finalAmount <= 0||finalAmount<25) {
-                    return res.status(400).json({ message: "Minimum charge amount for smart meters is 25 EGP." });}
-            
-            //user enter amount (in case it not autoPay ) in stipe window or app front
+                if (!finalAmount || finalAmount <= 0 || finalAmount < 25) {
+                    return res.status(400).json({ message: "Minimum charge amount for smart meters is 25 EGP." });
+                }
+
+                //user enter amount (in case it not autoPay ) in app front(body)
                 const smartPayment = await createPaymentWay(
                     finalAmount,
                     userNId,
@@ -210,7 +193,7 @@ const chargeMeters = async (req, res, next) => {
                     userOfMet
                 );
 
-                
+
                 return res.status(200).json({
 
                     success: true,
@@ -267,6 +250,8 @@ const getWallet = async (req, res, next) => {
 
         return res.status(200).json({
             success: true,
+            autoPay: meter?.autoPay || false,
+            autoPayAmount: meter?.autoPayAmount || 100,
             transactions: walletTransactions || []
         });
 
@@ -276,73 +261,133 @@ const getWallet = async (req, res, next) => {
 }
 
 //user enable autopay
-const enableAutopay = async (params) => {
+const enableAutopay = async (req, res, next) => {
     try {
+        const { meterNum } = req.params;
+        const { autoPay, amount } = req.body;
+
+
+        const updatedMeter = await metricsSchema.findOneAndUpdate(
+            { meterNumber: meterNum },
+            { $set: { autoPay: autoPay } },
+            { returnDocument: "after" }
+        );
+
+        if (!updatedMeter) {
+            return res.status(404).json({ message: "Meter not found!" });
+        }
+
+        if (autoPay) {
+            await walletSchema.findOneAndUpdate(
+                { meterId: updatedMeter._id },
+                {
+                    autoPay: true,
+                    autoPayAmount: amount && amount >= 25 ? amount : 100,
+                    utility: updatedMeter.utility
+                },
+                { upsert: true, returnDocument: 'after' }
+            );
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: `AutoPay is now ${autoPay ? "enabled" : "disabled"}`
+        });
 
     } catch (error) {
-
+        next(error);
     }
-}
+};
 
 //server-managed when autopay-->true
 const autoPayProcess = async (req, res, next) => {
     try {
-        //get all autopaymeters
-        const autopayMeters = await metricsSchema.find({ autoPay: true })
-        if (!autopayMeters || autopayMeters.length === 0) return res.status(200).json({ message: "no meters are autopay " })
+        const { userNId, meterNum } = req.params;
+        if (!meterNum || !userNId) {
+            return res.status(400).json({ message: "meterNum and userNId are required!" });
+        }
 
-        const succedMeters = []
-
-        //calc amount for each meters
-
-        // foreach not suitable with awit and axios
-
-
-        // autopayMeters.forEach(met => {
-        //     try {
-        //         const ConsumptionMet = await axios.get(
-        //             `${process.env.API_CONSUMPTION_URL}/${met.nationalID}/${met.meterNumber}`,
-        //             {
-        //                 headers: {
-        //                     cookie: req.headers.cookie
-        //                 }
-        //             }
-        //         )
-        //         const consumptions = ConsumptionMet.data.consumptionTable;
-        //         if (!consumptions || consumptions.length === 0) continue;
-
-        //         const latestConsumption = consumptions[0].consumption;
-        //         const rate = getRate(latestConsumption);
-        //         const amount = latestConsumption * rate;
-
-        //         if (amount <= 0) continue;
+        const meter = await metricsSchema.findOne({ meterNumber: meterNum });
+        if (!meter) {
+            return res.status(404).json({ message: "Meter not found!" });
+        }
 
 
+        const walletSetting = await walletSchema.findOne({ meterId: meter._id });
 
+        if (!walletSetting || !walletSetting.autoPay) {
+            return res.status(200).json({
+                success: false,
+                code: "AUTOPAY_DISABLED",
+                message: "AutoPay is not enabled for this meter."
+            });
+        }
 
+        const userOfMet = await user.findOne({ nationalID: userNId });
+        if (!userOfMet) {
+            return res.status(404).json({ message: "User not found!" });
+        }
 
+        const autoChargeAmount = walletSetting.autoPayAmount || 100;
 
-        // } catch (payError) {
-        // console.error(`autopay faild for meter ${met.meterNumber}`);
-        // await walletSchema.create({
-        //         // userId: ,
-        //         meterId: meter._id,
-        //         status: "failed",
-        //         meterType: meter.meterType,
-        //         amount: 0,
-        //         stripePaymentIntentId: "N/A"
-        //     });
+        const customerId = walletSetting?.stripeCustomerId;
+        const paymentMethodId = walletSetting?.stripePaymentMethodId;
 
+        try {
+            const payment = await stripe.paymentIntents.create({
+                amount: Math.round(autoChargeAmount * 100),
+                currency: "egp",
+                ...(customerId && { customer: customerId }),
+                payment_method: paymentMethodId,
+                off_session: true,
+                confirm: true,
+                metadata: {
+                    userNId,
+                    metricId: meter.meterNumber,
+                    meterType: meter.meterType
+                }
+            });
 
-        // }
-        // });
+            const transaction = await walletSchema.create({
+                userId: userOfMet._id,
+                meterId: meter._id,
+                utility: meter.utility,
+                status: "success",
+                meterType: meter.meterType,
+                amount: autoChargeAmount,
+                stripePaymentIntentId: payment.id
+            });
 
+            return res.status(200).json({
+                success: true,
+                code: "AUTOPAY_SUCCESS",
+                message: "AutoPay recharged successfully.",
+                transactionId: transaction._id,
+                amount: autoChargeAmount
+            });
 
+        } catch (StripErr) {
+            await walletSchema.create({
+                userId: userOfMet._id,
+                meterId: meter._id,
+                utility: meter.utility,
+                status: "failed",
+                meterType: meter.meterType,
+                amount: autoChargeAmount,
+                stripePaymentIntentId: "FAILED_AUTOPAY"
+            });
 
+            return res.status(400).json({
+                success: false,
+                code: "PAYMENT_FAILED",
+                message: "Stripe payment failed during AutoPay.",
+                error: StripErr.message
+            });
+        }
     } catch (error) {
-        next(error)
+        next(error);
     }
-}
+};
 
 
 const getPaymentDetails = async (req, res, next) => {
@@ -378,7 +423,7 @@ const getPaymentDetails = async (req, res, next) => {
                 utility: meter.utility,
                 meterType: meter.meterType,
                 address: meter.address,
-                amount:Number( transaction.amount.toFixed(2)),
+                amount: Number(transaction.amount.toFixed(2)),
                 status: transaction.status,
 
             }
