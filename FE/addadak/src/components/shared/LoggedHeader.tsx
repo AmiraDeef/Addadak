@@ -22,7 +22,7 @@ const LoggedHeader=()=>{
                  <NavLink to="/logged/user/dashboard/chart" 
                     className={
                         `rounded-xl flex flex-row items-center gap-3   w-40 justify-center w-auto md:w-40   p-2 sm:p-0 duration-300
-                        ${(utility==='electricity') ? 'bg-secondary-purple text-my-white hover:text-electric-cyan' : 'text-black/40  hover:text-black'}`
+                        ${(utility==='Electricity') ? 'bg-secondary-purple text-my-white hover:text-electric-cyan' : 'text-black/40  hover:text-black'}`
                     }
                     onClick={()=>dispatch(utilityHandler({utility:'Electricity'}))}
                     >
@@ -36,7 +36,7 @@ const LoggedHeader=()=>{
 
                 <NavLink to="/logged/user/dashboard/chart" 
                     className={` duration-300 duraion rounded-xl flex flex-row items-center gap-3 w-auto md:w-40 p-2 sm:p-0 w-40 justify-center
-                    ${(utility==='gas')?'bg-secondary-purple text-my-white hover:text-gas-yellow' : 'text-black/40  hover:text-black '}` }
+                    ${(utility==='Gas')?'bg-secondary-purple text-my-white hover:text-gas-yellow' : 'text-black/40  hover:text-black '}` }
                     onClick={()=>dispatch(utilityHandler({utility:'Gas'}))}>
                     <img src={gas} alt="fireIcon"   className="w-10 h-10 sm:w-10 sm:h-10 md:w-12 md:h-12 object-contain"  />
                     <span className="font-bold hidden md:inline">Gas</span>
@@ -45,7 +45,7 @@ const LoggedHeader=()=>{
 
                 <NavLink to="/logged/user/dashboard/chart" 
                     className={` duration-300 duraion rounded-xl flex flex-row items-center gap-3 w-auto md:w-40 p-2 sm:p-0 w-40 justify-center
-                    ${(utility==='water')?'bg-secondary-purple text-my-white hover:text-blue' : 'text-black/40  hover:text-black '}` }
+                    ${(utility==='Water')?'bg-secondary-purple text-my-white hover:text-blue' : 'text-black/40  hover:text-black '}` }
                     onClick={()=>dispatch(utilityHandler({utility:'Water'}))}>
                     <img src={water} alt="fireIcon"   className="w-10 h-10 sm:w-10 sm:h-10 md:w-12 md:h-12 object-contain"  />
                     <span className="font-bold hidden md:inline">Water</span>
