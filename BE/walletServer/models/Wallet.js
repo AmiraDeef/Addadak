@@ -38,14 +38,7 @@ const walletSchema = new mongoose.Schema({
         enum: ["pending", "success", "failed"],
         default: "pending"
     },
-    autoPay: {
-        type: Boolean,
-        default: false
-    }
-    , autoPayAmount:{
-    type: Number,
-    default: 100
-},
+   
     payingDate: { type: mongoose.Schema.Types.Date, default: Date.now }
 })
 
