@@ -1,3 +1,10 @@
+//#Note any adjustment will be Marked with #, ctrl+f (#) you will find all the adjustments.
+//notes for me this is the logic + reposotry
+//no try and catch needed because the try and catch will implemented in the controller.
+//no falied responses handling is require because it will be handeled in the controller
+//all what you need is the implement the functions which handle the logic..
+const metricsSchema = require("../model/metricsModel");
+
 const electricTiers=[
     {tier:1 ,min:0, max:50, rate:0.68},
     {tier:2 , min: 51, max: 100, rate: 0.78 },
@@ -25,48 +32,173 @@ const waterTiers = [
   { tier: 5, min: 41, max: Infinity, rate: 3.15 }
 ];
 
+//I need this function and the calcilateTier function to use them in the generateInvoice function
+const getTiersByUtility = (utility) => {
+  switch (utility) {
+    case "Electricity": return electricTiers;
+    case "Gas": return gasTiers;
+    case "Water": return waterTiers;
+    default: return [];
+  }
+};
 
-
-const billEnvoice =(userMeters,tiers )=>{
-  const latestUserMeter=userMeters[0];
-  let userMeter=0
-  let userTier=1;
-  let userRate=0;
-  userMeter=latestUserMeter.reading-userMeters[1].reading;
-
+const calculateTier = (consumption, tiers) => {
+  const safeConsumption = Math.abs(consumption || 0);
   for (let i = 0; i < tiers.length; i++) {
-    if (userMeter >= tiers[i].min && userMeter <= tiers[i].max) {
-        userTier = tiers[i].tier;
-        userRate=tiers[i].rate;
-        break;
-      }
+    if (safeConsumption >= tiers[i].min && safeConsumption <= tiers[i].max) {
+      return { tier: tiers[i].tier, rate: tiers[i].rate };
+    }
   }
+  return { tier: 1, rate: 0 };
+};
 
-  const envoice ={
-    tier:userTier,
-    rate:userRate,
-    consumptionInMonth: userMeter 
-  }
-  return envoice;
+//Generate inovice function is a global function which used to create the invoces for any type of meters 
+// you need to send the correct consumptionRecord paramter haa !!!
+const generateInvoice = (consumptionRecord, utility) => {
+  if (!consumptionRecord) return null;
+
+  const tiers = getTiersByUtility(utility);
+
+  const consumption = consumptionRecord.consumption ?? consumptionRecord.consumptionSoFar ?? 0;
+
+  const { tier, rate } = calculateTier(consumption, tiers);
+
+  return {
+    utility: utility,
+    message: "tier is",
+    tier: tier,
+    rate: rate,
+    month: consumptionRecord.month,//month
+    consumptionInMonth: consumption,//kw
+    totalBillAmount: Number((consumption * rate).toFixed(2)) //money
+};
 }
 
-
-const billHistoryConsumption=(userMeters,)=>{
-  const consumptions=[];
-  for (let i = 0; i < userMeters.length; i++) {
-      let currentConsumption = 0;
-      if (userMeters[i + 1]) {
-        currentConsumption = userMeters[i].reading - userMeters[i + 1].reading;
-        } else {       
-        currentConsumption = userMeters[i].reading-0;
-        if(currentConsumption<0){
-          currentConsumption=Math.abs(currentConsumption)
+const getMonthlyHistoryConsumption = async (meterNumber, utility) => {
+  return await metricsSchema.aggregate([
+    { $match: { meterNumber: meterNumber, utility: utility } },
+    { $sort: { readingDate: -1 } },
+    {
+      $group: {
+        _id: "$billingMonth",
+        latestReadingDate: { $first: "$readingDate" },
+        latestReading: { $first: "$reading" }
+      }
+    },
+    { $sort: { latestReadingDate: -1 } },
+    {
+      $setWindowFields: {
+        sortBy: { latestReadingDate: -1 },
+        output: {
+          previousMonthReading: {
+            $shift: {
+              output: "$latestReading",
+              by: 1
+            }
           }
         }
-      consumptions.push({
-        month: userMeters[i].billingMonth,
-        consumption: currentConsumption
-        });
-  }
-  return consumptions;
+      }
+    },
+    {
+      $project: {
+        _id: 0,
+        month: "$_id",
+        consumption: {
+          $cond: {
+            if: { $ne: ["$previousMonthReading", null] },
+            then: { $abs: { $subtract: ["$latestReading", "$previousMonthReading"] } },
+            else: { $abs: "$latestReading" }
+          }
+        }
+      }
+    }
+  ]);
+};
+
+
+//it calculates the consumption at a point or day in the month
+const currentMonthSmartConsumption = async (meterNumber,currentMonth,utility)=>{
+  return await metricsSchema.aggregate([
+    { $match: { meterNumber: meterNumber, billingMonth: currentMonth , utility: utility } },
+    { $sort: { readingDate: -1 } },
+    {
+      $group: {
+        _id: "$billingMonth",
+        latestReading: { $first: "$reading" },
+        firstReading: { $last: "$reading" },
+        latestDate: { $first: "$readingDate" }
+      }
+    },
+    {
+      $project: {
+        _id: 0,
+        month: "$_id",
+        latestReadingDate: "$latestDate",
+        consumptionSoFar: { $abs: { $subtract: ["$latestReading", "$firstReading"] } }
+      }
+    }
+  ]);
 }
+
+
+// const viewAllTiers = ()=>{ // move this function 
+//   return {
+//     electricTiers:electricTiers,
+//     gasTiers:gasTiers,
+//     waterTiers:waterTiers
+//   }
+// }
+
+
+//This function will be applied on the 3 types, so we need to add the utility type in concedirations
+const getAllMeters = async(ID,utility)=>{ //#1st adjustment
+  //note we added utility here to handle the meter type.
+    return await metricsSchema.aggregate([
+      {
+        $match:{nationalID:ID ,utility:utility}
+      },
+      {
+        $group:{
+          _id:{
+            meterType:"$meterType",
+            meterNumber:"$meterNumber",
+            address:"$address",
+            utility:"$utility"
+          }
+        }
+      }
+    ])
+}
+
+//why did we exclude the getTier function ?
+
+const deleteUserMeters = async(ID,utility)=>{
+  //Note the function returns this object: {acknowledged: true, deletedCount: 0}
+  // in case no item matched the condition, you need to handle this case in the controller.
+  return await metricsSchema.deleteMany({nationalID:ID,utility:utility})
+}
+
+//addmeter were made for testing purposes no need to apply it...
+
+module.exports ={
+  electricTiers,
+  gasTiers,
+  waterTiers,
+  calculateTier,
+  generateInvoice,
+  getMonthlyHistoryConsumption,
+  getAllMeters,
+  deleteUserMeters,
+  currentMonthSmartConsumption,
+}
+
+
+/*
+1̶-̶t̶r̶a̶n̶s̶f̶e̶r̶ t̶h̶e̶ r̶e̶m̶a̶i̶n̶i̶n̶g̶ f̶u̶n̶c̶t̶i̶o̶n̶s̶ e̶x̶c̶l̶u̶d̶e̶(̶a̶d̶d̶m̶e̶t̶e̶r̶-̶g̶e̶t̶T̶i̶e̶r̶-̶u̶s̶e̶r̶C̶o̶n̶s̶u̶m̶p̶t̶i̶o̶n̶s̶)̶
+2̶-̶m̶a̶k̶e̶ u̶s̶e̶r̶ c̶o̶n̶s̶u̶m̶p̶t̶i̶o̶n̶s̶ s̶m̶a̶r̶t̶ a̶n̶d̶ p̶r̶e̶p̶a̶i̶d̶ c̶a̶r̶d̶
+3̶-̶g̶e̶t̶ a̶l̶l̶ t̶i̶e̶r̶s̶
+4̶-̶d̶e̶l̶e̶t̶e̶ m̶e̶t̶e̶r̶
+5- make utilities controllers 
+6-make the end points
+
+*/

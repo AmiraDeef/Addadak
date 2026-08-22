@@ -1,6 +1,6 @@
 const express = require('express');
 const app = express();
-const PORT = 4000; // يعمل على منفذ مختلف عن تطبيقك الرئيسي
+const PORT = 4000; 
 
 app.use(express.json());
 
@@ -15,7 +15,7 @@ app.get('/meters/readings', (req, res) => {
       readingDate: new Date().toISOString()
     },
     {
-      nationalID: "30108220209876",
+      //nationalID: "30108220209876",
       meterNumber: "9876543210",
       meterType: "Smart Meter",
       address: "45 Abbas El-Akkad, Cairo, Egypt",
@@ -28,5 +28,5 @@ app.get('/meters/readings', (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`[Fake Company API] running smoothly on http://localhost:${PORT}`);
+  console.log(`[Fake Company API] running on http://localhost:${PORT}`);
 });

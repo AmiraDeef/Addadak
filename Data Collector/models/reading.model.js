@@ -38,4 +38,5 @@ const metricsSchema=mongoose.Schema({
    readingDate: { type: mongoose.Schema.Types.Date, default: Date.now },
 });
 
+metricsSchema.index({ meterNumber: 1, readingDate: -1 });// to enhance an increase the speed of the search 
 module.exports=mongoose.model("Metrics",metricsSchema);
