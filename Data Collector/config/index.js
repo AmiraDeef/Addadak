@@ -19,6 +19,8 @@ const config = {
     },
     provider: {
         electricityApiUrl: process.env.ELEC_API_URL,
+        waterApiUrl: process.env.Water_API_URL,
+        gasApiUrl: process.env.Gas_API_URL,
         timeout: parseInt(process.env.TIME_OUT, 10)*1000, // 5 second 
     },
     scheduler:{
