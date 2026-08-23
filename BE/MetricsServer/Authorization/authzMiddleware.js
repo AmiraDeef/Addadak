@@ -1,5 +1,4 @@
 const jwt=require("jsonwebtoken");
-const { isNamespaceExport } = require("typescript");
 
 const authz=(req,res,next)=>{
     try{

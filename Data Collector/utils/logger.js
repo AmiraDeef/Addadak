@@ -7,7 +7,7 @@ const logDirectory = path.join(__dirname, '..', 'logs');
 const logFormat = winston.format.combine(
     winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
   winston.format.errors({ stack: true }),
-  winston.format.json()
+  winston.format.json()//check
 );
 
 const logger = winston.createLogger({
