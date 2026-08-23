@@ -6,22 +6,6 @@ const AutoPay = require("../models/AutoPay");
 const stripe = require("stripe")(process.env.STRIP_SK);
 const axios = require("axios");
 
-const tiers = [
-    { tier: 1, min: 0, max: 50, rate: 0.68 },
-    { tier: 2, min: 51, max: 100, rate: 0.78 },
-    { tier: 3, min: 101, max: 200, rate: 0.95 },
-    { tier: 4, min: 201, max: 350, rate: 1.55 },
-    { tier: 5, min: 351, max: 650, rate: 1.95 },
-    { tier: 6, min: 651, max: 1000, rate: 2.10 },
-    { tier: 7, min: 1001, max: Infinity, rate: 2.58 }
-];
-
-// calc rate
-const getRate = (cons) => {
-    if (cons < 0 || typeof cons !== "number") return 0;
-    const matchTier = tiers.find(tier => cons >= tier.min && cons <= tier.max);
-    return matchTier ? matchTier.rate : 0;
-};
 
 // create payment stripe 
 const createPaymentWay = async (
@@ -111,8 +95,7 @@ const createPaymentWay = async (
 const chargeMeters = async (req, res, next) => {
     try {
         const { userNId, meterNum } = req.params;
-        const { amount: bodyAmount } = req.body;
-
+  
         if (!userNId || !meterNum) {
             return res.status(400).json({ message: "National ID and Meter Number are required!" });
         }
@@ -125,13 +108,11 @@ const chargeMeters = async (req, res, next) => {
                 }
             }
         );
+        console.log("Consumption Data:", consumptionRes.data);
 
-        const consumptionTable = consumptionRes.data.consumptionTable;
-        const rawConsumption = consumptionTable[0]?.consumption || 0;
-        const latestConsumption = Math.abs(rawConsumption);
-
-        const rate = getRate(latestConsumption);
-        const amount = latestConsumption * rate;
+     const BillAmount = consumptionRes.data.rate * consumptionRes.data.consumptionInMonth;
+console.log("BillAmount", BillAmount)
+        
 
         const meter = await metricsSchema.findOne({ meterNumber: meterNum });
         if (!meter) {
@@ -147,7 +128,7 @@ const chargeMeters = async (req, res, next) => {
 
         switch (meter.meterType) {
             case "Bill":
-                if (amount <= 0 || !amount) {
+                if (BillAmount <= 0 || !BillAmount) {
                     return res.status(400).json({ message: "Amount must be greater than zero!" });
                 }
 
@@ -166,7 +147,7 @@ const chargeMeters = async (req, res, next) => {
                 }
 
                 const billPayment = await createPaymentWay(
-                    amount,
+                    BillAmount,
                     userNId,
                     meter,
                     userOfMet,
@@ -188,6 +169,7 @@ const chargeMeters = async (req, res, next) => {
                 break;
 
             case "Smart Meter":
+                const{ amount: bodyAmount } = req.body;
                 finalAmount = Number(bodyAmount);
                 if (!finalAmount || finalAmount < 25) {
                     return res.status(400).json({ message: "Minimum charge amount for smart meters is 25 EGP." });
@@ -304,6 +286,7 @@ const autoPayProcess = async (req, res, next) => {
         const meter = await metricsSchema.findOne({ meterNumber: meterNum });
         if (!meter) return res.status(404).json({ message: "Meter not found!" });
 
+       
         const autoPaySetting = await AutoPay.findOne({
             meterId: meter._id,
             autoPay: true
@@ -320,11 +303,8 @@ const autoPayProcess = async (req, res, next) => {
         const userOfMet = await user.findOne({ nationalID: userNId });
         if (!userOfMet) return res.status(404).json({ message: "User not found!" });
 
-     
-        if (
-            !autoPaySetting.stripeCustomerId ||
-            !autoPaySetting.stripePaymentMethodId
-        ) {
+  
+        if (!autoPaySetting.stripeCustomerId || !autoPaySetting.stripePaymentMethodId) {
             return res.status(400).json({
                 success: false,
                 code: "NO_PAYMENT_METHOD",
@@ -332,18 +312,18 @@ const autoPayProcess = async (req, res, next) => {
             });
         }
 
-        const { payment, paymentTransaction } =
-            await createPaymentWay(
-                autoPaySetting.autoPayAmount,
-                userNId,
-                meter,
-                userOfMet,
-                true,
-                {
-                    customerId: autoPaySetting.stripeCustomerId,
-                    paymentMethodId: autoPaySetting.stripePaymentMethodId
-                }
-            );
+
+        const { payment, paymentTransaction } = await createPaymentWay(
+            autoPaySetting.autoPayAmount,
+            userNId,
+            meter,
+            userOfMet,
+            true,
+            {
+                customerId: autoPaySetting.stripeCustomerId,
+                paymentMethodId: autoPaySetting.stripePaymentMethodId
+            }
+        );
 
         return res.status(200).json({
             success: true,

@@ -20,59 +20,30 @@ const stripeWebhook = async (req, res) => {
     try {
         switch (event.type) {
             case "payment_intent.succeeded": {
-
                 const paymentIntent = event.data.object;
-
                 const customerId = paymentIntent.customer;
                 const paymentMethodId = paymentIntent.payment_method;
 
-                const updatedTransaction =
-                    await walletSchema.findOneAndUpdate(
-                        {
-                            stripePaymentIntentId: paymentIntent.id
-                        },
-                        {
-                            $set: {
-                                status: "success",
-                                payingDate: new Date()
-                            }
-                        },
-                        {
-                            new: true
-                        }
-                    );
+                const updatedTransaction = await walletSchema.findOneAndUpdate(
+                    { stripePaymentIntentId: paymentIntent.id },
+                    { $set: { status: "success", payingDate: new Date() } },
+                    { new: true }
+                );
 
-                if (!updatedTransaction) {
-                    console.warn(
-                        `Transaction not found: ${paymentIntent.id}`
-                    );
-                    break;
-                }
-
-                console.log("Payment succeeded");
-                console.log("Customer:", customerId);
-                console.log("Payment Method:", paymentMethodId);
-
-                // Save Stripe information for AutoPay
-                if (customerId && paymentMethodId) {
-
+                if (updatedTransaction && customerId && paymentMethodId) {
+                    
                     await AutoPay.findOneAndUpdate(
-                        {
-                            userId: updatedTransaction.userId,
-                            meterId: updatedTransaction.meterId
-                        },
+                        { meterId: updatedTransaction.meterId },
                         {
                             $set: {
+                                userId: updatedTransaction.userId,
                                 stripeCustomerId: customerId,
                                 stripePaymentMethodId: paymentMethodId
                             }
                         },
-                        {
-                            upsert: false
-                        }
+                        { upsert: true, new: true }
                     );
                 }
-
                 break;
             }
 

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Zap, Brain, CreditCard, Calendar, ArrowUpRight, CheckCircle2 } from "lucide-react";
+import { Zap, CreditCard, Calendar, ArrowUpRight, CheckCircle2 } from "lucide-react";
 import { useSelector, useDispatch } from "react-redux";
 import type { RootState, AppDispatch } from "../../../store/store";
 import api from "../../../api/axios";
@@ -14,7 +14,6 @@ interface ConsumptionCardProps {
 const ConsumptionCard = ({ onTransactionSuccess }: ConsumptionCardProps) => {
   const dispatch = useDispatch<AppDispatch>();
 
-  // Extract Auth and Meter states directly from Redux
   const { nid: userNId, id: userId } = useSelector((state: RootState) => state.auth);
   const { meterNumber, meterType, autoPay, autoPayAmount } = useSelector((state: RootState) => state.meter);
   const { consumptionTable } = useSelector((state: RootState) => state.consumptions);
@@ -23,12 +22,10 @@ const ConsumptionCard = ({ onTransactionSuccess }: ConsumptionCardProps) => {
     ? Math.abs(consumptionTable[0].consumption)
     : 0;
 
-  // Component Local States
   const [recentCharges, setRecentCharges] = useState<any[]>([]);
   const [chargeLoading, setChargeLoading] = useState<boolean>(false);
   const [amount, setAmount] = useState<string>("");
 
-  // AutoPay Local Input State
   const [localAutoPayAmount, setLocalAutoPayAmount] = useState<string>('');
   const [autoPayLoading, setAutoPayLoading] = useState<boolean>(false);
 
@@ -39,7 +36,6 @@ const ConsumptionCard = ({ onTransactionSuccess }: ConsumptionCardProps) => {
   const [dueDate, setDueDate] = useState<string | null>(null);
   const [showSuccessModal, setShowSuccessModal] = useState<boolean>(false);
 
-  // Keep input field synced with Redux store value
   useEffect(() => {
     if (autoPayAmount !== undefined && autoPayAmount !== null) {
       setLocalAutoPayAmount(String(autoPayAmount));
@@ -66,7 +62,6 @@ const ConsumptionCard = ({ onTransactionSuccess }: ConsumptionCardProps) => {
       );
 
       if (res.data.success) {
-        // Sync AutoPay from backend -> Redux
         dispatch(
           setAutoPayData({
             autoPay: Boolean(res.data.autoPay),
@@ -74,7 +69,6 @@ const ConsumptionCard = ({ onTransactionSuccess }: ConsumptionCardProps) => {
           })
         );
 
-        // Get successful transactions
         if (Array.isArray(res.data.transactions)) {
           const successful = res.data.transactions
             .filter(
@@ -200,205 +194,154 @@ const ConsumptionCard = ({ onTransactionSuccess }: ConsumptionCardProps) => {
   }, [recentCharges]);
 
   return (
-    <div className="w-full bg-white/40 backdrop-blur-md rounded-2xl border border-white/60 shadow-sm p-5 relative">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
-        <div className="flex flex-col justify-between space-y-4 md:border-r border-gray-300/40 md:pr-6">
-          <div>
-            <div className="flex items-center justify-between mb-3">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-[var(--color-secondary-purple)] text-white">
-                <Zap className="w-3.5 h-3.5 text-[var(--color-gas-yellow)]" /> {meterType}
-              </span>
-              <span className="text-xs text-gray-500 font-mono tracking-wider">
-                {meterNumber}
-              </span>
-            </div>
-
-            <div className="grid grid-cols-2 gap-3 mt-4 bg-white/60 p-3 rounded-xl border border-white/80">
-              <div>
-                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Last Month Consumption</p>
-                <div className="flex items-baseline gap-1.5 mt-1">
-                  <span className="text-3xl font-extrabold text-[var(--color-secondary-purple)] tracking-tight">
-                    {latestConsumption}
-                  </span>
-                  <span className="text-sm font-bold text-gray-500">kWh</span>
-                </div>
-              </div>
-
-              <div>
-                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Last Amount Charged</p>
-                <p className="text-2xl font-bold text-emerald-600 m-2">
-                  {recentCharges.length > 0 ? `${recentCharges[0].amount} EGP` : "N/A"}
-                </p>
-              </div>
-            </div>
+    <div className="w-full bg-white/40 backdrop-blur-md rounded-2xl border border-white/60 shadow-sm p-4 lg:p-5">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
+        
+        {/* Left Column: Stats */}
+        <div className="lg:col-span-5 flex flex-col justify-between space-y-3">
+          <div className="flex items-center justify-between">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-bold bg-[#31123D] text-white">
+              <Zap className="w-3.5 h-3.5 text-[#FACC15]" /> {meterType}
+            </span>
+            <span className="text-xs text-gray-500 font-mono font-semibold">
+              #{meterNumber}
+            </span>
           </div>
 
-          <div className="space-y-3 pt-1">
-            {meterType === "Bill" ? (
-              <div className="p-3.5 rounded-xl bg-white/70 border border-[var(--color-secondary-purple)]/20 shadow-sm flex flex-col gap-2.5">
-                {dueDate && (
-                  <div className="flex items-center justify-between pb-2 border-b border-[var(--color-secondary-purple)]/10">
-                    <span className="text-[11px] font-semibold text-slate-600 uppercase tracking-wider flex items-center gap-1.5">
-                      <Calendar className="w-3.5 h-3.5 text-[var(--color-secondary-purple)]" /> Next Due Date
-                    </span>
-                    <span className="text-xs font-bold text-[var(--color-secondary-purple)] bg-[var(--color-secondary-purple)]/10 px-2.5 py-0.5 rounded-md border border-[var(--color-secondary-purple)]/20">
-                      {dueDate}
-                    </span>
-                  </div>
-                )}
-
-                {latestInvoice?.status === "success" || latestInvoice?.status === "succeeded" ? (
-                  <div className="flex items-center justify-between pt-0.5">
-                    <div className="flex items-center gap-2.5">
-                      <div className="w-7 h-7 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0 border border-emerald-200">
-                        <CheckCircle2 className="w-4 h-4" />
-                      </div>
-                      <div>
-                        <p className="text-xs font-bold text-slate-800">Bill Settled</p>
-                        <p className="text-[10px] text-slate-500 font-medium">Paid for this month</p>
-                      </div>
-                    </div>
-                    <span className="text-[11px] font-bold text-emerald-700 bg-emerald-50/80 px-2.5 py-1 rounded-lg border border-emerald-200">
-                      Paid
-                    </span>
-                  </div>
-                ) : (
-                  <button
-                    onClick={handleCharge}
-                    disabled={chargeLoading}
-                    className="w-full mt-1 py-2.5 px-4 bg-[var(--color-secondary-purple)] hover:opacity-90 text-white text-xs font-bold rounded-xl shadow-sm transition-all flex items-center justify-center gap-2 active:scale-[0.99]"
-                  >
-                    <span>{chargeLoading ? "Processing..." : "Pay Current Bill"}</span>
-                    <ArrowUpRight className="w-4 h-4 text-[var(--color-gas-yellow)]" />
-                  </button>
-                )}
+          <div className="grid grid-cols-2 gap-3 bg-white/50 p-3.5 rounded-xl border border-white/70 my-auto">
+            <div className="border-r border-slate-200/60 pr-2">
+              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Last Consumption</p>
+              <div className="flex items-baseline gap-1 mt-1">
+                <span className="text-2xl font-black text-[#31123D]">
+                  {latestConsumption}
+                </span>
+                <span className="text-xs font-bold text-gray-500">kWh</span>
               </div>
-            ) : (
-              <div className="space-y-3">
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
-                    <CreditCard className="w-4 h-4 text-[var(--color-secondary-purple)]" />
-                    Enter Amount to Charge (Min 25 EGP)
-                  </label>
+            </div>
+
+            <div className="pl-1">
+              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Last Charged</p>
+              <p className="text-xl font-black text-emerald-600 mt-1">
+                {recentCharges.length > 0 ? `${recentCharges[0].amount} EGP` : "N/A"}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Right Column: Actions */}
+        <div className="lg:col-span-7 flex flex-col justify-center border-t lg:border-t-0 lg:border-l border-slate-200/40 pt-4 lg:pt-0 lg:pl-5">
+          {meterType === "Bill" ? (
+            <div className="p-3.5 rounded-xl bg-white/50 border border-white/70 shadow-sm flex flex-col justify-center gap-3 h-full my-auto">
+              {dueDate && (
+                <div className="flex items-center justify-between pb-2 border-b border-slate-200/40">
+                  <span className="text-xs font-semibold text-slate-600 uppercase tracking-wider flex items-center gap-1.5">
+                    <Calendar className="w-3.5 h-3.5 text-[#31123D]" /> Next Due Date
+                  </span>
+                  <span className="text-xs font-bold text-[#31123D] bg-[#31123D]/10 px-2.5 py-0.5 rounded-md">
+                    {dueDate}
+                  </span>
+                </div>
+              )}
+
+              {latestInvoice?.status === "success" || latestInvoice?.status === "succeeded" ? (
+                <div className="flex items-center justify-between py-1">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle2 className="w-5 h-5 text-emerald-600" />
+                    <span className="text-xs font-bold text-slate-800">Bill Settled</span>
+                  </div>
+                  <span className="text-xs font-bold text-emerald-700 bg-emerald-50/80 px-2.5 py-0.5 rounded-md border border-emerald-200">
+                    Paid
+                  </span>
+                </div>
+              ) : (
+                <button
+                  onClick={handleCharge}
+                  disabled={chargeLoading}
+                  className="w-full py-2.5 px-4 bg-[#31123D] hover:bg-[#431854] text-white text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-2"
+                >
+                  <span>{chargeLoading ? "Processing..." : "Pay Current Bill"}</span>
+                  <ArrowUpRight className="w-4 h-4 text-[#FACC15]" />
+                </button>
+              )}
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {/* Full Width Professional Charge Row */}
+              <div className="space-y-1.5">
+                <label className="block text-[11px] font-bold text-slate-600 uppercase tracking-wider flex items-center gap-1.5">
+                  <CreditCard className="w-3.5 h-3.5 text-[#31123D]" />
+                  Enter Amount to Charge (Min 25 EGP)
+                </label>
+
+                <div className="flex items-center gap-2 w-full">
                   <input
                     type="number"
                     min="25"
                     value={amount}
                     onChange={(e) => setAmount(e.target.value)}
                     placeholder="e.g. 100"
-                    className={`w-full px-3 py-2 text-xs bg-white/80 border rounded-xl focus:outline-none text-slate-800 font-semibold transition-colors ${
+                    className={`flex-1 h-10 px-3.5 text-xs bg-white/70 border rounded-xl focus:outline-none text-slate-800 font-semibold transition-all ${
                       amount && Number(amount) < 25
                         ? "border-red-400 focus:border-red-500"
-                        : "border-slate-200 focus:border-[var(--color-secondary-purple)]"
+                        : "border-white/80 focus:border-[#31123D]"
                     }`}
                   />
-                  {amount && Number(amount) < 25 && (
-                    <p className="text-[10px] text-red-500 font-medium mt-1">
-                      Amount must be at least 25 EGP
-                    </p>
-                  )}
-                </div>
-
-                <div className="p-3 rounded-xl bg-white/70 border border-slate-200/80 shadow-sm space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
-                      <Zap className="w-3.5 h-3.5 text-[var(--color-secondary-purple)]" />
-                      Enable Auto Pay
-                    </span>
-                    <label className="relative inline-flex items-center cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={Boolean(autoPay)}
-                        disabled={autoPayLoading}
-                        onChange={(e) => handleToggleAutoPay(e.target.checked)}
-                        className="sr-only peer"
-                      />
-                      <div className="w-8 h-4 bg-gray-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-emerald-500"></div>
-                    </label>
-                  </div>
-
-                  {autoPay && (
-                    <div className="pt-2 border-t border-slate-200/60">
-                      <label className="block text-[10px] font-semibold text-slate-500 uppercase mb-1">
-                        Fixed Auto-Pay Amount (Min 25 EGP)
-                      </label>
-                      <input
-                        type="number"
-                        min="25"
-                        value={localAutoPayAmount}
-                        onChange={(e) => setLocalAutoPayAmount(e.target.value)}
-                        onBlur={() => handleToggleAutoPay(true)}
-                        placeholder="e.g. 100"
-                        className="w-full px-3 py-1.5 text-xs bg-white border border-slate-200 rounded-lg focus:outline-none focus:border-[var(--color-secondary-purple)] text-slate-800 font-semibold"
-                      />
-                    </div>
-                  )}
-                </div>
-
-                <button
-                  onClick={handleCharge}
-                  disabled={chargeLoading || !amount || Number(amount) < 25}
-                  className="w-full py-2.5 px-4 bg-[var(--color-secondary-purple)] hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed text-white text-xs font-bold rounded-xl shadow-sm transition-all flex items-center justify-center gap-2 active:scale-[0.99]"
-                >
-                  <span>{chargeLoading ? "Processing..." : "Charge Meter"}</span>
-                  <ArrowUpRight className="w-4 h-4 text-[var(--color-gas-yellow)]" />
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-
-        <div className="flex flex-col justify-between space-y-4">
-          <div className="bg-white/60 p-3.5 rounded-xl border border-white/80">
-            <div className="flex items-center gap-1.5 text-[var(--color-secondary-purple)] text-xs font-bold uppercase tracking-wider mb-2">
-              <Brain className="w-4 h-4 text-[var(--color-secondary-purple)]" /> AI Forecast (Next Month)
-            </div>
-            <div className="flex items-baseline justify-between">
-              <div>
-                <p className="text-[11px] text-gray-400 font-medium">Expected Charge</p>
-                <p className="text-xl font-extrabold text-[var(--color-secondary-purple)]">
-                  ~ 145 <span className="text-xs font-semibold">EGP</span>
-                </p>
-              </div>
-              <div className="text-right">
-                <p className="text-[11px] text-gray-400 font-medium">Predicted Usage</p>
-                <p className="text-xs font-bold text-gray-700">
-                  ~ 280 kWh
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div>
-            <h4 className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-              <Calendar className="w-3.5 h-3.5" /> Recent Charge Dates
-            </h4>
-            <div className="space-y-2">
-              {recentCharges.length > 0 ? (
-                recentCharges.map((item, idx) => (
-                  <div
-                    key={item._id || idx}
-                    className="flex justify-between items-center text-xs p-2 px-3 rounded-lg bg-white/50 border border-white/70 hover:bg-white/80 transition-colors"
+                  
+                  <button
+                    onClick={handleCharge}
+                    disabled={chargeLoading || !amount || Number(amount) < 25}
+                    className="h-10 px-6 bg-[#31123D] hover:bg-[#431854] disabled:opacity-40 disabled:cursor-not-allowed text-white text-xs font-bold rounded-xl shadow-sm transition-all flex items-center justify-center gap-1.5 shrink-0"
                   >
-                    <span className="font-semibold text-gray-600">
-                      {new Date(item.payingDate).toLocaleDateString("en-GB", {
-                        day: "2-digit",
-                        month: "short",
-                        year: "numeric",
-                      })}
-                    </span>
-                    <span className="font-bold text-[var(--color-secondary-purple)]">
-                      {Math.round(item.amount)} EGP
-                    </span>
-                  </div>
-                ))
-              ) : (
-                <div className="text-xs text-gray-400 italic p-2 text-center">
-                  No recent charges found
+                    <span>{chargeLoading ? "..." : "Charge"}</span>
+                    <ArrowUpRight className="w-3.5 h-3.5 text-[#FACC15]" />
+                  </button>
                 </div>
-              )}
+
+                {amount && Number(amount) < 25 && (
+                  <p className="text-[10px] text-red-500 font-medium">
+                    Min amount is 25 EGP
+                  </p>
+                )}
+              </div>
+
+              {/* Full Width Auto Pay Box */}
+              <div className="p-3 rounded-xl bg-white/50 border border-white/70 shadow-sm">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+                    <Zap className="w-3.5 h-3.5 text-[#31123D]" />
+                    Enable Auto Pay
+                  </span>
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={Boolean(autoPay)}
+                      disabled={autoPayLoading}
+                      onChange={(e) => handleToggleAutoPay(e.target.checked)}
+                      className="sr-only peer"
+                    />
+                    <div className="w-7 h-4 bg-gray-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-emerald-500"></div>
+                  </label>
+                </div>
+
+                {autoPay && (
+                  <div className="mt-2 pt-2 border-t border-slate-200/40 flex items-center justify-between gap-2">
+                    <label className="text-[10px] font-semibold text-slate-500 uppercase">
+                      Fixed Amount:
+                    </label>
+                    <input
+                      type="number"
+                      min="25"
+                      value={localAutoPayAmount}
+                      onChange={(e) => setLocalAutoPayAmount(e.target.value)}
+                      onBlur={() => handleToggleAutoPay(true)}
+                      placeholder="100"
+                      className="w-24 px-2 py-1 text-xs bg-white/80 border border-slate-200 rounded-lg focus:outline-none focus:border-[#31123D] text-slate-800 font-semibold text-right"
+                    />
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
 
@@ -440,7 +383,7 @@ const ConsumptionCard = ({ onTransactionSuccess }: ConsumptionCardProps) => {
 
             <button
               onClick={handleDone}
-              className="w-full py-2.5 bg-[var(--color-secondary-purple)] text-white text-xs font-bold rounded-xl hover:opacity-90 shadow-sm transition-all"
+              className="w-full py-2.5 bg-[#31123D] text-white text-xs font-bold rounded-xl hover:opacity-90 shadow-sm transition-all"
             >
               Done
             </button>
