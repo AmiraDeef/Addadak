@@ -8,5 +8,7 @@ import axios from "axios";
     baseURL:"http://localhost:3002/logged/user"
 })
 
-
-export default {authApi,elecApi}
+ const walletApi=axios.create({
+    baseURL:"http://localhost:3000/logged/user/wallet/"
+})
+export default {authApi,elecApi,walletApi}

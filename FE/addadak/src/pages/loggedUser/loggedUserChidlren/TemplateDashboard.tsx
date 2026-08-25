@@ -1,132 +1,107 @@
-import { Outlet } from "react-router-dom";
-
+import { Outlet, useNavigate } from "react-router-dom";
+import { useSelector, useDispatch } from 'react-redux';
 import TierDashboard from "../../../components/shared/TierDashboard.tsx";
-import { useAuth } from "../../../Contexts/AuthContext.tsx";
-import ChartDashboard from "../../../components/LoggedComp/ElectricityComponents/ChartDashboard.tsx";
 import OwnedMeters from "../../../components/shared/OwnedMeters.tsx";
-import { useEffect,useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState, useCallback } from "react";
 import Swal from 'sweetalert2';
 import api from "../../../api/axios.tsx";
+import type { RootState, AppDispatch } from '../../../store/store.tsx';
+import { consumptions } from "../../../store/consumptionSlice.tsx";
 
-const Dashboard=()=>{
+const Dashboard = () => {
+    const navigate = useNavigate();
+    const dispatch = useDispatch<AppDispatch>();
+    
+    const { nid } = useSelector((state: RootState) => state.auth);
+    const { utility } = useSelector((state: RootState) => state.utility);
 
-    const navigate=useNavigate();
+    const [meters, setMeters] = useState([]);
+    const [userTier, setUserTier] = useState(0);
+    const [chartData, setChartdata] = useState([]);
 
-    const {nid}=useAuth()!;
-    const[meters,setMeters]=useState([]);
-    const [userTier,setUserTier]=useState(0);
-    const [meterNo,setMeterNo]=useState("");
-    const [chartData,setChartdata]=useState([]);
+    const getEndpoints = useCallback(() => {
+        const base = utility === "water" ? "/waterApi" : utility === "gas" ? "/gasApi" : "";
+        return {
+            allMeters: `${base}/viewAllMeters/${nid}`,
+            utilityTiers: `${base}/getTier/${nid}`,
+            userConsumptions: `${base}/getUserConsumptions/${nid}`
+        };
+    }, [nid, utility]);
 
-    console.log(nid)
-    const getUserMeters=async()=>{
-       try{
-         const userMeters= await api.elecApi.get(`/viewAllMeters/${nid}`,{withCredentials: true })
-         const fetchedMeters = userMeters.data.meters;
-         setMeters(fetchedMeters); 
-
-        
-        if (fetchedMeters && fetchedMeters.length > 0) {
-            const firstMeterNumber = fetchedMeters[0]._id?.meterNumber;
-            
-            if (firstMeterNumber) {
-                setMeterNo(firstMeterNumber);      
-                getUserTier(firstMeterNumber);     
-                getUserReadings(firstMeterNumber);
-        }
-        }
-    } catch (error: any) {
-        const msg = error.response?.data?.message || error.response?.data?.msg || "Error fetching meters";
-       if (msg ==="jwt expired"){
-                Swal.fire({
-                    title: 'Session Expired!',
-                    text: 'Please login again.',
-                    icon: 'error',
-                    confirmButtonText: 'Ok'
-                    }); 
-                navigate("/user/login");
-            
-            };
-    }
-};
-
-    const getUserTier=async(currentMeterNumber:string)=>{
-        try{
-            const tier= await api.elecApi.get(`/getTier/${nid}/${currentMeterNumber}`,{withCredentials: true }) ;
+    const getUserTier = async (currentMeterNumber: string) => {
+        const endpoints = getEndpoints();
+        try {
+            const tier = await api.elecApi.get(`${endpoints.utilityTiers}/${currentMeterNumber}`, { withCredentials: true });
             setUserTier(tier.data.tier);
-        }catch(error:any){
-            const msg=error.response.data.message||error.response.data.msg
-            if (msg ==="jwt expired"){
-                Swal.fire({
-                    title: 'Session Expired!',
-                    text: 'Please login again.',
-                    icon: 'error',
-                    confirmButtonText: 'Ok'
-                    }); 
-                navigate("/user/login");
-            
-            };
+        } catch (error: any) {
+            handleError(error);
         }
-    }
+    };
 
-
-     const getUserReadings=async(selectedMeterNo: string)=>{
-            
-           try{ 
-            
-            const userConsumtions= await api.elecApi.get(`/getUserConsumptions/${nid}/${selectedMeterNo}`,{withCredentials: true });
-            console.log(userConsumtions);
+    const getUserReadings = async (selectedMeterNo: string) => {
+        const endpoints = getEndpoints();
+        try {
+            const userConsumtions = await api.elecApi.get(`${endpoints.userConsumptions}/${selectedMeterNo}`, { withCredentials: true });
             setChartdata(userConsumtions.data.consumptionTable);
-            
-            
-            
-            }catch(error:any)
-            {
-                
-                const msg=error.response.data.message||error.response.data.msg;
-                console.log(msg);
-                if (msg ==="jwt expired"){
-                Swal.fire({
-                    title: 'Session Expired!',
-                    text: 'Please login again.',
-                    icon: 'error',
-                    confirmButtonText: 'Ok'
-                    }); 
-                navigate("/user/login");
-            
-            };
-                
-            }
-    
+            dispatch(consumptions(userConsumtions.data));
+        } catch (error: any) {
+            handleError(error);
         }
-    useEffect(()=>{
-        getUserMeters();
-        
-    },[])
-    
-         console.log(chartData)
-    return(
-        <div className="flex flex-col w-fill duration-300 transition-all min-w-0 justify-around gap-80 pt-10 sm:flex-row">
+    };
 
-            <div className="flex  flex-col w-fill min-w-0  items-center  gap-18 ">
-                <OwnedMeters meters={meters} getUserReadings={getUserReadings } getUserTier={getUserTier}/>
+    const getUserMeters = async () => {
+        const endpoints = getEndpoints();
+        try {
+            const userMeters = await api.elecApi.get(endpoints.allMeters, { withCredentials: true });
+            const fetchedMeters = userMeters.data.meters;
+            setMeters(fetchedMeters);
+
+            if (fetchedMeters && fetchedMeters.length > 0) {
+                const firstMeterNumber = fetchedMeters[0]._id?.meterNumber;
+                if (firstMeterNumber) {
+                    getUserTier(firstMeterNumber);
+                    getUserReadings(firstMeterNumber);
+                }
+            }
+        } catch (error: any) {
+            handleError(error);
+        }
+    };
+
+    const handleError = (error: any) => {
+        const msg = error.response?.data?.message || error.response?.data?.msg || "Error occurred";
+        if (msg === "jwt expired") {
+            Swal.fire({
+                title: 'Session Expired!',
+                text: 'Please login again.',
+                icon: 'error',
+                confirmButtonText: 'Ok'
+            });
+            navigate("/user/login");
+        }
+    };
+
+    useEffect(() => {
+        if (nid) {
+            getUserMeters();
+        }
+    }, [nid, utility]);
+
+    return (
+        <div className="flex flex-col w-fill duration-300 transition-all min-w-0 justify-around gap-10 pt-10 sm:flex-row">
+            <div className="flex flex-col w-250 min-w-0 items-center gap-8">
+                <OwnedMeters meters={meters} getUserReadings={getUserReadings} getUserTier={getUserTier} />
                 
-                {chartData && chartData.length > 0 ? 
-                (
-                    <Outlet></Outlet>
-                ) : 
-                (
+                {chartData && chartData.length > 0 ? (
+                    <Outlet />
+                ) : (
                     <div className="text-gray-400 text-sm italic py-20">Loading data ...</div>
                 )}
-                
             </div>
             
-            <TierDashboard userTier={userTier}></TierDashboard>
-
+            <TierDashboard userTier={userTier} />
         </div>
-    )
-}
-
+    );
+};
 
 export default Dashboard;
