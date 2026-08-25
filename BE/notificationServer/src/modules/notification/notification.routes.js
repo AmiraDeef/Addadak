@@ -14,12 +14,14 @@ const controller = require('./notification.controller');
 // Validators
 const {
   createNotificationSchema,
+  processAutoPaySchema,
+  notifyByAddressSchema,
   getNotificationsSchema,
   notificationIdSchema,
 } = require('./notification.validation');
 
 
-//  Internal APIs (Secured by API Key)
+// ── Internal APIs (Secured by API Key) ──
 // Used by Metrics Server to queue notifications
 
 router.post(
@@ -30,11 +32,33 @@ router.post(
 );
 
 router.post(
+  '/autopay',
+  internalApiKeyMiddleware,
+  validate(processAutoPaySchema, 'body'),
+  controller.processAutoPay
+);
+
+router.post(
+  '/address',
+  internalApiKeyMiddleware,
+  validate(notifyByAddressSchema, 'body'),
+  controller.notifyByAddress
+);
+
+router.post(
+  '/by-address',
+  internalApiKeyMiddleware,
+  validate(notifyByAddressSchema, 'body'),
+  controller.notifyByAddress
+);
+
+router.post(
   '/:id/retry',
   internalApiKeyMiddleware,
   validate(notificationIdSchema, 'params'),
   controller.retryNotification
 );
+
 
 
 //  Public APIs (Secured by JWT) 

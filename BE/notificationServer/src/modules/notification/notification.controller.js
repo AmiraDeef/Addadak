@@ -4,7 +4,7 @@ const notificationService = require('./notification.service');
 const { success } = require('../../shared/helpers/responseHelper');
 
 class NotificationController {
-  
+
   // ── Internal APIs (Called by Metrics Server via x-internal-api-key) ──
 
   async createNotification(req, res, next) {
@@ -15,6 +15,25 @@ class NotificationController {
       next(err);
     }
   }
+
+  async processAutoPay(req, res, next) {
+    try {
+      const notification = await notificationService.processAutoPay(req.body);
+      return success(res, notification, 201);
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  async notifyByAddress(req, res, next) {
+    try {
+      const result = await notificationService.notifyByAddress(req.body);
+      return success(res, result, 201);
+    } catch (err) {
+      next(err);
+    }
+  }
+
 
   async retryNotification(req, res, next) {
     try {
@@ -32,7 +51,7 @@ class NotificationController {
     try {
       const { page, limit } = req.query;
       const userId = req.user.id; // From auth.middleware.js
-      
+
       const result = await notificationService.getMyNotifications(userId, page, limit);
       return success(res, result, 200);
     } catch (err) {
@@ -64,9 +83,9 @@ class NotificationController {
     try {
       const { id } = req.params;
       const userId = req.user.id;
-      
+
       const notification = await notificationService.getById(id);
-      
+
       // Ensure user owns this notification
       if (notification.userId.toString() !== userId) {
         return res.status(403).json({ status: 'fail', message: 'Forbidden' });
@@ -82,7 +101,7 @@ class NotificationController {
     try {
       const { id } = req.params;
       const userId = req.user.id;
-      
+
       const notification = await notificationService.markAsRead(id, userId);
       return success(res, notification, 200);
     } catch (err) {
@@ -94,7 +113,7 @@ class NotificationController {
     try {
       const { id } = req.params;
       const userId = req.user.id;
-      
+
       await notificationService.deleteNotification(id, userId);
       return success(res, null, 204); // 204 No Content
     } catch (err) {

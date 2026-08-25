@@ -55,6 +55,10 @@ const config = Object.freeze({
     backoffDelay: Number(process.env.BULL_BACKOFF_DELAY) || 5000,
     cleanupCron: process.env.BULL_CLEANUP_CRON || '0 */6 * * *',
   },
+
+  wallet: {
+    url: process.env.WALLET_URL || 'http://localhost:3002',
+  },
 });
 
 module.exports = config;

@@ -6,6 +6,7 @@ const {
 } = require('../../shared/constants/notificationStatus');
 const {
   BILL_GENERATED, LOW_BALANCE, HIGH_CONSUMPTION, TIER_WARNING, BILL_PROJECTION, PAYMENT_REMINDER, WELCOME,
+  AUTOPAY_DISABLED, AUTOPAY_SUCCESS, PAYMENT_FAILED, NO_PAYMENT_METHOD,
 } = require('../../shared/constants/notificationType');
 const { SMART_METER, SMART_CARD, BILL } = require('../../shared/constants/meterType');
 
@@ -39,6 +40,10 @@ const notificationSchema = new mongoose.Schema(
         BILL_PROJECTION,
         PAYMENT_REMINDER,
         WELCOME,
+        AUTOPAY_DISABLED,
+        AUTOPAY_SUCCESS,
+        PAYMENT_FAILED,
+        NO_PAYMENT_METHOD,
       ],
     },
     title: {

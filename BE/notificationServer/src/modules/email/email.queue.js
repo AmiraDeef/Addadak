@@ -30,6 +30,29 @@ class EmailQueueService {
   }
 
   /**
+   * Adds multiple email jobs in bulk to BullMQ in a single Redis transaction
+   * @param {Array<string|import('mongoose').Types.ObjectId>} notificationIds - Array of notification IDs
+   * @param {number} [delayMs] - Optional delay in milliseconds from now
+   */
+  async addBulkEmailJobs(notificationIds, delayMs = 0) {
+    if (!notificationIds || notificationIds.length === 0) {
+      return [];
+    }
+
+    const jobs = notificationIds.map((id) => ({
+      name: 'send-email',
+      data: { notificationId: String(id) },
+      opts: {
+        ...defaultJobOptions,
+        ...(delayMs > 0 ? { delay: delayMs } : {}),
+      },
+    }));
+
+    return emailQueue.addBulk(jobs);
+  }
+
+
+  /**
    * Schedules a recurring BullMQ Repeatable Job to clean up old data
    * (Runs according to BULL_CLEANUP_CRON env var, e.g., every 6 hours)
    */

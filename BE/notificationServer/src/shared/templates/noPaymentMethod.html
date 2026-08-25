@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>لا توجد وسيلة دفع مسجلة — Addadak</title>
+  <style>
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; color: #333; margin: 0; padding: 20px; }
+    .container { max-width: 600px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border-top: 4px solid #e67e22; }
+    .header { text-align: center; border-bottom: 2px solid #eee; padding-bottom: 20px; margin-bottom: 20px; }
+    .header h1 { color: #e67e22; margin: 0; }
+    .content p { font-size: 16px; line-height: 1.6; }
+    .data-box { background: #fdf6e7; border-right: 4px solid #e67e22; padding: 15px; margin: 20px 0; border-radius: 4px; }
+    .data-box ul { list-style: none; padding: 0; margin: 0; }
+    .data-box li { margin-bottom: 10px; font-weight: bold; }
+    .data-box li span { font-weight: normal; margin-right: 10px; }
+    .footer { text-align: center; font-size: 14px; color: #777; margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>عدادك - Addadak</h1>
+    </div>
+    <div class="content">
+      <p>مرحباً <strong>{{userName}}</strong>،</p>
+      <p>تعذر إتمام الدفع التلقائي لعدم وجود وسيلة دفع مسجلة، يرجى الشحن يدوياً.</p>
+      
+      <div class="data-box">
+        <ul>
+          <li>رقم العداد: <span>{{meterNumber}}</span></li>
+          <li>حالة العملية: <span style="color: #e67e22;">لا توجد بطاقة أو وسيلة دفع مسجلة (No Payment Method)</span></li>
+        </ul>
+      </div>
+      
+      <p>يرجى إضافة وسيلة دفع صالحة من خلال التطبيق أو شحن العداد يدوياً لتجنب انقطاع الخدمة.</p>
+    </div>
+    <div class="footer">
+      <p>شكراً لاستخدامك نظام عدادك الذكي.</p>
+      <p>&copy; {{date}} Addadak. جميع الحقوق محفوظة.</p>
+    </div>
+  </div>
+</body>
+</html>

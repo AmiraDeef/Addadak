@@ -5,6 +5,7 @@ const path = require('path');
 const { sendMail } = require('./transporter');
 const {
   BILL_GENERATED, LOW_BALANCE, HIGH_CONSUMPTION, TIER_WARNING, BILL_PROJECTION, PAYMENT_REMINDER, WELCOME,
+  AUTOPAY_DISABLED, AUTOPAY_SUCCESS, PAYMENT_FAILED, NO_PAYMENT_METHOD,
 } = require('../../shared/constants/notificationType');
 
 class EmailService {
@@ -37,6 +38,10 @@ class EmailService {
       [BILL_PROJECTION]: '💰 توقع فاتورتك القادمة — Addadak',
       [PAYMENT_REMINDER]: '🔔 تذكير بموعد الدفع — Addadak',
       [WELCOME]: 'مرحباً بك في Addadak! 🎉',
+      [AUTOPAY_DISABLED]: 'عدادك فصل — Addadak',
+      [AUTOPAY_SUCCESS]: 'تم شحن عدادك تلقائياً — Addadak',
+      [PAYMENT_FAILED]: 'فشل الدفع التلقائي — Addadak',
+      [NO_PAYMENT_METHOD]: 'لا توجد وسيلة دفع مسجلة — Addadak',
     };
 
     return subjects[type] || 'إشعار جديد من Addadak';
@@ -62,6 +67,7 @@ class EmailService {
         billAmount: data.billAmount || '0.00',
         tier: data.tier || '-',
         balance: data.balance || '0.00',
+        message: data.message || '',
         date: data.date || new Date().toLocaleDateString('ar-EG'),
         ...data, // Allow any other custom data to override
       };
@@ -92,6 +98,10 @@ class EmailService {
       [BILL_PROJECTION]: 'billProjection.html',
       [PAYMENT_REMINDER]: 'paymentReminder.html',
       [WELCOME]: 'welcome.html',
+      [AUTOPAY_DISABLED]: 'autopayDisabled.html',
+      [AUTOPAY_SUCCESS]: 'autopaySuccess.html',
+      [PAYMENT_FAILED]: 'paymentFailed.html',
+      [NO_PAYMENT_METHOD]: 'noPaymentMethod.html',
     };
 
     return files[type] || 'welcome.html';

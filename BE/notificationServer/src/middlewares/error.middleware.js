@@ -29,12 +29,19 @@ const errorMiddleware = (err, req, res, next) => {
     message = `Duplicate value for field '${field}'. Please use a different value.`;
   }
 
-  // Mongoose: Validation errors (required fields missing, enum mismatch, etc.)
-  if (err.name === 'ValidationError') {
+  // Validation errors (Mongoose or Joi)
+  if (err.name === 'ValidationError' || err.isJoi) {
     statusCode = 400;
     status = 'fail';
-    const messages = Object.values(err.errors).map((e) => e.message);
-    message = `Validation failed: ${messages.join(', ')}`;
+    if (err.errors) {
+      const messages = Object.values(err.errors).map((e) => e.message);
+      message = `Validation failed: ${messages.join(', ')}`;
+    } else if (err.details) {
+      const messages = err.details.map((d) => d.message);
+      message = `Validation failed: ${messages.join(', ')}`;
+    } else {
+      message = err.message || 'Validation failed';
+    }
   }
 
   // JWT errors (handled in auth middleware, but just in case)
@@ -50,7 +57,7 @@ const errorMiddleware = (err, req, res, next) => {
     message = 'Your session has expired. Please log in again.';
   }
 
-  
+
   if (statusCode >= 500) {
     console.error(`[Error] ${statusCode} — ${message}`);
     if (config.env === 'dev') console.error(err.stack);
