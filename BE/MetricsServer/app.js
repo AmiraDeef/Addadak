@@ -31,9 +31,9 @@ const DB_connection=async()=>{
 DB_connection();
 
 
-app.use("/elec",electricMetricsRouter);
-app.use("/gas",gasMetricsRouter);
-app.use("/water",waterMetricsRouter);
+app.use("/logged/user/elec",electricMetricsRouter);
+app.use("/logged/user/gas",gasMetricsRouter);
+app.use("/logged/user/water",waterMetricsRouter);
 
 app.use(serverErrorHandler);
 app.listen(process.env.PORT||3002,()=>{

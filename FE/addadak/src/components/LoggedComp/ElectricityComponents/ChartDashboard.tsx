@@ -7,6 +7,7 @@ import type{ RootState } from '../../../store/store';
 
 const ChartDashboard=()=>{
      const { consumptionTable } = useSelector((state: RootState) => state.consumptions);
+     console.log("table",consumptionTable)
      const {utility}=useSelector((state:RootState)=>state.utility)
      
      

@@ -28,7 +28,8 @@ const getAllElectricityMeters = async(req,res,next)=>{
         if(userMeters.length === 0){
          return  res.status(404).json({message:"User metrics are not found!"})
         }
-        res.status(200).json({message :"All meters",
+        res.status(200).json(
+            {message :"All meters",
             meters:userMeters });
     } catch (error) {
         next(error);

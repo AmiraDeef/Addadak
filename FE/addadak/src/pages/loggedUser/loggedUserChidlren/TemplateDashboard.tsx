@@ -13,18 +13,17 @@ const Dashboard = () => {
     const dispatch = useDispatch<AppDispatch>();
     
     const { nid } = useSelector((state: RootState) => state.auth);
-    const { utility } = useSelector((state: RootState) => state.utility);
-
+    const { utility } = useSelector((state: RootState) => state.utility);           
     const [meters, setMeters] = useState([]);
     const [userTier, setUserTier] = useState(0);
     const [chartData, setChartdata] = useState([]);
 
     const getEndpoints = useCallback(() => {
-        const base = utility === "water" ? "/waterApi" : utility === "gas" ? "/gasApi" : "";
+        const base = utility === "water" ? "/water" : utility === "gas" ? "/gas" : "/elec";
         return {
             allMeters: `${base}/viewAllMeters/${nid}`,
-            utilityTiers: `${base}/getTier/${nid}`,
-            userConsumptions: `${base}/getUserConsumptions/${nid}`
+            utilityTiers: `${base}/getTier`,
+            userConsumptions: `${base}/getUserConsumptions`
         };
     }, [nid, utility]);
 
@@ -42,7 +41,8 @@ const Dashboard = () => {
         const endpoints = getEndpoints();
         try {
             const userConsumtions = await api.elecApi.get(`${endpoints.userConsumptions}/${selectedMeterNo}`, { withCredentials: true });
-            setChartdata(userConsumtions.data.consumptionTable);
+            console.log("Response with params:", userConsumtions.data);
+            setChartdata(userConsumtions.data);
             dispatch(consumptions(userConsumtions.data));
         } catch (error: any) {
             handleError(error);
@@ -53,10 +53,12 @@ const Dashboard = () => {
         const endpoints = getEndpoints();
         try {
             const userMeters = await api.elecApi.get(endpoints.allMeters, { withCredentials: true });
-            const fetchedMeters = userMeters.data.meters.map((item:any) =>item._id);
-
+            console.log(userMeters)
+            const fetchedMeters = userMeters.data.meters;
+            console.log("fetched")
+            console.log(fetchedMeters)
             
-             setMeters(fetchedMeters);
+            setMeters(fetchedMeters);
 
             if (fetchedMeters && fetchedMeters.length > 0) {
                 const firstMeterNumber = fetchedMeters[0].meterNumber;
@@ -85,7 +87,7 @@ const Dashboard = () => {
     };
 
     useEffect(() => {
-        if (nid) {
+        if (nid && utility ) {
             getUserMeters();
         }
     }, [nid, utility]);
