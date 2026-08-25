@@ -12,7 +12,7 @@ const consumptionsSlice = createSlice({
   name: "consumptions",
   initialState,
   reducers: {
-    consumptions(state, action:PayloadAction <{consumptionTable:Array<any>}>){
+    consumptions(state, action:PayloadAction <Array<any>>){
         state.consumptionTable=action.payload;
     }
     

@@ -3,8 +3,15 @@ import type { RootState, AppDispatch } from '../../store/store';
 import { useSelector, useDispatch } from 'react-redux';
 import {meter} from "../../store/meterSlice"
 
+export interface Meter {
+  id?: string | number; // أو _id حسب البيانات القادمة من الباك إند
+  meterNumber: string;
+  meterType: string;
+  address: string;
+}
+
 interface props{
-    meters:Array<object>,
+    meters:Array<Meter>,
     getUserTier:Function,
     getUserReadings:Function
 }
