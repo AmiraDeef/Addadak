@@ -64,47 +64,9 @@ class NotificationService {
       // If query fails (e.g. offline in unit tests), continue safely
     }
 
-    const walletBaseUrl = config.wallet?.url || process.env.WALLET_URL || 'http://localhost:3002';
+    const walletBaseUrl = config.wallet?.url || process.env.WALLET_URL || 'http://localhost:3000';
     // Contract: POST /autopay/process/:userNId/:meterNum (no request body)
-    const walletEndpoint = `${walletBaseUrl.replace(/\/+$/, '')}/autopay/process/${encodeURIComponent(nationalID)}/${encodeURIComponent(meterNumber)}`;
-
-    let walletResponseData;
-
-    try {
-      const response = await fetch(walletEndpoint, {
-        method: 'POST',
-        headers: {
-          'Accept': 'application/json',
-        },
-      });
-
-      if (response.status === 404) {
-        console.error(`[NotificationService] User or meter not found in Wallet service: nationalID=${nationalID}, meterNumber=${meterNumber}`);
-        throw new AppError(`User or meter not found in Wallet service for nationalID: ${nationalID}, meterNumber: ${meterNumber}`, 404);
-      }
-
-      if (!response.ok) {
-        let errBody;
-        try {
-          errBody = await response.json();
-        } catch (_) {
-          errBody = await response.text();
-        }
-        const errorMsg = typeof errBody === 'object' && errBody.message ? errBody.message : `Wallet service returned HTTP status ${response.status}`;
-        throw new AppError(`Wallet service error: ${errorMsg}`, response.status >= 500 ? 502 : response.status);
-      }
-
-      walletResponseData = await response.json();
-    } catch (err) {
-      if (err instanceof AppError) {
-        throw err;
-      }
-      throw new AppError(`Failed to communicate with Wallet service: ${err.message}`, 503);
-    }
-
-    // Extract return code from Wallet Service
-    // The Wallet Service returns one of: AUTOPAY_SUCCESS, AUTOPAY_DISABLED, NO_PAYMENT_METHOD (or PAYMENT_FAILED)
-    const code = walletResponseData?.code || walletResponseData?.status || (typeof walletResponseData === 'string' ? walletResponseData : null);
+   const walletEndpoint = `${walletBaseUrl.replace(/\/$/, '')}/autopay/process/${encodeURIComponent(nationalID)}/${encodeURIComponent(meterNumber)}`;
 
     const CODE_MAP = {
       AUTOPAY_SUCCESS: {
@@ -128,6 +90,45 @@ class NotificationService {
         message: 'فشلت عملية الدفع التلقائي، يرجى الشحن يدوياً.',
       },
     };
+
+    let walletResponseData;
+    let code;
+
+    try {
+      const response = await fetch(walletEndpoint, {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+        },
+      });
+
+      if (response.status === 404) {
+        console.error(`[NotificationService] User or meter not found in Wallet service: nationalID=${nationalID}, meterNumber=${meterNumber}`);
+        throw new AppError(`User or meter not found in Wallet service for nationalID: ${nationalID}, meterNumber: ${meterNumber}`, 404);
+      }
+
+      try {
+        walletResponseData = await response.json();
+      } catch (_) {
+        walletResponseData = null;
+      }
+
+      // Extract return code from Wallet Service
+      // The Wallet Service returns one of: AUTOPAY_SUCCESS, AUTOPAY_DISABLED, NO_PAYMENT_METHOD (or PAYMENT_FAILED)
+      code = walletResponseData?.code || walletResponseData?.status || (typeof walletResponseData === 'string' ? walletResponseData : null);
+
+      if (!response.ok && (!code || !CODE_MAP[code])) {
+        const errorMsg = typeof walletResponseData === 'object' && walletResponseData?.message
+          ? walletResponseData.message
+          : `Wallet service returned HTTP status ${response.status}`;
+        throw new AppError(`Wallet service error: ${errorMsg}`, response.status >= 500 ? 502 : response.status);
+      }
+    } catch (err) {
+      if (err instanceof AppError) {
+        throw err;
+      }
+      throw new AppError(`Failed to communicate with Wallet service: ${err.message}`, 503);
+    }
 
     const mapped = CODE_MAP[code];
     if (!mapped) {
