@@ -5,8 +5,11 @@ const config  = require('./config/index');
 const express = require("express");
 const app = express();
 const port = process.env.PORT
+const mongoose = require("mongoose")
 
 const ElectricityScheduler = require('./scheduler/electricityScheduler')
+const waterScheduler = require("./scheduler/waterScheduler");
+const gasScheduler = require("./scheduler/gasScheduler");
 //logger
 const {logger} = require('./utils/logger')
 //mongoose 
@@ -36,6 +39,8 @@ async function start (){
         DB_connection();
 
         ElectricityScheduler.start();
+        gasScheduler.start();
+        waterScheduler.start();
     }catch(error){
         logger.error('Fatal error during application startup:', error);
         process.exit(1);

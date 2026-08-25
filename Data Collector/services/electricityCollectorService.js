@@ -39,7 +39,7 @@ const ElectricityCollectorService = {
         );
 
         if (isDuplicate) {
-          logger.debug(`Skipped: Duplicate reading found for meter ${transformedData.meterNumber} at this timestamp`);
+          logger.debug(`Skipped: Duplicate reading found for meter ${transformedData.meterNumber} at this timestamp ${transformedData.readingDate}`);
           skippedCount++;
           continue;
         }

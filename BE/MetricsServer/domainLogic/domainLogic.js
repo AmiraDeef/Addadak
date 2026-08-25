@@ -151,24 +151,32 @@ const currentMonthSmartConsumption = async (meterNumber,currentMonth,utility)=>{
 
 
 //This function will be applied on the 3 types, so we need to add the utility type in concedirations
-const getAllMeters = async(ID,utility)=>{ //#1st adjustment
-  //note we added utility here to handle the meter type.
-    return await metricsSchema.aggregate([
-      {
-        $match:{nationalID:ID ,utility:utility}
-      },
-      {
-        $group:{
-          _id:{
-            meterType:"$meterType",
-            meterNumber:"$meterNumber",
-            address:"$address",
-            utility:"$utility"
-          }
+const getAllMeters = async (ID, utility) => {
+  return await metricsSchema.aggregate([
+    {
+      $match: { nationalID: ID, utility: utility }
+    },
+    {
+      $group: {
+        _id: {
+          meterType: "$meterType",
+          meterNumber: "$meterNumber",
+          address: "$address",
+          utility: "$utility"
         }
       }
-    ])
-}
+    },
+    {
+      $project: {
+        _id: 0,
+        meterType: "$_id.meterType",
+        meterNumber: "$_id.meterNumber",
+        address: "$_id.address",
+        utility: "$_id.utility"
+      }
+    }
+  ]);
+};
 
 //why did we exclude the getTier function ?
 
@@ -194,11 +202,70 @@ module.exports ={
 
 
 /*
-1̶-̶t̶r̶a̶n̶s̶f̶e̶r̶ t̶h̶e̶ r̶e̶m̶a̶i̶n̶i̶n̶g̶ f̶u̶n̶c̶t̶i̶o̶n̶s̶ e̶x̶c̶l̶u̶d̶e̶(̶a̶d̶d̶m̶e̶t̶e̶r̶-̶g̶e̶t̶T̶i̶e̶r̶-̶u̶s̶e̶r̶C̶o̶n̶s̶u̶m̶p̶t̶i̶o̶n̶s̶)̶
-2̶-̶m̶a̶k̶e̶ u̶s̶e̶r̶ c̶o̶n̶s̶u̶m̶p̶t̶i̶o̶n̶s̶ s̶m̶a̶r̶t̶ a̶n̶d̶ p̶r̶e̶p̶a̶i̶d̶ c̶a̶r̶d̶
-3̶-̶g̶e̶t̶ a̶l̶l̶ t̶i̶e̶r̶s̶
-4̶-̶d̶e̶l̶e̶t̶e̶ m̶e̶t̶e̶r̶
-5- make utilities controllers 
-6-make the end points
+#1 Old route: metricsRouter.get("/getTier/:ID/:meterNo",authz,metricsController.getTier);
+ new route: metricsRouter.get("/getTier/:ID/:meterNo",getInvoice) Note: we need to change the name getTier to get invoice
+ the excepected output of this end point:
+ {
+    "utility": "Electricity",
+    "message": "tier is",
+    "tier": 6,
+    "rate": 2.1,
+    "month": "2026-07",
+    "consumptionInMonth": 890,
+    "totalBillAmount": 1869
+}
+
+#2 Old Route: metricsRouter.get("/viewAllTiers",metricsController.viewAllTiers);
+   new route: metricsRouter.get("/viewAllTiers",viewAllTiers);
+   the excepected output:
+   {
+    "Tiers": [
+        {
+            "tier": 1,
+            "min": 0,
+            "max": 50,
+            "rate": 0.68
+        },
+        {
+            "tier": 2,
+            "min": 51,
+            "max": 100,
+            "rate": 0.78
+        },
+       teir 3, teir 4 , etc....
+}
+
+#3 Old Route: metricsRouter.get("/viewAllMeters/:ID",authz,metricsController.getAllMeters);
+   new route: metricsRouter.get("/viewAllMeters/:ID",getAllElectricityMeters);
+   the expected output:
+   [
+  {
+    "meterType": "Smart Meter",
+    "meterNumber": "ELEC-102030",
+    "address": "Cairo, Egypt",
+    "utility": "Electricity"
+  },
+  {
+    "meterType": "Prepaid Card",
+    "meterNumber": "ELEC-405060",
+    "address": "Giza, Egypt",
+    "utility": "Electricity"
+  }
+]
+
+#4 old Route: metricsRouter.get("/getUserConsumptions/:meterNo",authz,metricsController.userConsumptions);
+  new route: metricsRouter.get("/getUserConsumptions/:meterNo",getElectricityMonthlyHistoryConsumption);
+   the expected output:
+    [
+    {
+        "month": "2026-07",
+        "consumption": 890
+    },
+    {
+        "month": "2026-08",
+        "consumption": 1300
+    }
+]
+
 
 */
