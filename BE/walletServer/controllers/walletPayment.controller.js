@@ -165,9 +165,6 @@ console.log("BillAmount", BillAmount)
                 });
 
             case "Smart Card":
-                // QR code simulation
-                break;
-
             case "Smart Meter":
                 const{ amount: bodyAmount } = req.body;
                 finalAmount = Number(bodyAmount);

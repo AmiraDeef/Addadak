@@ -1,10 +1,21 @@
 import { useState, useEffect } from "react";
-import { Zap, CreditCard, Calendar, ArrowUpRight, CheckCircle2 } from "lucide-react";
+import {
+  Zap,
+  CreditCard,
+  Calendar,
+  ArrowUpRight,
+  CheckCircle2,
+  QrCode,
+  Camera,
+  X,
+} from "lucide-react";
 import { useSelector, useDispatch } from "react-redux";
 import type { RootState, AppDispatch } from "../../../store/store";
 import api from "../../../api/axios";
 import { StripeModal } from "./StripeModal";
 import { setAutoPayData } from "../../../store/meterSlice";
+import { Html5QrcodeScanner } from "html5-qrcode";
+import QRCode from "react-qr-code";
 
 interface ConsumptionCardProps {
   meterNumber?: string;
@@ -36,11 +47,44 @@ const ConsumptionCard = ({ onTransactionSuccess }: ConsumptionCardProps) => {
   const [dueDate, setDueDate] = useState<string | null>(null);
   const [showSuccessModal, setShowSuccessModal] = useState<boolean>(false);
 
+  // QR Scanner States (Strictly for Smart Card)
+  const [showScannerModal, setShowScannerModal] = useState<boolean>(false);
+  const [scannedMeterNumber, setScannedMeterNumber] = useState<string | null>(null);
+
+  // QR View Modal State (Strictly for Smart Card)
+  const [showQRViewModal, setShowQRViewModal] = useState<boolean>(false);
+
+  // Meter Type Checks
+  const isCardMeter = meterType === "Smart Card" || meterType === "Card";
+  const isSmartMeter = meterType === "Smart Meter";
+
   useEffect(() => {
     if (autoPayAmount !== undefined && autoPayAmount !== null) {
       setLocalAutoPayAmount(String(autoPayAmount));
     }
   }, [autoPayAmount]);
+
+  useEffect(() => {
+    let scanner: Html5QrcodeScanner | null = null;
+    if (showScannerModal && isCardMeter) {
+      scanner = new Html5QrcodeScanner("qr-reader", { fps: 10, qrbox: 220 }, false);
+      scanner.render(
+        (decodedText) => {
+          setScannedMeterNumber(decodedText);
+          setShowScannerModal(false);
+          if (scanner) {
+            scanner.clear().catch((err) => console.error("Scanner clear error", err));
+          }
+        },
+        () => {}
+      );
+    }
+    return () => {
+      if (scanner) {
+        scanner.clear().catch((err) => console.error("Scanner cleanup error", err));
+      }
+    };
+  }, [showScannerModal, isCardMeter]);
 
   const calculateDueDate = (payingDate: string | Date) => {
     const date = new Date(payingDate);
@@ -107,7 +151,7 @@ const ConsumptionCard = ({ onTransactionSuccess }: ConsumptionCardProps) => {
   };
 
   const handleToggleAutoPay = async (enabled: boolean) => {
-    if (!meterNumber || !userNId) return;
+    if (!meterNumber || !userNId || !isSmartMeter) return;
     const parsedAmount = Number(localAutoPayAmount) || 100;
 
     try {
@@ -137,9 +181,16 @@ const ConsumptionCard = ({ onTransactionSuccess }: ConsumptionCardProps) => {
   };
 
   const handleCharge = async () => {
-    if (!userNId || !meterNumber) return;
+    const targetMeterNum = isCardMeter ? scannedMeterNumber : meterNumber;
 
-    if (meterType === "Smart Meter" && (!amount || Number(amount) < 25)) {
+    if (!userNId || !targetMeterNum) {
+      if (isCardMeter && !scannedMeterNumber) {
+        alert("Please scan the Smart Card QR Code first!");
+      }
+      return;
+    }
+
+    if ((isSmartMeter || isCardMeter) && (!amount || Number(amount) < 25)) {
       alert("Please enter a valid amount to charge (greater than 25 EGP).");
       return;
     }
@@ -147,7 +198,7 @@ const ConsumptionCard = ({ onTransactionSuccess }: ConsumptionCardProps) => {
     try {
       setChargeLoading(true);
       const res = await api.walletApi.post(
-        `chargeMeters/${userNId}/${meterNumber}`,
+        `chargeMeters/${userNId}/${targetMeterNum}`,
         { amount: Number(amount) },
         { withCredentials: true }
       );
@@ -164,6 +215,7 @@ const ConsumptionCard = ({ onTransactionSuccess }: ConsumptionCardProps) => {
 
   const handlePaymentSuccess = async () => {
     setShowStripeModal(false);
+    setScannedMeterNumber(null);
     await new Promise((resolve) => setTimeout(resolve, 500));
     await Promise.all([getWalletHistory(), getLastInvoice()]);
     setShowSuccessModal(true);
@@ -178,6 +230,7 @@ const ConsumptionCard = ({ onTransactionSuccess }: ConsumptionCardProps) => {
   const handleDone = async () => {
     setShowSuccessModal(false);
     setAmount("");
+    setScannedMeterNumber(null);
     await getWalletHistory();
     onTransactionSuccess?.();
   };
@@ -203,9 +256,23 @@ const ConsumptionCard = ({ onTransactionSuccess }: ConsumptionCardProps) => {
             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-bold bg-[#31123D] text-white">
               <Zap className="w-3.5 h-3.5 text-[#FACC15]" /> {meterType}
             </span>
-            <span className="text-xs text-gray-500 font-mono font-semibold">
-              #{meterNumber}
-            </span>
+            
+            <div className="flex items-center gap-2">
+              {/* Show Card QR Button ONLY for Smart Card meters */}
+              {isCardMeter && (
+                <button
+                  onClick={() => setShowQRViewModal(true)}
+                  title="View Smart Card QR"
+                  className="p-1.5 bg-purple-100 hover:bg-purple-200 text-[#31123D] rounded-lg transition-all border border-purple-200 flex items-center gap-1 text-[10px] font-bold"
+                >
+                  <QrCode className="w-3.5 h-3.5" />
+                  <span>View Card QR</span>
+                </button>
+              )}
+              <span className="text-xs text-gray-500 font-mono font-semibold">
+                #{meterNumber}
+              </span>
+            </div>
           </div>
 
           <div className="grid grid-cols-2 gap-3 bg-white/50 p-3.5 rounded-xl border border-white/70 my-auto">
@@ -266,7 +333,35 @@ const ConsumptionCard = ({ onTransactionSuccess }: ConsumptionCardProps) => {
             </div>
           ) : (
             <div className="space-y-3">
-              {/* Full Width Professional Charge Row */}
+              
+              {/* QR Scanner Section (Strictly for Smart Card) */}
+              {isCardMeter && (
+                <div className="p-3 bg-purple-50/60 border border-purple-200/80 rounded-xl space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-[#31123D] flex items-center gap-1.5">
+                      <QrCode className="w-4 h-4 text-purple-700" /> Card NFC Simulation
+                    </span>
+                    <button
+                      onClick={() => setShowScannerModal(true)}
+                      className="px-3 py-1.5 bg-[#31123D] hover:bg-[#431854] text-white text-[11px] font-semibold rounded-lg flex items-center gap-1 shadow-sm transition-all"
+                    >
+                      <Camera className="w-3.5 h-3.5 text-[#FACC15]" />
+                      {scannedMeterNumber ? "Rescan Card" : "Scan Smart Card"}
+                    </button>
+                  </div>
+                  {scannedMeterNumber ? (
+                    <p className="text-[11px] text-emerald-700 font-bold bg-emerald-100/70 p-1.5 rounded-lg border border-emerald-200 text-center">
+                      ✓ Card Resolved: {scannedMeterNumber}
+                    </p>
+                  ) : (
+                    <p className="text-[10px] text-slate-500 font-medium">
+                      Please scan the physical card's QR code before processing the top-up.
+                    </p>
+                  )}
+                </div>
+              )}
+
+              {/* Charge Input Row */}
               <div className="space-y-1.5">
                 <label className="block text-[11px] font-bold text-slate-600 uppercase tracking-wider flex items-center gap-1.5">
                   <CreditCard className="w-3.5 h-3.5 text-[#31123D]" />
@@ -289,7 +384,12 @@ const ConsumptionCard = ({ onTransactionSuccess }: ConsumptionCardProps) => {
                   
                   <button
                     onClick={handleCharge}
-                    disabled={chargeLoading || !amount || Number(amount) < 25}
+                    disabled={
+                      chargeLoading || 
+                      !amount || 
+                      Number(amount) < 25 || 
+                      (isCardMeter && !scannedMeterNumber)
+                    }
                     className="h-10 px-6 bg-[#31123D] hover:bg-[#431854] disabled:opacity-40 disabled:cursor-not-allowed text-white text-xs font-bold rounded-xl shadow-sm transition-all flex items-center justify-center gap-1.5 shrink-0"
                   >
                     <span>{chargeLoading ? "..." : "Charge"}</span>
@@ -304,47 +404,98 @@ const ConsumptionCard = ({ onTransactionSuccess }: ConsumptionCardProps) => {
                 )}
               </div>
 
-              {/* Full Width Auto Pay Box */}
-              <div className="p-3 rounded-xl bg-white/50 border border-white/70 shadow-sm">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
-                    <Zap className="w-3.5 h-3.5 text-[#31123D]" />
-                    Enable Auto Pay
-                  </span>
-                  <label className="relative inline-flex items-center cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={Boolean(autoPay)}
-                      disabled={autoPayLoading}
-                      onChange={(e) => handleToggleAutoPay(e.target.checked)}
-                      className="sr-only peer"
-                    />
-                    <div className="w-7 h-4 bg-gray-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-emerald-500"></div>
-                  </label>
-                </div>
-
-                {autoPay && (
-                  <div className="mt-2 pt-2 border-t border-slate-200/40 flex items-center justify-between gap-2">
-                    <label className="text-[10px] font-semibold text-slate-500 uppercase">
-                      Fixed Amount:
+              {/* Auto Pay Box (Strictly for Smart Meter) */}
+              {isSmartMeter && (
+                <div className="p-3 rounded-xl bg-white/50 border border-white/70 shadow-sm">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+                      <Zap className="w-3.5 h-3.5 text-[#31123D]" />
+                      Enable Auto Pay
+                    </span>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={Boolean(autoPay)}
+                        disabled={autoPayLoading}
+                        onChange={(e) => handleToggleAutoPay(e.target.checked)}
+                        className="sr-only peer"
+                      />
+                      <div className="w-7 h-4 bg-gray-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-emerald-500"></div>
                     </label>
-                    <input
-                      type="number"
-                      min="25"
-                      value={localAutoPayAmount}
-                      onChange={(e) => setLocalAutoPayAmount(e.target.value)}
-                      onBlur={() => handleToggleAutoPay(true)}
-                      placeholder="100"
-                      className="w-24 px-2 py-1 text-xs bg-white/80 border border-slate-200 rounded-lg focus:outline-none focus:border-[#31123D] text-slate-800 font-semibold text-right"
-                    />
                   </div>
-                )}
-              </div>
+
+                  {autoPay && (
+                    <div className="mt-2 pt-2 border-t border-slate-200/40 flex items-center justify-between gap-2">
+                      <label className="text-[10px] font-semibold text-slate-500 uppercase">
+                        Fixed Amount:
+                      </label>
+                      <input
+                        type="number"
+                        min="25"
+                        value={localAutoPayAmount}
+                        onChange={(e) => setLocalAutoPayAmount(e.target.value)}
+                        onBlur={() => handleToggleAutoPay(true)}
+                        placeholder="100"
+                        className="w-24 px-2 py-1 text-xs bg-white/80 border border-slate-200 rounded-lg focus:outline-none focus:border-[#31123D] text-slate-800 font-semibold text-right"
+                      />
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           )}
         </div>
       </div>
 
+      {/* 1. View Smart Card QR Modal (Strictly for Smart Card) */}
+      {showQRViewModal && isCardMeter && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl p-6 max-w-xs w-full text-center shadow-2xl relative animate-in fade-in zoom-in-95">
+            <button
+              onClick={() => setShowQRViewModal(false)}
+              className="absolute top-3 right-3 text-gray-400 hover:text-gray-600 p-1 rounded-full hover:bg-gray-100 transition-all"
+            >
+              <X className="w-4 h-4" />
+            </button>
+
+            <div className="w-10 h-10 bg-purple-100 text-[#31123D] rounded-full flex items-center justify-center mx-auto mb-2">
+              <QrCode className="w-5 h-5" />
+            </div>
+
+            <h3 className="text-sm font-bold text-[#31123D]">Smart Card Digital Badge</h3>
+            <p className="text-[11px] text-slate-500 mt-0.5">Scan this QR Code to process NFC charge</p>
+
+            <div className="my-4 p-4 bg-slate-50 border border-slate-200/80 rounded-xl inline-block shadow-inner">
+              <QRCode value={meterNumber || "N/A"} size={160} />
+            </div>
+
+            <div className="bg-purple-50/80 p-2 rounded-lg border border-purple-100 mb-2">
+              <p className="text-[10px] text-slate-500 font-semibold uppercase">Meter Serial Number</p>
+              <p className="text-xs font-mono font-bold text-[#31123D]">{meterNumber}</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 2. QR Scanner Camera Modal (Strictly for Smart Card) */}
+      {showScannerModal && isCardMeter && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl p-5 max-w-sm w-full text-center shadow-2xl space-y-4 animate-in fade-in zoom-in-95">
+            <h3 className="text-sm font-bold text-[#31123D] flex items-center justify-center gap-1.5">
+              <Camera className="w-4 h-4 text-purple-700" /> Scan Smart Card QR
+            </h3>
+            <div id="qr-reader" className="overflow-hidden rounded-xl border border-slate-200"></div>
+            <button
+              onClick={() => setShowScannerModal(false)}
+              className="w-full py-2 bg-gray-200 text-gray-700 text-xs font-bold rounded-xl hover:bg-gray-300 transition-all"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* 3. Stripe Payment Modal */}
       {showStripeModal && clientSecret && (
         <StripeModal
           clientSecret={clientSecret}
@@ -353,6 +504,7 @@ const ConsumptionCard = ({ onTransactionSuccess }: ConsumptionCardProps) => {
         />
       )}
 
+      {/* 4. Payment Success Modal */}
       {showSuccessModal && latestInvoice && (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl p-6 max-w-sm w-full text-center shadow-2xl animate-in fade-in zoom-in-95">
