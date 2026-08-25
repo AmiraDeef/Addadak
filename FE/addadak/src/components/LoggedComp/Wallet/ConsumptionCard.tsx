@@ -8,6 +8,7 @@ import {
   QrCode,
   Camera,
   X,
+  AlertCircle,
 } from "lucide-react";
 import { useSelector, useDispatch } from "react-redux";
 import type { RootState, AppDispatch } from "../../../store/store";
@@ -15,7 +16,7 @@ import api from "../../../api/axios";
 import { StripeModal } from "./StripeModal";
 import { setAutoPayData } from "../../../store/meterSlice";
 import { Html5QrcodeScanner } from "html5-qrcode";
-import QRCode from "react-qr-code";
+import QRCode from "react-qr-code"; 
 
 interface ConsumptionCardProps {
   meterNumber?: string;
@@ -47,6 +48,9 @@ const ConsumptionCard = ({ onTransactionSuccess }: ConsumptionCardProps) => {
   const [dueDate, setDueDate] = useState<string | null>(null);
   const [showSuccessModal, setShowSuccessModal] = useState<boolean>(false);
 
+  // Error Pop-up Modal State
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
   // QR Scanner States (Strictly for Smart Card)
   const [showScannerModal, setShowScannerModal] = useState<boolean>(false);
   const [scannedMeterNumber, setScannedMeterNumber] = useState<string | null>(null);
@@ -64,27 +68,39 @@ const ConsumptionCard = ({ onTransactionSuccess }: ConsumptionCardProps) => {
     }
   }, [autoPayAmount]);
 
-  useEffect(() => {
-    let scanner: Html5QrcodeScanner | null = null;
-    if (showScannerModal && isCardMeter) {
-      scanner = new Html5QrcodeScanner("qr-reader", { fps: 10, qrbox: 220 }, false);
-      scanner.render(
-        (decodedText) => {
-          setScannedMeterNumber(decodedText);
-          setShowScannerModal(false);
-          if (scanner) {
-            scanner.clear().catch((err) => console.error("Scanner clear error", err));
-          }
-        },
-        () => {}
-      );
+  // QR Scanner logic with strict validation against current meterNumber
+useEffect(() => {
+  let scanner: Html5QrcodeScanner | null = null;
+  if (showScannerModal && isCardMeter) {
+    scanner = new Html5QrcodeScanner("qr-reader", { fps: 10, qrbox: 220 }, false);
+    scanner.render(
+      (decodedText) => {
+        const scannedCode = decodedText.trim();
+        const currentMeter = meterNumber?.trim();
+
+        // اقفلي مودال الكاميرا فوراً في الحالتين (صح أو غلط)
+        setShowScannerModal(false);
+
+        if (scannedCode !== currentMeter) {
+          setErrorMessage(`Invalid Smart Card! Scanned number (${scannedCode}) does not match current meter (${currentMeter}).`);
+          setScannedMeterNumber(null);
+        } else {
+          setScannedMeterNumber(scannedCode);
+        }
+
+        if (scanner) {
+          scanner.clear().catch((err) => console.error("Scanner clear error", err));
+        }
+      },
+      () => {}
+    );
+  }
+  return () => {
+    if (scanner) {
+      scanner.clear().catch((err) => console.error("Scanner cleanup error", err));
     }
-    return () => {
-      if (scanner) {
-        scanner.clear().catch((err) => console.error("Scanner cleanup error", err));
-      }
-    };
-  }, [showScannerModal, isCardMeter]);
+  };
+}, [showScannerModal, isCardMeter, meterNumber]);
 
   const calculateDueDate = (payingDate: string | Date) => {
     const date = new Date(payingDate);
@@ -185,13 +201,18 @@ const ConsumptionCard = ({ onTransactionSuccess }: ConsumptionCardProps) => {
 
     if (!userNId || !targetMeterNum) {
       if (isCardMeter && !scannedMeterNumber) {
-        alert("Please scan the Smart Card QR Code first!");
+        setErrorMessage("Please scan the correct Smart Card QR Code first!");
       }
       return;
     }
 
+    if (isCardMeter && scannedMeterNumber !== meterNumber) {
+      setErrorMessage("Scanned card number does not match this meter!");
+      return;
+    }
+
     if ((isSmartMeter || isCardMeter) && (!amount || Number(amount) < 25)) {
-      alert("Please enter a valid amount to charge (greater than 25 EGP).");
+      setErrorMessage("Please enter a valid amount to charge (greater than 25 EGP).");
       return;
     }
 
@@ -388,7 +409,7 @@ const ConsumptionCard = ({ onTransactionSuccess }: ConsumptionCardProps) => {
                       chargeLoading || 
                       !amount || 
                       Number(amount) < 25 || 
-                      (isCardMeter && !scannedMeterNumber)
+                      (isCardMeter && scannedMeterNumber !== meterNumber)
                     }
                     className="h-10 px-6 bg-[#31123D] hover:bg-[#431854] disabled:opacity-40 disabled:cursor-not-allowed text-white text-xs font-bold rounded-xl shadow-sm transition-all flex items-center justify-center gap-1.5 shrink-0"
                   >
@@ -495,7 +516,30 @@ const ConsumptionCard = ({ onTransactionSuccess }: ConsumptionCardProps) => {
         </div>
       )}
 
-      {/* 3. Stripe Payment Modal */}
+      {/* 3. Custom Error Modal (Replaces browser alert) */}
+      {errorMessage && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl p-6 max-w-xs w-full text-center shadow-2xl animate-in fade-in zoom-in-95 relative">
+            <div className="w-12 h-12 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-3">
+              <AlertCircle className="w-6 h-6" />
+            </div>
+
+            <h3 className="text-sm font-bold text-gray-900">Scan Warning</h3>
+            <p className="text-xs text-slate-600 mt-2 leading-relaxed">
+              {errorMessage}
+            </p>
+
+            <button
+              onClick={() => setErrorMessage(null)}
+              className="w-full mt-5 py-2.5 bg-[#31123D] hover:bg-[#431854] text-white text-xs font-bold rounded-xl shadow-sm transition-all"
+            >
+              Understand & Dismiss
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* 4. Stripe Payment Modal */}
       {showStripeModal && clientSecret && (
         <StripeModal
           clientSecret={clientSecret}
@@ -504,7 +548,7 @@ const ConsumptionCard = ({ onTransactionSuccess }: ConsumptionCardProps) => {
         />
       )}
 
-      {/* 4. Payment Success Modal */}
+      {/* 5. Payment Success Modal */}
       {showSuccessModal && latestInvoice && (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl p-6 max-w-sm w-full text-center shadow-2xl animate-in fade-in zoom-in-95">
