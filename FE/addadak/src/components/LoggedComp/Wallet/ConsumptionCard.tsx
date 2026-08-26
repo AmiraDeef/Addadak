@@ -77,9 +77,7 @@ useEffect(() => {
       (decodedText) => {
         const scannedCode = decodedText.trim();
         const currentMeter = meterNumber?.trim();
-
-        // اقفلي مودال الكاميرا فوراً في الحالتين (صح أو غلط)
-        setShowScannerModal(false);
+     setShowScannerModal(false);
 
         if (scannedCode !== currentMeter) {
           setErrorMessage(`Invalid Smart Card! Scanned number (${scannedCode}) does not match current meter (${currentMeter}).`);

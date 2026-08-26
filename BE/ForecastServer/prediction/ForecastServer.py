@@ -14,6 +14,7 @@ try:
         'Water': joblib.load('models/water_lgb.pkl'),
         'Gas': joblib.load('models/gas_lgb.pkl')
     }
+    
 except Exception as e:
     print(f"❌ CRITICAL ERROR: Failed to load pickle files. System shutting down. Details: {e}")
     sys.exit(1) # Halt the server immediately if weights are missing

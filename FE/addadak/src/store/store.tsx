@@ -2,7 +2,7 @@ import { configureStore } from "@reduxjs/toolkit";
 import authReducer from "./authSlice";
 import consumptionsReducer from "./consumptionSlice"
 import utilityReducer from "./utilitySlice"
-import meterReducer from"./meterSlice"
+import meterReducer from "./meterSlice";
 
 
 const store = configureStore({

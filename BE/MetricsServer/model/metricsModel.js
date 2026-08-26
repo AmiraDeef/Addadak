@@ -1,3 +1,46 @@
+/* this is the formate which the data is sent to the Electricity company:
+this is the smart meter reading
+{
+  "meterNumber": "1002938475",
+  "utilityType": "Electricity",
+  "meterType": "SMART",
+  "readings": {
+    "cumulativeKwh": 1250.75,
+    "instantaneousVoltage": 220.4,
+    "currentAmperage": 12.5,
+    "powerFactor": 0.95
+  },
+  "balance": {
+    "remainingCreditEgp": 145.50,
+    "currentTariffSlice": 3
+  },
+  "status": {
+    "tamperDetected": false,
+    "powerConnected": true
+  },
+  "timestamp": "2026-08-02T18:45:00Z"
+
+#this is the reading of Prepaid Smart Card / Coded Meter)
+  {
+  "meterNumber": "9876543210",
+  "utilityType": "Electricity",
+  "meterType": "PREPAID_CARD",
+  "cardTransaction": {
+    "transactionId": "TXN-8849201",
+    "rechargeAmountEgp": 200.00,
+    "remainingCreditBeforeRecharge": 12.30,
+    "lastReadingKwh": 840.00,
+    "tariffSliceAtRecharge": 2
+  },
+  "syncChannel": "MOBILE_NFC", // أو POS_TERMINAL
+  "timestamp": "2026-08-02T14:10:00Z"
+}
+}
+
+we can adjust these reading and its logic after descussion.
+   */
+
+
 const { match } = require("assert");
 const mongoose=require("mongoose");
 
@@ -49,3 +92,4 @@ const metricSchema=new mongoose.Schema({
 const metricsSchema=mongoose.model("metrics",metricSchema);
 
 module.exports=metricsSchema;
+

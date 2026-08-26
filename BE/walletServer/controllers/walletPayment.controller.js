@@ -95,24 +95,10 @@ const createPaymentWay = async (
 const chargeMeters = async (req, res, next) => {
     try {
         const { userNId, meterNum } = req.params;
-  
+
         if (!userNId || !meterNum) {
             return res.status(400).json({ message: "National ID and Meter Number are required!" });
         }
-
-        const consumptionRes = await axios.get(
-            `${process.env.API_CONSUMPTION_URL}/${userNId}/${meterNum}`,
-            {
-                headers: {
-                    cookie: req.headers.cookie
-                }
-            }
-        );
-        console.log("Consumption Data:", consumptionRes.data);
-
-     const BillAmount = consumptionRes.data.rate * consumptionRes.data.consumptionInMonth;
-console.log("BillAmount", BillAmount)
-        
 
         const meter = await metricsSchema.findOne({ meterNumber: meterNum });
         if (!meter) {
@@ -124,11 +110,22 @@ console.log("BillAmount", BillAmount)
             return res.status(404).json({ message: "User not found" });
         }
 
-        let finalAmount = 0;
+        // Normalize meter type string
+        const type = meter.meterType ? meter.meterType.trim() : "";
 
-        switch (meter.meterType) {
-            case "Bill":
-                if (BillAmount <= 0 || !BillAmount) {
+        switch (type) {
+            case "Bill": {
+                // Fetch consumption ONLY for monthly bill calculations
+                const consumptionRes = await axios.get(
+                    `${process.env.API_CONSUMPTION_URL}/${userNId}/${meterNum}`,
+                    { headers: { cookie: req.headers.cookie } }
+                );
+console.log(consumptionRes);
+                const rate = consumptionRes.data?.rate || 0;
+                const consumption = consumptionRes.data?.consumptionInMonth || 0;
+                const BillAmount = rate * consumption;
+
+                if (!BillAmount || BillAmount <= 0) {
                     return res.status(400).json({ message: "Amount must be greater than zero!" });
                 }
 
@@ -163,11 +160,14 @@ console.log("BillAmount", BillAmount)
                     transaction: billPayment.paymentTransaction,
                     dueDate: dueDate.toISOString().split('T')[0],
                 });
+            }
 
+            case "Card":
             case "Smart Card":
-            case "Smart Meter":
-                const{ amount: bodyAmount } = req.body;
-                finalAmount = Number(bodyAmount);
+            case "Smart Meter": {
+                const { amount: bodyAmount } = req.body;
+                const finalAmount = Number(bodyAmount);
+
                 if (!finalAmount || finalAmount < 25) {
                     return res.status(400).json({ message: "Minimum charge amount for smart meters is 25 EGP." });
                 }
@@ -185,9 +185,10 @@ console.log("BillAmount", BillAmount)
                     clientSecret: smartPayment.payment.client_secret,
                     transaction: smartPayment.paymentTransaction
                 });
+            }
 
             default:
-                return res.status(400).json({ message: "Invalid meter type" });
+                return res.status(400).json({ message: `Invalid meter type: ${meter.meterType}` });
         }
     } catch (error) {
         next(error);
@@ -283,7 +284,7 @@ const autoPayProcess = async (req, res, next) => {
         const meter = await metricsSchema.findOne({ meterNumber: meterNum });
         if (!meter) return res.status(404).json({ message: "Meter not found!" });
 
-       
+
         const autoPaySetting = await AutoPay.findOne({
             meterId: meter._id,
             autoPay: true
@@ -300,7 +301,7 @@ const autoPayProcess = async (req, res, next) => {
         const userOfMet = await user.findOne({ nationalID: userNId });
         if (!userOfMet) return res.status(404).json({ message: "User not found!" });
 
-  
+
         if (!autoPaySetting.stripeCustomerId || !autoPaySetting.stripePaymentMethodId) {
             return res.status(400).json({
                 success: false,

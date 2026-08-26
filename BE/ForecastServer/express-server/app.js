@@ -38,6 +38,6 @@ dataBaseConnection();
 app.use(globalErrorHnadler);
 
 //server connection
-app.listen(process.env.PORT||3002,()=>{
+app.listen(process.env.PORT||3003,()=>{
     console.log(`Server is listening to port ${process.env.PORT}`);
 });

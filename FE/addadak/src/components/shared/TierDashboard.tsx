@@ -1,6 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect,useCallback } from "react";
 import api from "../../api/axios.tsx";
-
+import { useSelector, } from 'react-redux';
+import type { RootState, AppDispatch } from '../../store/store.tsx';
 interface Tier {
     tier: number;
     rate: number;
@@ -12,10 +13,20 @@ interface props {
 
 const TierDashboard = ({ userTier }: props) => {
     const [allTiers, setAllTiers] = useState<Tier[]>([]);
-
+    const { utility } = useSelector((state: RootState) => state.utility); 
+    const { nid } = useSelector((state: RootState) => state.auth);
+    const getEndpoints = useCallback(() => {
+        const base = utility === "Water" ? "/water" : utility === "Gas" ? "/gas" : "/elec";
+        return {
+            allMeters: `${base}/viewAllTiers`,
+        };
+    }, [nid, utility]);
     const viewAllTiers = async () => {
         try {
-            const viewallTiers = await api.elecApi.get(`/viewAllTiers`);
+            const endpoints = getEndpoints();
+            console.log("endpoint ",endpoints.allMeters)
+            const viewallTiers = await api.elecApi.get(endpoints.allMeters)
+            console.log("view all tiers ",viewallTiers)
             const sevenTiers = viewallTiers.data.Tiers;
             setAllTiers(sevenTiers);
         } catch (error) {
@@ -25,7 +36,8 @@ const TierDashboard = ({ userTier }: props) => {
 
     useEffect(() => {
         viewAllTiers();
-    }, []);
+        console.log(utility);
+    }, [nid, utility]);
 
     return (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 border border-secondary-purple lg:grid-cols-1 gap-4 p-6 w-fill max-w-5xl flex flex-col  rounded-2xl gap-5"> 

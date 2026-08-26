@@ -8,6 +8,9 @@ const app=express();
 const metricsRouters=require("./metricsRoutes/metricsRoutes")
 const cookies=require("cookie-parser");
 
+const electricMetricsRouter = require("./metricsRoutes/electicityRoutes") //for testing
+const gasMetricsRouter = require('./metricsRoutes/gasRoutes');
+const waterMetricsRouter = require('./metricsRoutes/waterRoutes');
 app.use(express.json());
 app.use(cookies())
 app.use(cors({
@@ -28,9 +31,11 @@ const DB_connection=async()=>{
 DB_connection();
 
 
-
+app.use("/logged/user/elec",electricMetricsRouter);
+app.use("/logged/user/gas",gasMetricsRouter);
+app.use("/logged/user/water",waterMetricsRouter);
 
 app.use(serverErrorHandler);
-app.listen(process.env.PORT||3001,()=>{
+app.listen(process.env.PORT||3002,()=>{
     console.log(`Metrics Server ia listening to port: ${process.env.PORT}`)
 })

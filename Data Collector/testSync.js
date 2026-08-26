@@ -9,14 +9,14 @@ async function runManualTest() {
     await mongoose.connect(config.mongo.uri);
     logger.info('Test Runner: MongoDB connected successfully.');
 
-    // تشغيل دورة المزامنة التي قمنا ببنائها وتعديلها
+   
     await ElectricityCollectorService.syncReadings();
     
     logger.info('Test Runner: Manual sync execution finished.');
   } catch (error) {
     logger.error('Test Runner: Fatal error during manual test:', error);
   } finally {
-    // إغلاق الاتصال لإنهاء عملية تشغيل الملف في الـ Terminal
+    
     await mongoose.disconnect();
     logger.info('Test Runner: MongoDB connection closed.');
   }

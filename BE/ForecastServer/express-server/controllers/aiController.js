@@ -1,6 +1,6 @@
 const mongoose=require("mongoose");
 const axios =require("axios");
-const {metricsSchema}=require("addadak-db-models")(mongoose);
+const metricSchema=require("../model/metricsModel")
 
 const python_endpoints={
     Electricity: 'http://localhost:8000/predict/Electricity',
@@ -13,7 +13,7 @@ const predictNextMonth=async(req,res,next)=>{
         const {nationalID, utility, meterNumber}=req.params;
         if(!python_endpoints[utility])return res.status(400).json({message:"unsupported utility"});
 
-        const histories= await metricsSchema.find({nationalID, utility, meterNumber}).sort({billingMonth:-1}).limit(6);
+        const histories= await metricSchema.find({nationalID, utility, meterNumber}).sort({billingMonth:-1}).limit(6);
         if (!histories || histories.length === 0) 
             {return res.status(404).json({ message: "No previous consumptions to forecast" });}
         const history=histories.reverse();

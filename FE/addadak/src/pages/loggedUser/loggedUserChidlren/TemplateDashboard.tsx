@@ -7,24 +7,23 @@ import Swal from 'sweetalert2';
 import api from "../../../api/axios.tsx";
 import type { RootState, AppDispatch } from '../../../store/store.tsx';
 import { consumptions } from "../../../store/consumptionSlice.tsx";
-
+import {setMeterData} from "../../../store/meterSlice.tsx"
 const Dashboard = () => {
     const navigate = useNavigate();
     const dispatch = useDispatch<AppDispatch>();
     
     const { nid } = useSelector((state: RootState) => state.auth);
-    const { utility } = useSelector((state: RootState) => state.utility);
-
+    const { utility } = useSelector((state: RootState) => state.utility);           
     const [meters, setMeters] = useState([]);
     const [userTier, setUserTier] = useState(0);
     const [chartData, setChartdata] = useState([]);
 
     const getEndpoints = useCallback(() => {
-        const base = utility === "water" ? "/waterApi" : utility === "gas" ? "/gasApi" : "";
+        const base = utility === "water" ? "/water" : utility === "gas" ? "/gas" : "/elec";
         return {
             allMeters: `${base}/viewAllMeters/${nid}`,
-            utilityTiers: `${base}/getTier/${nid}`,
-            userConsumptions: `${base}/getUserConsumptions/${nid}`
+            utilityTiers: `${base}/getTier`,
+            userConsumptions: `${base}/getUserConsumptions`
         };
     }, [nid, utility]);
 
@@ -42,7 +41,8 @@ const Dashboard = () => {
         const endpoints = getEndpoints();
         try {
             const userConsumtions = await api.elecApi.get(`${endpoints.userConsumptions}/${selectedMeterNo}`, { withCredentials: true });
-            setChartdata(userConsumtions.data.consumptionTable);
+            console.log("Response with params:", userConsumtions.data);
+            setChartdata(userConsumtions.data);
             dispatch(consumptions(userConsumtions.data));
         } catch (error: any) {
             handleError(error);
@@ -53,14 +53,19 @@ const Dashboard = () => {
         const endpoints = getEndpoints();
         try {
             const userMeters = await api.elecApi.get(endpoints.allMeters, { withCredentials: true });
+            console.log(userMeters)
             const fetchedMeters = userMeters.data.meters;
+            console.log("fetched")
+            console.log(fetchedMeters)
+            
             setMeters(fetchedMeters);
 
             if (fetchedMeters && fetchedMeters.length > 0) {
-                const firstMeterNumber = fetchedMeters[0]._id?.meterNumber;
+                const firstMeterNumber = fetchedMeters[0].meterNumber;
                 if (firstMeterNumber) {
                     getUserTier(firstMeterNumber);
                     getUserReadings(firstMeterNumber);
+                    dispatch(setMeterData({ meterNumber: firstMeterNumber }))
                 }
             }
         } catch (error: any) {
@@ -82,14 +87,14 @@ const Dashboard = () => {
     };
 
     useEffect(() => {
-        if (nid) {
+        if (nid && utility ) {
             getUserMeters();
         }
     }, [nid, utility]);
 
     return (
         <div className="flex flex-col w-fill duration-300 transition-all min-w-0 justify-around gap-10 pt-10 sm:flex-row">
-            <div className="flex flex-col w-250 min-w-0 items-center gap-8">
+            <div className="flex flex-col max-w-2xl min-w-0 items-center gap-15">
                 <OwnedMeters meters={meters} getUserReadings={getUserReadings} getUserTier={getUserTier} />
                 
                 {chartData && chartData.length > 0 ? (

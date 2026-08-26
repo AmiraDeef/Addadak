@@ -7,16 +7,17 @@ import type{ RootState } from '../../../store/store';
 
 const ChartDashboard=()=>{
      const { consumptionTable } = useSelector((state: RootState) => state.consumptions);
+     console.log("table",consumptionTable)
      const {utility}=useSelector((state:RootState)=>state.utility)
      
      
      const getColor = () => {
         switch (utility) {
-            case 'electricity':
+            case 'Electricity':
                 return '#3ecfdf'; 
-            case 'water':
+            case 'Water':
                 return '#3b82f6'; 
-            case 'gas':
+            case 'Gas':
                 return '#f9a916'; 
             default:
                 return '#515e5f';

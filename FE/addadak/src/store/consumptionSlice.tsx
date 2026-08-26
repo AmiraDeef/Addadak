@@ -12,8 +12,8 @@ const consumptionsSlice = createSlice({
   name: "consumptions",
   initialState,
   reducers: {
-    consumptions(state, action:PayloadAction <{consumptionTable:Array<any>}>){
-        state.consumptionTable=action.payload.consumptionTable;
+    consumptions(state, action:PayloadAction <Array<any>>){
+        state.consumptionTable=action.payload;
     }
     
   },

@@ -10,10 +10,10 @@ const tiers=[
     {tier:7 , min: 1001, max: Infinity, rate: 2.58 }
 
 ]
+// The tiers has been already mentioned in the domain file for each type, what are these tiers for ? 
 
-
-
-const viewAllTiers=(req,res,next)=>{
+//btwary el user kol el sharay7 elly fe sherkt el kahraba
+const viewAllTiers=(req,res,next)=>{ 
     try{
 
         res.status(200).json({Tiers:tiers})
@@ -24,7 +24,7 @@ const viewAllTiers=(req,res,next)=>{
 }
 
 
-
+//out
 const addMetrics=async(req,res,next)=>{
     try{
         if(req.body.meterType==="Bill"){
@@ -51,6 +51,8 @@ const addMetrics=async(req,res,next)=>{
     }
 }
 
+
+//betwary el user kol 3adadat el kahraba ely mtsgla be raqam btat2to ayan kan no3ha
 const getAllMeters=async(req,res,next)=>{
     try{
          const {ID}=req.params;
@@ -72,7 +74,8 @@ const getAllMeters=async(req,res,next)=>{
             }
          ])
          if(!userMeters || userMeters.length === 0){return res.status(404).json({message:"User metrics are not found!"})}
-         res.status(200).json({message :"All meters",
+         res.status(200).json(
+            {message :"All meters",
             meters:userMeters
            
         });
@@ -81,6 +84,8 @@ const getAllMeters=async(req,res,next)=>{
     }
 }
 
+
+//betwary el user el share7a el 7alya bt3to bon2an 3ala esthlak a5er shahahr + esthlak a5er shahar + el rate ely byt7aseb beh per kwh
 const getTier=async(req,res,next)=>{
     try{
         const {ID,meterNo}=req.params
@@ -127,6 +132,7 @@ const getTier=async(req,res,next)=>{
 
 }
 
+// betwary tare5 esthlak el user 3ala madar el shohor elly fatet fe array 
 const userConsumptions=async(req,res,next)=>{
     try{
         const {ID,meterNo}=req.params
@@ -165,6 +171,7 @@ const userConsumptions=async(req,res,next)=>{
     }
 }
  
+// out
 const deleteUserMeters=async(req,res,next)=>{
     try{
         const {ID}=req.params
