@@ -5,7 +5,7 @@ const morgan = require("morgan");
 const serverErrorHandler=require("./globalErrorHandler");
 require("dotenv").config();
 const app=express();
-const metricsRouters=require("./metricsRoutes/metricsRoutes")
+
 const cookies=require("cookie-parser");
 
 const electricMetricsRouter = require("./metricsRoutes/electicityRoutes") //for testing
