@@ -87,6 +87,8 @@ const Dashboard = () => {
     };
 
     useEffect(() => {
+        setMeters([])
+        setUserTier(0)
         if (nid && utility ) {
             getUserMeters();
         }
