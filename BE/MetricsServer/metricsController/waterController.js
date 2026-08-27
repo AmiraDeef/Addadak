@@ -44,6 +44,7 @@ const getInvoice = async(req,res,next)=>{
         }
         const invoice = generateInvoice(consumption[0],utility);
         if(!invoice) return res.status(500).json({Message:"unexcepected eror"});
+        console.log(invoice);
         return res.status(200).json(invoice);
 
     } catch (error) {
