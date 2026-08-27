@@ -1,7 +1,7 @@
 import axios from "axios";
 
  const authApi=axios.create({
-    baseURL:"http://localhost:3000/"
+    baseURL:"https://addadak-ikif.vercel.app/"
 })
 
  const elecApi=axios.create({
