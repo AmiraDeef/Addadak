@@ -19,7 +19,7 @@ const Dashboard = () => {
     const [chartData, setChartdata] = useState([]);
 
     const getEndpoints = useCallback(() => {
-        const base = utility === "water" ? "/water" : utility === "gas" ? "/gas" : "/elec";
+        const base = utility === "Water" ? "/water" : utility === "Gas" ? "/gas" : "/elec";
         return {
             allMeters: `${base}/viewAllMeters/${nid}`,
             utilityTiers: `${base}/getTier`,
