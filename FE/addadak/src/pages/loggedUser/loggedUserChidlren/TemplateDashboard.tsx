@@ -50,6 +50,9 @@ const Dashboard = () => {
     };
 
     const getUserMeters = async () => {
+        setMeters([]);
+        setChartdata([]);
+        setUserTier(0);
         const endpoints = getEndpoints();
         try {
             const userMeters = await api.elecApi.get(endpoints.allMeters, { withCredentials: true });
@@ -87,8 +90,6 @@ const Dashboard = () => {
     };
 
     useEffect(() => {
-        setMeters([])
-        setUserTier(0)
         if (nid && utility ) {
             getUserMeters();
         }
