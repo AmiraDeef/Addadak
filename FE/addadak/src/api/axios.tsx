@@ -5,7 +5,7 @@ import axios from "axios";
 })
 
  const elecApi=axios.create({
-    baseURL:"http://localhost:3002/logged/user"
+    baseURL:"https://addadak-metrics.vercel.app/logged/user"
 })
  const forecastApi=axios.create({
     baseURL:"http://localhost:3003/logged/user/predict"
