@@ -45,7 +45,7 @@ const logUser=async(req,res,next)=>{
 
         const token=generateToken(userSaved._id,userSaved.phone,process.env.SECRET_KEY,"10m");
         const userID=userSaved.nationalID
-        return res.status(200).cookie("Authdata",token,{httpOnly:true, secure:false,sameSite: 'lax', maxAge:60*60*1000}).json({message:"logging succeeded", User:userSaved });
+        return res.status(200).cookie("Authdata",token,{httpOnly:true, secure:true ,sameSite: 'none', maxAge:60*60*1000}).json({message:"logging succeeded", User:userSaved });
         
 
     }catch(error){
