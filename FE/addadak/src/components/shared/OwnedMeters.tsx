@@ -24,9 +24,11 @@ const OwnedMeters = ({ meters, getUserTier, getUserReadings }: Props) => {
   const { meterNumber } = useSelector((state: RootState) => state.meter);
 
   return (
-    <div className="border border-secondary-purple rounded-2xl px-4 py-3 flex flex-col gap-6">
-      <h1 className="text-secondary-purple text-2xl">Owned Meters</h1>
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-6 w-full max-w-7xl">
+    <div className="w-full border border-secondary-purple rounded-2xl p-4 sm:p-6 flex flex-col gap-4 sm:gap-6">
+      <h1 className="text-secondary-purple text-xl sm:text-2xl font-bold text-center sm:text-left">
+        Owned Meters
+      </h1>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 lg:gap-6 w-full">
         {meters && meters.length > 0 ? (
           meters.map((ele, index) => {
             // التعامل مع هيكل البيانات سواء جاء كـ object عادي أو محتوى جوة _id
@@ -36,6 +38,9 @@ const OwnedMeters = ({ meters, getUserTier, getUserReadings }: Props) => {
               typeof ele._id === "object" ? ele._id?.meterType : ele.meterType;
             const currentAddress =
               typeof ele._id === "object" ? ele._id?.address : ele.address;
+
+            const isSelected =
+              meterNumber === currentMeterNumber || (meterNumber === "" && index === 0);
 
             return (
               <button
@@ -52,20 +57,27 @@ const OwnedMeters = ({ meters, getUserTier, getUserReadings }: Props) => {
                     getUserReadings(currentMeterNumber);
                   }
                 }}
-                className={`rounded-3xl py-4 px-12 border shadow-md flex flex-col justify-center items-center text-center transition-all duration-300 w-full h-24 hover:-translate-y-1 ${
-                  meterNumber === currentMeterNumber || (meterNumber === "" && index === 0)
-                    ? "border-gas-yellow bg-secondary-purple transition-all duration-300 scale-112 text-gas-yellow font-bold"
-                    : "border-gray-200 bg-secondary-purple text-gray-300"
-                }`}
+                className={`rounded-2xl sm:rounded-3xl p-3 sm:p-4 border shadow-md flex flex-col justify-center items-center text-center transition-all duration-300 w-full min-h-[90px] hover:-translate-y-1 ${isSelected
+                  ? "border-gas-yellow bg-secondary-purple scale-[1.02] sm:scale-105 text-gas-yellow font-bold shadow-lg"
+                  : "border-gray-200 bg-secondary-purple text-gray-300 hover:border-gray-400"
+                  }`}
               >
-                <p className="font-bold text-base">{currentMeterType || "No type"}</p>
-                <p className="font-medium">{currentMeterNumber || "No Number"}</p>
-                <p className="text-sm">{currentAddress || "No address"}</p>
+                <p className="font-bold text-sm sm:text-base w-full truncate">
+                  {currentMeterType || "No type"}
+                </p>
+                <p className="font-medium text-xs sm:text-sm w-full truncate">
+                  {currentMeterNumber || "No Number"}
+                </p>
+                <p className="text-xs opacity-80 w-full truncate" title={currentAddress}>
+                  {currentAddress || "No address"}
+                </p>
               </button>
             );
           })
         ) : (
-          <p className="text-gray-500 text-center">No Meters for this user</p>
+          <p className="col-span-full text-gray-500 text-center py-6 text-sm sm:text-base">
+            No Meters for this user
+          </p>
         )}
       </div>
     </div>

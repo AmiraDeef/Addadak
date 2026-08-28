@@ -96,18 +96,24 @@ const Dashboard = () => {
     }, [nid, utility]);
 
     return (
-        <div className="flex flex-col w-fill duration-300 transition-all min-w-0 justify-around gap-10 pt-10 sm:flex-row">
-            <div className="flex flex-col max-w-2xl min-w-0 items-center gap-15">
+        <div className="flex flex-col lg:flex-row w-full min-w-0 justify-between items-center lg:items-start gap-8 lg:gap-10 py-4 sm:py-6 transition-all duration-300">
+            <div className="flex flex-col w-full max-w-3xl min-w-0 items-center gap-8 lg:gap-10">
                 <OwnedMeters meters={meters} getUserReadings={getUserReadings} getUserTier={getUserTier} />
                 
                 {chartData && chartData.length > 0 ? (
-                    <Outlet />
+                    <div className="w-full min-w-0 flex justify-center">
+                        <Outlet />
+                    </div>
                 ) : (
-                    <div className="text-gray-400 text-sm italic py-20">Loading data ...</div>
+                    <div className="flex items-center justify-center w-full min-h-[200px] text-gray-400 text-sm italic py-10 bg-white/50 rounded-2xl border border-dashed border-gray-200">
+                        Loading data ...
+                    </div>
                 )}
             </div>
             
-            <TierDashboard userTier={userTier} />
+            <div className="w-full lg:w-auto flex justify-center">
+                <TierDashboard userTier={userTier} />
+            </div>
         </div>
     );
 };
