@@ -3,9 +3,9 @@ const axios =require("axios");
 const metricSchema=require("../model/metricsModel")
 
 const python_endpoints={
-    Electricity: 'http://localhost:8000/predict/Electricity',
-    Water: 'http://localhost:8000/predict/Water',
-    Gas: 'http://localhost:8000/predict/Gas'
+    Electricity: 'https://tokamamdouhmoustafa.pythonanywhere.com/predict/Electricity',
+    Water: 'https://tokamamdouhmoustafa.pythonanywhere.com/predict/Water',
+    Gas: 'https://tokamamdouhmoustafa.pythonanywhere.com/predict/Gas'
 }
 
 const predictNextMonth=async(req,res,next)=>{
