@@ -8,7 +8,7 @@ import axios from "axios";
     baseURL:"https://addadak-metrics.vercel.app/logged/user"
 })
  const forecastApi=axios.create({
-    baseURL:"http://localhost:3003/logged/user/predict"
+    baseURL:"https://addadak-bzia.vercel.app/logged/user/predict"
  })
 
  const walletApi=axios.create({
