@@ -1,2 +1,16 @@
+[project]
+name = "forecast-server"
+version = "0.1.0"
+dependencies = [
+    "fastapi",
+    "uvicorn",
+    "lightgbm",
+    "scikit-learn",
+    "pandas",
+    "numpy",
+    "joblib",
+    "pydantic"
+]
+
 [tool.vercel]
 entrypoint = "ForecastServer:app"
