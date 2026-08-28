@@ -51,22 +51,22 @@ const TierDashboard = ({ userTier }: props) => {
                         const isSelected = ele.tier === userTier;
 
                         return (
-                            <div
-                                key={index}
-                                className={`rounded-2xl sm:rounded-3xl py-3 px-4 sm:px-6 border shadow-md flex flex-row justify-between items-center text-center transition-all duration-300 w-full min-h-[64px] hover:-translate-y-1
-                                    ${isSelected
-                                        ? 'bg-secondary-purple border-secondary-purple text-gas-yellow scale-[1.02] sm:scale-105 font-bold shadow-lg'
+                            <div 
+                                key={index} 
+                                className={`rounded-2xl py-3 px-3.5 sm:px-4 border shadow-md flex flex-row justify-between items-center text-center transition-all duration-300 w-full min-h-[60px] hover:-translate-y-1
+                                    ${isSelected 
+                                        ? 'bg-secondary-purple border-secondary-purple text-gas-yellow scale-[1.01] sm:scale-[1.03] font-bold shadow-lg' 
                                         : 'border-secondary-purple/40 text-secondary-purple bg-my-white/30 hover:border-secondary-purple'
                                     }`
                                 }
                             >
-                                <p className="text-base sm:text-lg">
+                                <p className="text-sm sm:text-base font-medium whitespace-nowrap">
                                     Tier : {ele.tier}
                                 </p>
-
-                                <p className="text-sm sm:text-base">
-                                    Rate: <span className="font-bold">{ele.rate}</span> <small className="text-xs">EGP/kWh</small>
-                                </p>
+                                
+                                <p className="text-xs sm:text-sm md:text-base whitespace-nowrap">
+                                    Rate: <span className="font-bold">{ele.rate}</span> <small className="text-[10px] sm:text-xs">EGP/kWh</small>
+                                </p> 
                             </div>
                         );
                     })
