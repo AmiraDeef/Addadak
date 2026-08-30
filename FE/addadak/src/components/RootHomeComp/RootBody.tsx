@@ -14,6 +14,7 @@ const RootBody=()=>{
             <div className="texts text-center flex flex-col gap-10">
                 <h1 className="text-5xl font-bold">Take Control of your Energy Costs.</h1>
                 <h5 className="text-xl">Monitor, analyze and optimize your electricity and gas consumption with intelligent insights.</h5>
+                <h5 className="text-xl text-red-500">Click Login for Demo.</h5>
             </div>
 
             <div className="badges flex flex-wrap md:flex-row justify-center gap-8 md:gap-20">
