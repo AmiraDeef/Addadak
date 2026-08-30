@@ -18,7 +18,7 @@ interface TransTableProps {
 }
 
 const TransTable = ({ refreshKey }: TransTableProps) => {
-     const { meterNumber: reduxMeterNumber } = useSelector((state: RootState) => state.meter);
+    const { meterNumber: reduxMeterNumber } = useSelector((state: RootState) => state.meter);
     const meterNumber = reduxMeterNumber;
     console.log(meterNumber);
     const [trans, setTrans] = useState<Transaction[]>([]);
@@ -53,8 +53,8 @@ const TransTable = ({ refreshKey }: TransTableProps) => {
     const currentTransactions = trans.slice(startIndex, endIndex);
 
     return (
-        <div className="w-full bg-white/40 rounded-2xl border border-white/60 shadow-sm p-6">
-            <div className="flex items-center justify-between mb-5">
+        <div className="w-full bg-white/40 rounded-2xl border border-white/60 shadow-sm p-4 sm:p-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-5">
                 <div className="flex items-center gap-2">
                     <History className="w-5 h-5 text-[var(--color-secondary-purple)]" />
                     <h3 className="text-base font-bold text-gray-800">Transaction History</h3>
@@ -62,15 +62,16 @@ const TransTable = ({ refreshKey }: TransTableProps) => {
                 <span className="text-xs font-medium text-gray-400">Sorted by most recent</span>
             </div>
 
-            <div>
-                <table className="w-full text-left border-collapse">
+            {/* Scrollable container for mobile/tablet screens */}
+            <div className="w-full overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300">
+                <table className="w-full min-w-[600px] text-left border-collapse">
                     <thead>
                         <tr className="border-b border-gray-300/40 text-xs font-bold text-gray-400 uppercase tracking-wider">
-                            <th className="py-3 px-4">Transaction ID</th>
-                            <th className="py-3 px-4">Date</th>
-                            <th className="py-3 px-4">Meter Type</th>
-                            <th className="py-3 px-4">Amount</th>
-                            <th className="py-3 px-4 text-center">Status</th>
+                            <th className="py-3 px-4 whitespace-nowrap">Transaction ID</th>
+                            <th className="py-3 px-4 whitespace-nowrap">Date</th>
+                            <th className="py-3 px-4 whitespace-nowrap">Meter Type</th>
+                            <th className="py-3 px-4 whitespace-nowrap">Amount</th>
+                            <th className="py-3 px-4 text-center whitespace-nowrap">Status</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-200/50 text-sm">
@@ -98,19 +99,19 @@ const TransTable = ({ refreshKey }: TransTableProps) => {
                         ) : (
                             currentTransactions.map((tx) => (
                                 <tr key={tx._id} className="hover:bg-white/60 transition-colors">
-                                    <td className="py-4 px-4 font-mono text-xs font-semibold text-gray-500">
+                                    <td className="py-4 px-4 font-mono text-xs font-semibold text-gray-500 whitespace-nowrap">
                                         {tx._id.slice(-6)} 
                                     </td>
-                                    <td className="py-4 px-4 text-xs font-semibold text-gray-600">
+                                    <td className="py-4 px-4 text-xs font-semibold text-gray-600 whitespace-nowrap">
                                         {new Date(tx.payingDate).toLocaleDateString()}
                                     </td>
-                                    <td className="py-4 px-4 text-xs font-bold text-gray-800">
+                                    <td className="py-4 px-4 text-xs font-bold text-gray-800 whitespace-nowrap">
                                         {tx.meterType || "Smart Meter"}
                                     </td>
-                                    <td className="py-4 px-4 text-sm font-bold text-[var(--color-secondary-purple)]">
+                                    <td className="py-4 px-4 text-sm font-bold text-[var(--color-secondary-purple)] whitespace-nowrap">
                                         {tx.amount} EGP
                                     </td>
-                                    <td className="py-4 px-4 text-center">
+                                    <td className="py-4 px-4 text-center whitespace-nowrap">
                                         <span
                                             className={`inline-block text-xs font-bold px-3 py-1 rounded-full ${
                                                 tx.status === "succeeded" || tx.status === "success"
@@ -131,7 +132,7 @@ const TransTable = ({ refreshKey }: TransTableProps) => {
             </div>
 
             {!loading && trans.length > 0 && (
-                <div className="flex items-center justify-between pt-4 mt-2 border-t border-gray-200/40 text-xs font-semibold text-gray-500">
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 mt-2 border-t border-gray-200/40 text-xs font-semibold text-gray-500">
                     <span>
                         Showing {startIndex + 1} to {Math.min(endIndex, trans.length)} of {trans.length} transactions
                     </span>
