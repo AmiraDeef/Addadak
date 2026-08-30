@@ -18,7 +18,7 @@ app.use("/webhook",webhookRoutes) //express.raw NOT json
 app.use(express.json());
 app.use(cookies())
 app.use(cors({
-    origin:"http://localhost:5173",
+    origin:"https://addadak.vercel.app",
     credentials: true,
     methods: ["GET", "POST", "PUT","PATCH", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"]

@@ -12,7 +12,7 @@ import axios from "axios";
  })
 
  const walletApi=axios.create({
-    baseURL:"http://localhost:3004/logged/user/wallet/"
+    baseURL:"https://addadak-n5id.vercel.app/logged/user/wallet/"
 })
 
 
