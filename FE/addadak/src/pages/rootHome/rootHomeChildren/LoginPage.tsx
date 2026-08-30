@@ -26,7 +26,7 @@ const Login = () => {
 
     const fields: Array<inputs> = [
         { class: "email", for: "email", label: "Email :ezz@gmail.com", type: "email", id: "email", obj: { required: "Email is required", pattern: { value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/, message: "Please enter a valid email format" } } },
-        { class: "password", for: "password", type: "password", label: "Password: Digi@Digi12&&", id: "password", obj: { required: "Password is required", pattern: { value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&'%])[A-Za-z\d@$!%*?&'%]{8,}$/, message: "password should have at least one capital letter, a small letter, a digit and a symbol" }, minLength: { value: 8, message: "min lenght of password should be 8 characters" } } }
+        { class: "password", for: "password", type: "password", label: "Password :Digi@Digi12&&", id: "password", obj: { required: "Password is required", pattern: { value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&'%])[A-Za-z\d@$!%*?&'%]{8,}$/, message: "password should have at least one capital letter, a small letter, a digit and a symbol" }, minLength: { value: 8, message: "min lenght of password should be 8 characters" } } }
     ];
 
     const gotoProfile = async (data: any) => {
