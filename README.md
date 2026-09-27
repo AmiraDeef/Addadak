@@ -1,4 +1,4 @@
-
+![Addadak](./addadklogo.svg)
 
 # ⚡ Addadak (عدّادك)
 
