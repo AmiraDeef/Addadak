@@ -205,11 +205,11 @@ The dashboard will be available at `http://localhost:3000`.
 
 ### Project Team (Team Members)
 
-* **Abdelrahman Anter**
-* **Amira Hamada**
-* **Maiar Emam**
-* **Sarah Abdelsamie**
-* **Toka Mamdouh** — *Founder & Team Leader*
+* **Abdelrahman Anter[Abdelrahman-Linkedin](https://github.com/abdalrhmananter-hub)** 
+* **Amira Hamada [Amira-Linkedin](https://github.com/AmiraDeef)**
+* **Maiar Emam [Maiar-Linkedin](https://github.com/maiar38)**
+* **Sarah Abdelsamie [Sara-Linkedin](https://github.com/sarahabdelsamie)**
+* **Toka Mamdouh [Toka-Linkedin](https://github.com/Toka999)** — *Founder & Team Leader*
 
 ### Supervision & Host Institutions
 
