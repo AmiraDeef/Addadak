@@ -209,15 +209,15 @@ The dashboard will be available at `http://localhost:3000`.
 
 ### Project Team (Team Members)
 
-* **Toka Mamdouh** — *Founder & Team Leader*
 * **Abdelrahman Anter**
 * **Amira Hamada**
 * **Maiar Emam**
 * **Sarah Abdelsamie**
+* **Toka Mamdouh** — *Founder & Team Leader*
 
 ### Supervision & Host Institutions
 
-* **Supervised by:** Dr. Reham Abobeah
+
 * **Affiliation:** National Telecommunication Institute (**NTI**) - DiGilians Program | Ministry of Communications and Information Technology (**MCIT**) | Egyptian Military Academy
 
 ---
