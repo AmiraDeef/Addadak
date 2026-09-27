@@ -1,9 +1,5 @@
 
 
-```markdown:README.md
-
-```
-
 # ⚡ Addadak (عدّادك)
 
 ### *Smarter Utilities, Better Life*
