@@ -1,9 +1,4 @@
-تمام جداً! سأقوم الآن بتحديث ملف الـ `README.md` لتعديل المخطط المعماري (Architecture Diagram) وشرح النظام بحيث يعكس بوضوح:
 
-1. **استخدام قاعدة بيانات موحدة واحدة (Unified Shared Database)** لجميع الخدمات.
-2. **إبراز دور الـ Data Collector** كـ ETL Pipeline يتصل بشركات المرافق المختلفة (كهرباء، غاز، مياه) ويقوم بسحب وتجميع البيانات وتخزينها مباشرة داخل قاعدة البيانات الموحدة.
-
-إليك التحديث النهائي للملف:
 
 ```markdown:README.md
 
@@ -229,8 +224,4 @@ The dashboard will be available at `http://localhost:3000`.
 
 <sub>Built with ❤️ by the Addadak Team. Distributed under the MIT License.</sub>
 
-```eof
 
-تم تحديث الرسم التوضيحي للـ Architecture وشرح الـ Data Collector وقاعدة البيانات الموحدة بالشكل المظبوط تماماً! أبلغني لو تحب تعدل أي نقطة إضافية.
-
-```
