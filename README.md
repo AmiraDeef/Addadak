@@ -17,7 +17,7 @@ A microservices-based **smart utility management and ML forecasting platform** f
 ![Docker](https://img.shields.io/badge/Docker-2496ED?logo=docker&logoColor=white)
 ![License](https://img.shields.io/badge/License-MIT-yellow)
 
-[Overview](#-overview) · [Architecture](#-architecture) · [Services](#-services) · [Features](#-features) · [Getting Started](#-getting-started) · [Roadmap](#-roadmap) · [Team](#-team)
+[Overview](#-overview) · [Demo](#-demo) · [Architecture](#-architecture) · [Services](#-services) · [Features](#-features) · [Getting Started](#-getting-started) · [Roadmap](#-roadmap) · [Team](#-team)
 
 </div>
 
@@ -212,13 +212,15 @@ Open **http://localhost:3000** in your browser.
 
 ---
 
-## 📸 Screenshots
+## 🎬 Demo
 
-> Add screenshots of your dashboard here.
+<div align="center">
 
-| Dashboard | Forecast | Wallet |
-|-----------|----------|--------|
-| ![Dashboard](docs/dashboard.png) | ![Forecast](docs/forecast.png) | ![Wallet](docs/wallet.png) |
+<video src="Addadak-Demo.mp4" controls muted width="100%"></video>
+
+</div>
+
+> If the player does not load in your viewer, [click here to watch the demo](Addadak-Demo.mp4).
 
 ---
 
@@ -235,11 +237,12 @@ Open **http://localhost:3000** in your browser.
 
 | Member | Role | GitHub |
 |--------|------|--------|
+| **Toka Mamdouh** | Founder & Team Leader | [@Toka999](https://github.com/Toka999) |
 | **Abdelrahman Anter** | Team Member | [@abdalrhmananter-hub](https://github.com/abdalrhmananter-hub) |
 | **Amira Hamada** | Team Member | [@AmiraDeef](https://github.com/AmiraDeef) |
 | **Maiar Emam** | Team Member | [@maiar38](https://github.com/maiar38) |
 | **Sarah Abdelsamie** | Team Member | [@sarahabdelsamie](https://github.com/sarahabdelsamie) |
-| **Toka Mamdouh** | Founder & Team Leader | [@Toka999](https://github.com/Toka999) |
+
 ### 🏛️ Supervision & Host Institutions
 
 **National Telecommunication Institute (NTI)** · DiGilians Program · **Ministry of Communications and Information Technology (MCIT)** · Egyptian Military Academy
