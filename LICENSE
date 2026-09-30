@@ -1,5 +1,45 @@
-Copyright (c) 2026 Toka. All rights reserved.
+ADDADAK PROPRIETARY LICENSE
+All Rights Reserved
 
-This source code is provided solely for educational and portfolio evaluation purposes.
-Unauthorized copying, modification, distribution, or commercial use of this software,
-via any medium, is strictly prohibited.
+Copyright (c) 2026 Addadak Team (Toka Mamdouh, Abdelrahman Anter, Amira Hamada,
+Maiar Emam, Sarah Abdelsamie). All rights reserved.
+
+1. OWNERSHIP
+   Addadak (عدّادك), including its source code, documentation, designs, logos,
+   diagrams, data, and all related materials (the "Project"), is the exclusive
+   property of the Addadak Team. No ownership rights are transferred to any
+   other person or entity.
+
+2. RESTRICTIONS
+   Except as stated in Section 3, no person or entity may, without prior
+   written permission from the Addadak Team:
+   (a) use, run, or deploy the Project or any part of it;
+   (b) copy, reproduce, or redistribute the Project or any part of it;
+   (c) modify, edit, adapt, translate, or create derivative works from it;
+   (d) sell, sublicense, lease, or otherwise commercialize it;
+   (e) remove or alter any copyright, ownership, or license notice;
+   (f) use the name "Addadak", its logo, or its branding.
+
+3. PERMITTED USE
+   Only members of the Addadak Team, and persons expressly authorized in
+   writing by the Addadak Team, may use, edit, and develop the Project.
+
+4. NO OTHER LICENSE
+   Viewing the Project's source code, for example on a public repository
+   platform, does not grant any license or right to use it. No license is
+   granted by implication, estoppel, or otherwise.
+
+5. PERMISSION REQUESTS
+   To request permission to use any part of the Project, contact the Addadak
+   Team through the project's GitHub repository.
+
+6. NO WARRANTY
+   THE PROJECT IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+   IMPLIED, INCLUDING BUT NOT LIMITED TO WARRANTIES OF MERCHANTABILITY,
+   FITNESS FOR A PARTICULAR PURPOSE, AND NONINFRINGEMENT. IN NO EVENT SHALL
+   THE ADDADAK TEAM BE LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER LIABILITY
+   ARISING FROM THE PROJECT OR ITS USE.
+
+7. VIOLATIONS
+   Any use of the Project in violation of this license is unauthorized and may
+   result in legal action.
