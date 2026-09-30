@@ -220,11 +220,11 @@ Open **http://localhost:3000** in your browser.
 
 <div align="center">
 
-<video src="[Addadak-Demo.mp4](https://github.com/user-attachments/assets/487c93c6-6284-44a7-adcd-f6b4d3a01aab)" controls muted width="100%"></video>
+<video src="https://github.com/user-attachments/assets/487c93c6-6284-44a7-adcd-f6b4d3a01aab" controls muted width="100%"></video>
 
 </div>
 
-> If the player does not load in your viewer, [click here to watch the demo](./Addadak-Demo.mp4).
+> If the player does not load in your viewer, [click here to watch the demo]([./Addadak-Demo.mp4](https://github.com/user-attachments/assets/487c93c6-6284-44a7-adcd-f6b4d3a01aab).
 
 ---
 
