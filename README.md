@@ -1,111 +1,121 @@
-![Addadak](./addadklogo.svg)
+<div align="center">
+
+<img src="./addadklogo.svg" alt="Addadak Logo" width="160" />
 
 # ⚡ Addadak (عدّادك)
 
-### *Smarter Utilities, Better Life*
+### Smarter Utilities, Better Life
 
-An enterprise-grade, microservices-driven **Smart Utility Management & ML-powered Forecasting Ecosystem** for Electricity, Gas, and Water consumption.
+A microservices-based **smart utility management and ML forecasting platform** for **Electricity, Gas and Water** consumption.
+
+![Node.js](https://img.shields.io/badge/Node.js-18+-339933?logo=nodedotjs&logoColor=white)
+![React](https://img.shields.io/badge/React-61DAFB?logo=react&logoColor=black)
+![Python](https://img.shields.io/badge/Python-3.9+-3776AB?logo=python&logoColor=white)
+![MongoDB](https://img.shields.io/badge/MongoDB-47A248?logo=mongodb&logoColor=white)
+![Redis](https://img.shields.io/badge/Redis-DC382D?logo=redis&logoColor=white)
+![Stripe](https://img.shields.io/badge/Stripe-635BFF?logo=stripe&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-2496ED?logo=docker&logoColor=white)
+![License](https://img.shields.io/badge/License-MIT-yellow)
+
+[Overview](#-overview) · [Architecture](#-architecture) · [Services](#-services) · [Features](#-features) · [Getting Started](#-getting-started) · [Roadmap](#-roadmap) · [Team](#-team)
+
+</div>
 
 ---
 
-## 📌 Executive Summary
+## 📌 Overview
 
-**Addadak (عدّادك)** is a full-stack, distributed utility management platform engineered to revolutionize how smart meters for **Electricity, Gas, and Water** are monitored, forecasted, and billed.
+**Addadak (عدّادك)** is a full-stack, distributed platform for monitoring, forecasting and paying for smart-meter utilities: **electricity, gas and water**, all in one place.
 
-The ecosystem addresses critical energy challenges across three core dimensions:
+It is designed around three types of users:
 
-* **Individual Consumers:** Gain real-time visibility over multi-utility meter consumption, tier boundaries, and instant bill payment.
-* **Business & Commercial Users:** Track usage across multiple branch locations with aggregated analytics to eliminate unexpected utility overheads.
-* **Utility Providers:** Minimize estimated billing errors, curb delayed collections, and mitigate peak-demand grid stress through intelligent demand analytics.
+| User | What they get |
+|------|---------------|
+| 🏠 **Individual consumers** | Real-time visibility into every meter, tier boundaries, and instant bill payment. |
+| 🏢 **Business users** | Usage tracking across multiple branches with aggregated analytics to avoid surprise bills. |
+| 🏭 **Utility providers** | Fewer estimated-billing errors, faster collections, and lower peak-demand stress through demand analytics. |
 
 ---
 
-## 🏗️ System Architecture
+## 🏗️ Architecture
 
-Addadak is structured using a **Modular Microservices Architecture** supported by a **Centralized Shared Database** and an automated multi-source **Data Ingestion Collector Engine**.
+Addadak follows a **modular microservices architecture** with a **shared MongoDB database** and an automated **Data Collector** that ingests readings from multiple utility providers.
 
-### 📐 Architecture Diagram
+```mermaid
+flowchart TD
+    subgraph Providers["External Utility Providers"]
+        E["⚡ Electricity Provider"]
+        G["🔥 Gas Provider"]
+        W["💧 Water Provider"]
+    end
 
-```text
-+-----------------------+      +-----------------------+      +-----------------------+
-|  Electricity Company  |      |      Gas Company      |      |     Water Company     |
-|   Provider Service    |      |   Provider Service    |      |   Provider Service    |
-+-----------+-----------+      +-----------+-----------+      +-----------+-----------+
-            |                              |                              |
-            +------------------------------+------------------------------+
-                                           | (External Utility Data APIs)
-                                           v
-                            +-----------------------------+
-                            |   Data Collector Engine     |
-                            | (ETL, Validation & Ingest)  |
-                            +--------------+--------------+
-                                           |
-                                           v
-                            ===============================
-                            |   UNIFIED SHARED DATABASE   |
-                            |          (MongoDB)          |
-                            ===============================
-                                           ^
-      +---------------------+--------------+--------------+---------------------+
-      |                     |                             |                     |
-+-----+-----+         +-----+-----+                 +-----+-----+         +-----+-----+
-|   Auth    |         |  Metrics  |                 |  Forecast |         |   Wallet  |
-|  Server   |         |  Server   |                 |  Server   |         |   Server  |
-+-----------+         +-----------+                 +-----------+         +-----+-----+
-      ^                     ^                             ^                     |
-      |                     |                             |             [ Stripe Payment ]
-      +---------------------+--------------+--------------+                     |
-                                           |                                    v
-                                  +--------+--------+                  +-----------------+
-                                  |  API Gateway /  | <--------------> | Alerts Service  |
-                                  |  React Client   |                  | (Redis/BullMQ)  |
-                                  +-----------------+                  +-----------------+
+    E --> DC
+    G --> DC
+    W --> DC
 
+    DC["📥 Data Collector Engine<br/>ETL · Validation · Ingestion"]
+    DC --> DB[("🗄️ Unified Database<br/>MongoDB")]
+
+    DB <--> AUTH["🔑 Auth Server"]
+    DB <--> MET["📊 Metrics Server"]
+    DB <--> FOR["🤖 Forecast Server"]
+    DB <--> WAL["💳 Wallet Server"]
+
+    WAL <--> STRIPE["Stripe API"]
+    NOT["🔔 Notification Server<br/>Redis + BullMQ"] <--> DB
+
+    AUTH --> FE
+    MET --> FE
+    FOR --> FE
+    WAL --> FE
+    NOT --> FE
+
+    FE["🖥️ React Client"]
 ```
 
 ---
 
-## 🔄 Core Services & Pipeline Breakdown
+## 🔄 Services
 
-### 📥 1. Multi-Provider Data Collector Pipeline
+### 📥 Data Collector
+The central ingestion engine. It periodically connects to the Electricity, Gas and Water provider endpoints (real servers or simulators), pulls reading batches, **validates and sanitizes** the payloads, and stores them in the unified database.
 
-The **Data Collector Service** acts as the central ingestion engine. It periodically connects to multiple external utility provider endpoints (Electricity, Water, and Gas provider servers / simulators), extracts reading batches, sanitizes & validates the payloads, and persists them into the **Unified Database**.
+### ⚙️ Microservices
 
-### ⚙️ 2. Core Microservices Suite (Shared DB Model)
-
-All microservices communicate through defined API contracts while reading/writing from the single source of truth database:
-
-* 🔑 **Auth Server (`User Core`):** User identity management, authentication, role-based access control, and account profile handling.
-* 📊 **Metrics Server (`Metrics`):** Reads utility readings (Electricity, Gas, Water) ingested by the Collector, calculates consumption tiers, and builds historical usage logs.
-* 🤖 **Forecast Server (`Forecast`):** Machine Learning microservice running predictive models against database historical data to estimate future consumption and bill projections.
-* 💳 **Wallet & Billing Server (`Payment`):** Instant online billing management integrated with **Stripe API** for secure digital payments.
-* 🔔 **Notification Server (`Alerts`):** Event-driven alerting framework powered by **Redis & BullMQ** for low-balance warnings, emergency notifications, and tier-threshold breach alerts.
+| Service | Folder | Responsibility |
+|---------|--------|----------------|
+| 🔑 **Auth** | `BE/AuthServer` | Identity management, authentication, role-based access control, user profiles. |
+| 📊 **Metrics** | `BE/MetricsServer` | Reads ingested utility data, calculates consumption tiers, builds historical usage logs. |
+| 🤖 **Forecast** | `BE/ForecastServer` | ML models that predict future consumption and bill amounts from historical data. |
+| 💳 **Wallet & Billing** | `BE/walletServer` | Digital wallet, invoicing, and secure payments through **Stripe**. |
+| 🔔 **Notifications** | `BE/notificationServer` | Event-driven alerts (low balance, usage spikes, tier breaches) using **Redis + BullMQ**. |
+| 🧪 **Mock Provider** | `BE/Electricity_Company_Fake_Server` | Simulated electricity provider API for development and testing. |
 
 ---
 
-## ✨ Key Features
+## ✨ Features
 
-* **Multi-Utility Dashboard:** Centralized real-time overview for Electricity, Gas, and Water meters.
-* **Automated Data Collector Engine:** Continuous background ingestion from multiple utility provider servers into a single unified database.
-* **AI/ML Usage & Bill Forecasting:** Predictive analytics that estimate next month’s consumption and expected cost before bill arrival.
-* **Dynamic Tier & Consumption Tracking:** Visual badges and progress indicators for national utility tariff tiers.
-* **Appliance-Level Insights:** Granular breakdown of individual device consumption patterns.
-* **Instant Online Payments:** One-click bill settlement via integrated digital wallet and Stripe payments.
-* **Proactive Emergency & Balance Alerts:** Automated notifications for critical balance drops or unusual usage spikes.
+- 📈 **Multi-utility dashboard**: one real-time view for electricity, gas and water meters.
+- 🔄 **Automated data ingestion**: continuous background collection from multiple providers.
+- 🤖 **ML forecasting**: estimates next month's consumption and expected cost before the bill arrives.
+- 🎯 **Tier tracking**: visual badges and progress indicators for national tariff tiers.
+- 🔌 **Appliance-level insights**: breakdown of individual device consumption.
+- 💸 **Instant payments**: one-click bill settlement via wallet and Stripe.
+- 🚨 **Proactive alerts**: automatic notifications for low balance and unusual usage spikes.
 
 ---
 
 ## 🛠️ Tech Stack
 
-| Domain | Technologies & Libraries |
-| --- | --- |
-| **Frontend** | React.js, Tailwind CSS / UI Component Framework, Chart.js / Recharts, Axios |
-| **Backend Microservices** | Node.js, Express.js, RESTful APIs, JWT Authentication |
+| Layer | Technologies |
+|-------|--------------|
+| **Frontend** | React.js, Tailwind CSS, Chart.js / Recharts, Axios |
+| **Backend** | Node.js, Express.js, REST APIs, JWT |
 | **Machine Learning** | Python, NumPy, Pandas, Scikit-Learn |
-| **Database & Caching** | Centralized MongoDB (Mongoose ORM), Redis |
-| **Message Queue & Async** | BullMQ |
-| **Payment Gateway** | Stripe API |
-| **DevOps & Infra** | Docker, Nginx, GitHub Actions CI/CD |
+| **Data** | MongoDB (Mongoose), Redis |
+| **Async / Queues** | BullMQ |
+| **Payments** | Stripe API |
+| **DevOps** | Docker, Nginx, GitHub Actions |
 
 ---
 
@@ -113,20 +123,19 @@ All microservices communicate through defined API contracts while reading/writin
 
 ```text
 Addadak/
-├── BE/                           # Backend Microservices Ecosystem
-│   ├── AuthServer/               # Authentication & User Management Service
-│   ├── ForecastServer/           # Python & Node ML Prediction Engine
-│   ├── MetricsServer/            # Utility Consumption & Meter Data Service
-│   ├── notificationServer/       # Redis-backed Alerting & Notification Service
-│   ├── walletServer/             # Billing, Invoicing & Stripe Integration
-│   ├── Data Collector/           # Multi-Provider Ingestion, Transformation & Schedulers
-│   └── Electricity_Company_Fake_Server/ # Mock External Utility Provider API
+├── BE/                                  # Backend ecosystem
+│   ├── AuthServer/                      # Authentication & user management
+│   ├── MetricsServer/                   # Consumption & meter data
+│   ├── ForecastServer/                  # ML prediction engine
+│   ├── walletServer/                    # Billing, invoicing, Stripe
+│   ├── notificationServer/              # Redis-backed alerts
+│   ├── Data Collector/                  # Multi-provider ingestion & schedulers
+│   └── Electricity_Company_Fake_Server/ # Mock provider API
 ├── FE/
-│   └── addadak/                  # React.js Single Page Application
-├── Paper Work/                   # Architecture diagrams, System Documentation
-├── logs/                         # Centralized System Error & Event Logs
+│   └── addadak/                         # React single-page app
+├── Paper Work/                          # Diagrams & documentation
+├── logs/                                # System error & event logs
 └── README.md
-
 ```
 
 ---
@@ -135,89 +144,112 @@ Addadak/
 
 ### Prerequisites
 
-Make sure you have the following installed on your local environment:
+- **Node.js** v18 or later
+- **Python** 3.9 or later (Forecast Server)
+- **MongoDB** (local instance or Atlas cluster)
+- **Redis** (notification queues)
+- **Docker & Docker Compose** *(optional)*
 
-* **Node.js** (v18.x or later)
-* **Python** (v3.9+ for ML Forecasting engine)
-* **MongoDB** (Single instance or MongoDB Atlas cluster)
-* **Redis Server** (For notification queues)
-* **Docker & Docker Compose** *(Optional, recommended)*
-
-### Local Installation & Setup
-
-1. **Clone the repository:**
+### 1. Clone the repository
 
 ```bash
-   git clone [https://github.com/your-username/Addadak.git](https://github.com/your-username/Addadak.git)
-   cd Addadak
-   
-
+git clone https://github.com/your-username/Addadak.git
+cd Addadak
 ```
 
-2. **Configure Environment Variables:**
-Create a `.env` file inside each microservice directory under `BE/` pointing to the single **MongoDB Connection String**, along with service-specific JWT secrets, Stripe Keys, and Redis Host.
-3. **Run Backend Microservices & Collector:**
-Navigate into each microservice directory and install dependencies:
+### 2. Configure environment variables
+
+Create a `.env` file inside **each** service folder under `BE/`. Example:
+
+```env
+# Shared
+MONGO_URI=mongodb://localhost:27017/addadak
+PORT=5000
+
+# Auth
+JWT_SECRET=change_me
+
+# Wallet
+STRIPE_SECRET_KEY=sk_test_xxx
+
+# Notifications
+REDIS_HOST=127.0.0.1
+REDIS_PORT=6379
+```
+
+> 🔒 Never commit `.env` files. Make sure they are listed in `.gitignore`.
+
+### 3. Run the backend
+
+Start each service in its own terminal:
 
 ```bash
-   # 1. Run Data Collector
-   cd BE/"Data Collector"
-   npm install
-   npm run dev
+# Data Collector
+cd "BE/Data Collector"
+npm install
+npm run dev
 
-   # 2. Run Services (Auth, Metrics, Wallet, Notification)
-   cd ../AuthServer
-   npm install
-   npm run dev
+# Auth, Metrics, Wallet, Notification (repeat for each)
+cd BE/AuthServer
+npm install
+npm run dev
 
-   # 3. For ML Forecast Server:
-   cd ../ForecastServer
-   pip install -r requirements.txt
-   python app.py
-   
-
+# Forecast Server (Python)
+cd BE/ForecastServer
+pip install -r requirements.txt
+python app.py
 ```
 
-4. **Run Frontend Application:**
+### 4. Run the frontend
 
 ```bash
-   cd FE/addadak
-   npm install
-   npm start
-   
-
+cd FE/addadak
+npm install
+npm start
 ```
 
-The dashboard will be available at `http://localhost:3000`.
+Open **http://localhost:3000** in your browser.
 
 ---
 
-## 🔮 Future Roadmap
+## 📸 Screenshots
 
-* [ ] **Direct Hardware Ingestion:** Direct MQTT telemetry protocols for physical IoT smart meters into the Data Collector.
-* [ ] **Cross-Platform Mobile Application:** React Native mobile client for iOS and Android.
-* [ ] **Unified Multi-Utility Bill Payment:** Single-transaction settlement across all three utilities simultaneously.
-* [ ] **Smart Tariff Optimizer:** AI recommendations to schedule heavy appliance usage during off-peak hours.
+> Add screenshots of your dashboard here.
 
----
-
-## 👥 Team & Acknowledgments
-
-### Project Team (Team Members)
-
-* **Abdelrahman Anter[Abdelrahman-Linkedin](https://github.com/abdalrhmananter-hub)** 
-* **Amira Hamada [Amira-Linkedin](https://github.com/AmiraDeef)**
-* **Maiar Emam [Maiar-Linkedin](https://github.com/maiar38)**
-* **Sarah Abdelsamie [Sara-Linkedin](https://github.com/sarahabdelsamie)**
-* **Toka Mamdouh [Toka-Linkedin](https://github.com/Toka999)** — *Founder & Team Leader*
-
-### Supervision & Host Institutions
-
-
-* **Affiliation:** National Telecommunication Institute (**NTI**) - DiGilians Program | Ministry of Communications and Information Technology (**MCIT**) | Egyptian Military Academy
+| Dashboard | Forecast | Wallet |
+|-----------|----------|--------|
+| ![Dashboard](docs/dashboard.png) | ![Forecast](docs/forecast.png) | ![Wallet](docs/wallet.png) |
 
 ---
 
-<sub>Built with ❤️ by the Addadak Team. Distributed under the MIT License.</sub>
+## 🔮 Roadmap
 
+- [ ] **IoT ingestion**: direct MQTT telemetry from physical smart meters into the Data Collector
+- [ ] **Mobile app**: React Native client for iOS and Android
+- [ ] **Unified bill payment**: pay all three utilities in a single transaction
+- [ ] **Smart tariff optimizer**: AI suggestions to shift heavy appliance use to off-peak hours
 
+---
+
+## 👥 Team
+
+| Member | Role | GitHub |
+|--------|------|--------|
+| **Abdelrahman Anter** | Team Member | [@abdalrhmananter-hub](https://github.com/abdalrhmananter-hub) |
+| **Amira Hamada** | Team Member | [@AmiraDeef](https://github.com/AmiraDeef) |
+| **Maiar Emam** | Team Member | [@maiar38](https://github.com/maiar38) |
+| **Sarah Abdelsamie** | Team Member | [@sarahabdelsamie](https://github.com/sarahabdelsamie) |
+| **Toka Mamdouh** | Founder & Team Leader | [@Toka999](https://github.com/Toka999) |
+### 🏛️ Supervision & Host Institutions
+
+**National Telecommunication Institute (NTI)** · DiGilians Program · **Ministry of Communications and Information Technology (MCIT)** · Egyptian Military Academy
+
+---
+
+## 📄 License
+
+Distributed under the **MIT License**. See `LICENSE` for details.
+
+<div align="center">
+<sub>Built with ❤️ by the Addadak Team</sub>
+</div>
