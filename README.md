@@ -218,8 +218,6 @@ Open **http://localhost:3000** in your browser.
 
 ## 🎬 Demo
 
-## 🎬 Demo
-
 <div align="center">
 
 <video src="https://github.com/user-attachments/assets/487c93c6-6284-44a7-adcd-f6b4d3a01aab" controls muted width="100%"></video>
