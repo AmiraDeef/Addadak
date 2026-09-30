@@ -220,7 +220,7 @@ Open **http://localhost:3000** in your browser.
 
 </div>
 
-> If the player does not load in your viewer, [click here to watch the demo](Addadak-Demo.mp4).
+> If the player does not load in your viewer, [click here to watch the demo](./Addadak-Demo.mp4).
 
 ---
 
