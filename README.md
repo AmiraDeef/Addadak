@@ -214,13 +214,15 @@ Open **http://localhost:3000** in your browser.
 
 ## 🎬 Demo
 
+## 🎬 Demo
+
 <div align="center">
 
-<video src="Addadak-Demo.mp4" controls muted width="100%"></video>
+<video src="https://github.com/user-attachments/assets/487c93c6-6284-44a7-adcd-f6b4d3a01aab" controls muted width="100%"></video>
 
 </div>
 
-> If the player does not load in your viewer, [click here to watch the demo](./Addadak-Demo.mp4).
+> If the player does not load in your viewer, [click here to watch the demo]([./Addadak-Demo.mp4](https://github.com/user-attachments/assets/487c93c6-6284-44a7-adcd-f6b4d3a01aab).
 
 ---
 
@@ -237,11 +239,11 @@ Open **http://localhost:3000** in your browser.
 
 | Member | Role | GitHub |
 |--------|------|--------|
-| **Toka Mamdouh** | Founder & Team Leader | [@Toka999](https://github.com/Toka999) |
 | **Abdelrahman Anter** | Team Member | [@abdalrhmananter-hub](https://github.com/abdalrhmananter-hub) |
 | **Amira Hamada** | Team Member | [@AmiraDeef](https://github.com/AmiraDeef) |
 | **Maiar Emam** | Team Member | [@maiar38](https://github.com/maiar38) |
 | **Sarah Abdelsamie** | Team Member | [@sarahabdelsamie](https://github.com/sarahabdelsamie) |
+| **Toka Mamdouh** | Founder & Team Leader | [@Toka999](https://github.com/Toka999) |
 
 ### 🏛️ Supervision & Host Institutions
 
